@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Game Admin Panel</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  padding: 20px;
+}
+
+h2 {
+  background: #222;
+  color: #fff;
+  padding: 10px;
+}
+
+section {
+  background: #fff;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+}
+
+input, select, button, textarea {
+  width: 100%;
+  padding: 8px;
+  margin: 5px 0;
+}
+
+button {
+  background: #222;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+</style>
+</head>
+<body>
+
+<h1>📋 Game Admin Panel</h1>
+
+<!-- ================= SUPABASE CONFIG ================= -->
+<script>
+const supabase = window.supabase.createClient(
+  "https://ncdvjkdhczfegwxcdhhz.supabase.co",
+  "sb_publishable_M5ocjopAxTiGQYjeRIEBDg_8fWEi4Ww"
+);
+</script>
+
+<!-- ================= MONSTERS ================= -->
+<section>
+<h2>👹 Monsters</h2>
+<input id="m_name" placeholder="Name">
+<input id="m_stage" type="number" placeholder="Stage">
+<input id="m_hp" type="number" placeholder="HP">
+<input id="m_damage" type="number" placeholder="Damage">
+<input id="m_defense" type="number" placeholder="Defense">
+<input id="m_timer" type="number" placeholder="Timer (seconds)">
+<input id="m_category" placeholder="Category">
+<input id="m_image" placeholder="Image URL">
+<button onclick="addMonster()">Add Monster</button>
+</section>
+
+<!-- ================= EQUIPMENT ================= -->
+<section>
+<h2>🧱 Equipment</h2>
+<input id="e_name" placeholder="Name">
+<select id="e_slot">
+  <option>helmet</option>
+  <option>chestplate</option>
+  <option>leggings</option>
+  <option>boots</option>
+  <option>weapon</option>
+  <option>shield</option>
+</select>
+<select id="e_rarity">
+  <option>common</option>
+  <option>uncommon</option>
+  <option>rare</option>
+  <option>epic</option>
+  <option>legendary</option>
+</select>
+<input id="e_damage" type="number" placeholder="Damage">
+<input id="e_defense" type="number" placeholder="Defense">
+<input id="e_crit" type="number" placeholder="Crit Bonus %">
+<input id="e_image" placeholder="Image URL">
+<button onclick="addEquipment()">Add Equipment</button>
+</section>
+
+<!-- ================= QUESTIONS ================= -->
+<section>
+<h2>❓ Questions</h2>
+<input id="q_category" placeholder="Category">
+<input id="q_difficulty" placeholder="Difficulty">
+<textarea id="q_text" placeholder="Question text"></textarea>
+<input id="q_image" placeholder="Image URL (optional)">
+<button onclick="addQuestion()">Add Question</button>
+</section>
+
+<!-- ================= QUESTION OPTIONS ================= -->
+<section>
+<h2>🅰 Question Options</h2>
+<input id="o_question_id" placeholder="Question ID">
+<input id="o_text" placeholder="Option Text">
+<input id="o_image" placeholder="Image URL (optional)">
+<select id="o_correct">
+  <option value="false">False</option>
+  <option value="true">True</option>
+</select>
+<button onclick="addOption()">Add Option</button>
+</section>
+
+<!-- ================= GACHA BANNERS ================= -->
+<section>
+<h2>🎲 Gacha Banner</h2>
+<input id="g_name" placeholder="Banner Name">
+<input id="g_cost" type="number" placeholder="Cost">
+<button onclick="addBanner()">Add Banner</button>
+</section>
+
+<!-- ================= GACHA RATES ================= -->
+<section>
+<h2>📊 Gacha Rates</h2>
+<input id="gr_banner" placeholder="Banner ID">
+<select id="gr_rarity">
+  <option>common</option>
+  <option>uncommon</option>
+  <option>rare</option>
+  <option>epic</option>
+  <option>legendary</option>
+</select>
+<input id="gr_chance" type="number" placeholder="Chance %">
+<button onclick="addRate()">Add Rate</button>
+</section>
+
+<script>
+async function addMonster() {
+  await supabase.from("monsters").insert({
+    name: m_name.value,
+    stage: m_stage.value,
+    hp: m_hp.value,
+    damage: m_damage.value,
+    defense: m_defense.value,
+    timer_seconds: m_timer.value,
+    category: m_category.value,
+    image_url: m_image.value || null
+  });
+  alert("Monster added");
+}
+
+async function addEquipment() {
+  await supabase.from("equipment").insert({
+    name: e_name.value,
+    slot: e_slot.value,
+    rarity: e_rarity.value,
+    damage: e_damage.value,
+    defense: e_defense.value,
+    crit_bonus: e_crit.value,
+    image_url: e_image.value || null
+  });
+  alert("Equipment added");
+}
+
+async function addQuestion() {
+  await supabase.from("questions").insert({
+    category: q_category.value,
+    difficulty: q_difficulty.value,
+    question_text: q_text.value,
+    image_url: q_image.value || null
+  });
+  alert("Question added");
+}
+
+async function addOption() {
+  await supabase.from("question_options").insert({
+    question_id: o_question_id.value,
+    option_text: o_text.value,
+    image_url: o_image.value || null,
+    is_correct: o_correct.value === "true"
+  });
+  alert("Option added");
+}
+
+async function addBanner() {
+  await supabase.from("gacha_banners").insert({
+    name: g_name.value,
+    cost: g_cost.value
+  });
+  alert("Banner added");
+}
+
+async function addRate() {
+  await supabase.from("gacha_rates").insert({
+    banner_id: gr_banner.value,
+    rarity: gr_rarity.value,
+    chance: gr_chance.value
+  });
+  alert("Rate added");
+}
+</script>
+
+</body>
+</html>

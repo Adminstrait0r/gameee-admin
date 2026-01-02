@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Game Admin Panel</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  padding: 20px;
+}
+
+h2 {
+  background: #222;
+  color: #fff;
+  padding: 10px;
+}
+
+section {
+  background: #fff;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+}
+
+input, textarea, select, button {
+  width: 100%;
+  padding: 6px;
+  margin: 4px 0;
+}
+
+button {
+  background: #222;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button.delete {
+  background: #c0392b;
+}
+
+.item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 4px;
+}
+
+img {
+  max-width: 120px;
+  display: block;
+  margin-top: 5px;
+}
+</style>
+</head>
+<body>
+
+<h1>🛠 GAME ADMIN PANEL</h1>
+
+<script>
+const supabase = window.supabase.createClient(
+  "https://ncdvjkdhczfegwxcdhhz.supabase.co",
+  "sb_publishable_M5ocjopAxTiGQYjeRIEBDg_8fWEi4Ww"
+);
+</script>
+
+<!-- ================= MONSTERS ================= -->
+<section>
+<h2>👹 Monsters</h2>
+<input id="m_search" placeholder="Search monster..." oninput="loadMonsters()">
+<div id="monsters"></div>
+</section>
+
+<!-- ================= EQUIPMENT ================= -->
+<section>
+<h2>🧱 Equipment</h2>
+<div id="equipment"></div>
+</section>
+
+<!-- ================= QUESTIONS ================= -->
+<section>
+<h2>❓ Questions</h2>
+<div id="questions"></div>
+</section>
+
+<!-- ================= OPTIONS ================= -->
+<section>
+<h2>🅰 Question Options</h2>
+<select id="option_question"></select>
+<input id="opt_text" placeholder="Option text">
+<input id="opt_image" placeholder="Image URL">
+<select id="opt_correct">
+  <option value="false">False</option>
+  <option value="true">True</option>
+</select>
+<button onclick="addOption()">Add Option</button>
+<div id="options"></div>
+</section>
+
+<!-- ================= GACHA ================= -->
+<section>
+<h2>🎲 Gacha Banners</h2>
+<div id="banners"></div>
+</section>
+
+<section>
+<h2>📊 Gacha Rates</h2>
+<select id="rate_banner"></select>
+<select id="rate_rarity">
+  <option>common</option>
+  <option>uncommon</option>
+  <option>rare</option>
+  <option>epic</option>
+  <option>legendary</option>
+</select>
+<input id="rate_chance" type="number" placeholder="Chance %">
+<button onclick="addRate()">Add Rate</button>
+<div id="rates"></div>
+</section>
+
+<script>
+loadAll();
+
+async function loadAll() {
+  loadMonsters();
+  loadEquipment();
+  loadQuestions();
+  loadOptions();
+  loadBanners();
+}
+
+/* ================= MONSTERS ================= */
+async function loadMonsters() {
+  const q = m_search.value || "";
+  const { data } = await supabase
+    .from("monsters")
+    .select("*")
+    .ilike("name", `%${q}%`);
+
+  monsters.innerHTML = data.map(m => `
+    <div class="item">
+      <input value="${m.name}" onchange="updateMonster('${m.id}',this.value,'name')">
+      <input type="number" value="${m.stage}" onchange="updateMonster('${m.id}',this.value,'stage')">
+      <input type="number" value="${m.hp}" onchange="updateMonster('${m.id}',this.value,'hp')">
+      <input type="number" value="${m.damage}" onchange="updateMonster('${m.id}',this.value,'damage')">
+      <input value="${m.image_url||""}" onchange="updateMonster('${m.id}',this.value,'image_url')">
+      ${m.image_url?`<img src="${m.image_url}">`:""}
+      <button class="delete" onclick="deleteRow('monsters','${m.id}',loadMonsters)">Delete</button>
+    </div>
+  `).join("");
+}
+
+async function updateMonster(id,val,col){
+  await supabase.from("monsters").update({[col]:val}).eq("id",id);
+}
+
+/* ================= EQUIPMENT ================= */
+async function loadEquipment(){
+  const {data}=await supabase.from("equipment").select("*");
+  equipment.innerHTML=data.map(e=>`
+    <div class="item">
+      <input value="${e.name}" onchange="upd('equipment','name','${e.id}',this.value)">
+      <select onchange="upd('equipment','slot','${e.id}',this.value)">
+        ${["helmet","chestplate","leggings","boots","weapon","shield"].map(s=>`<option ${e.slot===s?"selected":""}>${s}</option>`)}
+      </select>
+      <input value="${e.image_url||""}" onchange="upd('equipment','image_url','${e.id}',this.value)">
+      ${e.image_url?`<img src="${e.image_url}">`:""}
+      <button class="delete" onclick="deleteRow('equipment','${e.id}',loadEquipment)">Delete</button>
+    </div>
+  `).join("");
+}
+
+/* ================= QUESTIONS ================= */
+async function loadQuestions(){
+  const {data}=await supabase.from("questions").select("*");
+  questions.innerHTML=data.map(q=>`
+    <div class="item">
+      <textarea onchange="upd('questions','question_text','${q.id}',this.value)">${q.question_text}</textarea>
+      <input value="${q.image_url||""}" onchange="upd('questions','image_url','${q.id}',this.value)">
+      ${q.image_url?`<img src="${q.image_url}">`:""}
+      <button class="delete" onclick="deleteRow('questions','${q.id}',loadQuestions)">Delete</button>
+    </div>
+  `).join("");
+
+  option_question.innerHTML = data.map(q=>`<option value="${q.id}">${q.question_text.slice(0,40)}</option>`).join("");
+}
+
+/* ================= OPTIONS ================= */
+async function loadOptions(){
+  const {data}=await supabase.from("question_options").select("*");
+  options.innerHTML=data.map(o=>`
+    <div class="item">
+      ${o.option_text}
+      ${o.image_url?`<img src="${o.image_url}">`:""}
+      <button class="delete" onclick="deleteRow('question_options','${o.id}',loadOptions)">Delete</button>
+    </div>
+  `).join("");
+}
+
+async function addOption(){
+  await supabase.from("question_options").insert({
+    question_id: option_question.value,
+    option_text: opt_text.value,
+    image_url: opt_image.value||null,
+    is_correct: opt_correct.value==="true"
+  });
+  loadOptions();
+}
+
+/* ================= GACHA ================= */
+async function loadBanners(){
+  const {data}=await supabase.from("gacha_banners").select("*");
+  banners.innerHTML=data.map(b=>`
+    <div class="item">
+      <input value="${b.name}" onchange="upd('gacha_banners','name','${b.id}',this.value)">
+      <input type="number" value="${b.cost}" onchange="upd('gacha_banners','cost','${b.id}',this.value)">
+      <button class="delete" onclick="deleteRow('gacha_banners','${b.id}',loadBanners)">Delete</button>
+    </div>
+  `).join("");
+
+  rate_banner.innerHTML=data.map(b=>`<option value="${b.id}">${b.name}</option>`).join("");
+}
+
+async function addRate(){
+  await supabase.from("gacha_rates").insert({
+    banner_id: rate_banner.value,
+    rarity: rate_rarity.value,
+    chance: rate_chance.value
+  });
+  loadRates();
+}
+
+/* ================= HELPERS ================= */
+async function upd(table,col,id,val){
+  await supabase.from(table).update({[col]:val}).eq("id",id);
+}
+
+async function deleteRow(table,id,cb){
+  if(!confirm("Delete?"))return;
+  await supabase.from(table).delete().eq("id",id);
+  cb();
+}
+</script>
+
+</body>
+</html>
