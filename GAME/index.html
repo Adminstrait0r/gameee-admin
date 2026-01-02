@@ -2,211 +2,593 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Game Admin Panel</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #333;
+  min-height: 100vh;
   padding: 20px;
 }
 
-h2 {
-  background: #222;
-  color: #fff;
-  padding: 10px;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-section {
-  background: #fff;
-  padding: 15px;
-  margin-bottom: 20px;
-  border-radius: 6px;
+header {
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-input, select, button, textarea {
+header h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 2rem;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.section {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.section:hover {
+  transform: translateY(-5px);
+}
+
+.section h2 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px;
+  margin: -25px -25px 20px -25px;
+  border-radius: 10px 10px 0 0;
+  font-size: 1.3rem;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #555;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
   width: 100%;
-  padding: 8px;
-  margin: 5px 0;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+  outline: none;
+  border-color: #667eea;
 }
 
 button {
-  background: #222;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
+  padding: 12px 24px;
+  border-radius: 5px;
   cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  width: 100%;
+  transition: all 0.3s ease;
+  margin-top: 10px;
 }
 
-.row {
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.status-message {
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 15px;
+  text-align: center;
+  font-weight: 500;
+  display: none;
+}
+
+.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.horizontal-group {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+footer {
+  text-align: center;
+  color: white;
+  margin-top: 40px;
+  padding: 20px;
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .horizontal-group {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 </head>
 <body>
+<div class="container">
+  <header>
+    <h1>🎮 Game Admin Panel</h1>
+    <p>Manage game content efficiently</p>
+  </header>
 
-<h1>📋 Game Admin Panel</h1>
+  <div class="main-grid">
+    <!-- Monsters Section -->
+    <section class="section">
+      <h2>👹 Monsters</h2>
+      <div class="input-group">
+        <label for="m_name">Name</label>
+        <input id="m_name" placeholder="Dragon, Goblin, etc.">
+      </div>
+      <div class="horizontal-group">
+        <div class="input-group">
+          <label for="m_stage">Stage</label>
+          <input id="m_stage" type="number" min="1" placeholder="1">
+        </div>
+        <div class="input-group">
+          <label for="m_hp">HP</label>
+          <input id="m_hp" type="number" min="1" placeholder="100">
+        </div>
+      </div>
+      <div class="horizontal-group">
+        <div class="input-group">
+          <label for="m_damage">Damage</label>
+          <input id="m_damage" type="number" min="0" placeholder="10">
+        </div>
+        <div class="input-group">
+          <label for="m_defense">Defense</label>
+          <input id="m_defense" type="number" min="0" placeholder="5">
+        </div>
+      </div>
+      <div class="input-group">
+        <label for="m_timer">Timer (seconds)</label>
+        <input id="m_timer" type="number" min="1" placeholder="60">
+      </div>
+      <div class="input-group">
+        <label for="m_category">Category</label>
+        <input id="m_category" placeholder="Boss, Elite, Common">
+      </div>
+      <div class="input-group">
+        <label for="m_image">Image URL</label>
+        <input id="m_image" placeholder="https://example.com/image.png">
+      </div>
+      <button onclick="addMonster()">Add Monster</button>
+      <div id="monster-status" class="status-message"></div>
+    </section>
 
-<!-- ================= SUPABASE CONFIG ================= -->
+    <!-- Equipment Section -->
+    <section class="section">
+      <h2>⚔️ Equipment</h2>
+      <div class="input-group">
+        <label for="e_name">Name</label>
+        <input id="e_name" placeholder="Sword of Truth, etc.">
+      </div>
+      <div class="horizontal-group">
+        <div class="input-group">
+          <label for="e_slot">Slot</label>
+          <select id="e_slot">
+            <option value="helmet">Helmet</option>
+            <option value="chestplate">Chestplate</option>
+            <option value="leggings">Leggings</option>
+            <option value="boots">Boots</option>
+            <option value="weapon">Weapon</option>
+            <option value="shield">Shield</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="e_rarity">Rarity</label>
+          <select id="e_rarity">
+            <option value="common">Common</option>
+            <option value="uncommon">Uncommon</option>
+            <option value="rare">Rare</option>
+            <option value="epic">Epic</option>
+            <option value="legendary">Legendary</option>
+          </select>
+        </div>
+      </div>
+      <div class="horizontal-group">
+        <div class="input-group">
+          <label for="e_damage">Damage</label>
+          <input id="e_damage" type="number" min="0" placeholder="15">
+        </div>
+        <div class="input-group">
+          <label for="e_defense">Defense</label>
+          <input id="e_defense" type="number" min="0" placeholder="8">
+        </div>
+      </div>
+      <div class="input-group">
+        <label for="e_crit">Crit Bonus %</label>
+        <input id="e_crit" type="number" min="0" max="100" step="0.1" placeholder="5.0">
+      </div>
+      <div class="input-group">
+        <label for="e_image">Image URL</label>
+        <input id="e_image" placeholder="https://example.com/weapon.png">
+      </div>
+      <button onclick="addEquipment()">Add Equipment</button>
+      <div id="equipment-status" class="status-message"></div>
+    </section>
+
+    <!-- Questions Section -->
+    <section class="section">
+      <h2>❓ Questions</h2>
+      <div class="horizontal-group">
+        <div class="input-group">
+          <label for="q_category">Category</label>
+          <input id="q_category" placeholder="Math, Science, etc.">
+        </div>
+        <div class="input-group">
+          <label for="q_difficulty">Difficulty</label>
+          <select id="q_difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group">
+        <label for="q_text">Question Text</label>
+        <textarea id="q_text" rows="3" placeholder="Enter your question here..."></textarea>
+      </div>
+      <div class="input-group">
+        <label for="q_image">Image URL (optional)</label>
+        <input id="q_image" placeholder="https://example.com/question.png">
+      </div>
+      <button onclick="addQuestion()">Add Question</button>
+      <div id="question-status" class="status-message"></div>
+    </section>
+
+    <!-- Question Options Section -->
+    <section class="section">
+      <h2>🅰️ Question Options</h2>
+      <div class="input-group">
+        <label for="o_question_id">Question ID</label>
+        <input id="o_question_id" type="number" min="1" placeholder="Enter question ID">
+      </div>
+      <div class="input-group">
+        <label for="o_text">Option Text</label>
+        <textarea id="o_text" rows="2" placeholder="Enter option text"></textarea>
+      </div>
+      <div class="input-group">
+        <label for="o_image">Image URL (optional)</label>
+        <input id="o_image" placeholder="https://example.com/option.png">
+      </div>
+      <div class="input-group">
+        <label for="o_correct">Is Correct?</label>
+        <select id="o_correct">
+          <option value="false">False</option>
+          <option value="true">True</option>
+        </select>
+      </div>
+      <button onclick="addOption()">Add Option</button>
+      <div id="option-status" class="status-message"></div>
+    </section>
+
+    <!-- Gacha Banners Section -->
+    <section class="section">
+      <h2>🎲 Gacha Banner</h2>
+      <div class="input-group">
+        <label for="g_name">Banner Name</label>
+        <input id="g_name" placeholder="Summer Special, Legendary Banner">
+      </div>
+      <div class="input-group">
+        <label for="g_cost">Cost (in-game currency)</label>
+        <input id="g_cost" type="number" min="1" placeholder="100">
+      </div>
+      <button onclick="addBanner()">Add Banner</button>
+      <div id="banner-status" class="status-message"></div>
+    </section>
+
+    <!-- Gacha Rates Section -->
+    <section class="section">
+      <h2>📊 Gacha Rates</h2>
+      <div class="input-group">
+        <label for="gr_banner">Banner ID</label>
+        <input id="gr_banner" type="number" min="1" placeholder="Enter banner ID">
+      </div>
+      <div class="horizontal-group">
+        <div class="input-group">
+          <label for="gr_rarity">Rarity</label>
+          <select id="gr_rarity">
+            <option value="common">Common</option>
+            <option value="uncommon">Uncommon</option>
+            <option value="rare">Rare</option>
+            <option value="epic">Epic</option>
+            <option value="legendary">Legendary</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="gr_chance">Chance %</label>
+          <input id="gr_chance" type="number" min="0" max="100" step="0.1" placeholder="50.0">
+        </div>
+      </div>
+      <button onclick="addRate()">Add Rate</button>
+      <div id="rate-status" class="status-message"></div>
+    </section>
+  </div>
+
+  <footer>
+    <p>Game Admin Panel v1.0 | All changes are saved to the database</p>
+  </footer>
+</div>
+
 <script>
+// Initialize Supabase client
 const supabase = window.supabase.createClient(
   "https://ncdvjkdhczfegwxcdhhz.supabase.co",
   "sb_publishable_M5ocjopAxTiGQYjeRIEBDg_8fWEi4Ww"
 );
-</script>
 
-<!-- ================= MONSTERS ================= -->
-<section>
-<h2>👹 Monsters</h2>
-<input id="m_name" placeholder="Name">
-<input id="m_stage" type="number" placeholder="Stage">
-<input id="m_hp" type="number" placeholder="HP">
-<input id="m_damage" type="number" placeholder="Damage">
-<input id="m_defense" type="number" placeholder="Defense">
-<input id="m_timer" type="number" placeholder="Timer (seconds)">
-<input id="m_category" placeholder="Category">
-<input id="m_image" placeholder="Image URL">
-<button onclick="addMonster()">Add Monster</button>
-</section>
+// Show status message
+function showStatus(elementId, message, isError = false) {
+  const element = document.getElementById(elementId);
+  element.textContent = message;
+  element.className = `status-message ${isError ? 'error' : 'success'}`;
+  element.style.display = 'block';
+  
+  setTimeout(() => {
+    element.style.display = 'none';
+  }, 5000);
+}
 
-<!-- ================= EQUIPMENT ================= -->
-<section>
-<h2>🧱 Equipment</h2>
-<input id="e_name" placeholder="Name">
-<select id="e_slot">
-  <option>helmet</option>
-  <option>chestplate</option>
-  <option>leggings</option>
-  <option>boots</option>
-  <option>weapon</option>
-  <option>shield</option>
-</select>
-<select id="e_rarity">
-  <option>common</option>
-  <option>uncommon</option>
-  <option>rare</option>
-  <option>epic</option>
-  <option>legendary</option>
-</select>
-<input id="e_damage" type="number" placeholder="Damage">
-<input id="e_defense" type="number" placeholder="Defense">
-<input id="e_crit" type="number" placeholder="Crit Bonus %">
-<input id="e_image" placeholder="Image URL">
-<button onclick="addEquipment()">Add Equipment</button>
-</section>
-
-<!-- ================= QUESTIONS ================= -->
-<section>
-<h2>❓ Questions</h2>
-<input id="q_category" placeholder="Category">
-<input id="q_difficulty" placeholder="Difficulty">
-<textarea id="q_text" placeholder="Question text"></textarea>
-<input id="q_image" placeholder="Image URL (optional)">
-<button onclick="addQuestion()">Add Question</button>
-</section>
-
-<!-- ================= QUESTION OPTIONS ================= -->
-<section>
-<h2>🅰 Question Options</h2>
-<input id="o_question_id" placeholder="Question ID">
-<input id="o_text" placeholder="Option Text">
-<input id="o_image" placeholder="Image URL (optional)">
-<select id="o_correct">
-  <option value="false">False</option>
-  <option value="true">True</option>
-</select>
-<button onclick="addOption()">Add Option</button>
-</section>
-
-<!-- ================= GACHA BANNERS ================= -->
-<section>
-<h2>🎲 Gacha Banner</h2>
-<input id="g_name" placeholder="Banner Name">
-<input id="g_cost" type="number" placeholder="Cost">
-<button onclick="addBanner()">Add Banner</button>
-</section>
-
-<!-- ================= GACHA RATES ================= -->
-<section>
-<h2>📊 Gacha Rates</h2>
-<input id="gr_banner" placeholder="Banner ID">
-<select id="gr_rarity">
-  <option>common</option>
-  <option>uncommon</option>
-  <option>rare</option>
-  <option>epic</option>
-  <option>legendary</option>
-</select>
-<input id="gr_chance" type="number" placeholder="Chance %">
-<button onclick="addRate()">Add Rate</button>
-</section>
-
-<script>
-async function addMonster() {
-  await supabase.from("monsters").insert({
-    name: m_name.value,
-    stage: m_stage.value,
-    hp: m_hp.value,
-    damage: m_damage.value,
-    defense: m_defense.value,
-    timer_seconds: m_timer.value,
-    category: m_category.value,
-    image_url: m_image.value || null
+// Clear form fields
+function clearFields(fieldIds) {
+  fieldIds.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      if (element.tagName === 'SELECT') {
+        element.selectedIndex = 0;
+      } else {
+        element.value = '';
+      }
+    }
   });
-  alert("Monster added");
+}
+
+// Validate required fields
+function validateRequired(fieldIds) {
+  for (const id of fieldIds) {
+    const element = document.getElementById(id);
+    if (element && !element.value.trim()) {
+      element.style.borderColor = 'red';
+      setTimeout(() => {
+        element.style.borderColor = '#ddd';
+      }, 3000);
+      return false;
+    }
+  }
+  return true;
+}
+
+async function addMonster() {
+  const required = ['m_name', 'm_stage', 'm_hp', 'm_damage', 'm_defense', 'm_timer'];
+  if (!validateRequired(required)) {
+    showStatus('monster-status', 'Please fill all required fields', true);
+    return;
+  }
+
+  try {
+    const { error } = await supabase.from("monsters").insert({
+      name: document.getElementById('m_name').value,
+      stage: parseInt(document.getElementById('m_stage').value),
+      hp: parseInt(document.getElementById('m_hp').value),
+      damage: parseInt(document.getElementById('m_damage').value),
+      defense: parseInt(document.getElementById('m_defense').value),
+      timer_seconds: parseInt(document.getElementById('m_timer').value),
+      category: document.getElementById('m_category').value || null,
+      image_url: document.getElementById('m_image').value || null
+    });
+
+    if (error) throw error;
+    
+    showStatus('monster-status', '✅ Monster added successfully!');
+    clearFields(['m_name', 'm_stage', 'm_hp', 'm_damage', 'm_defense', 'm_timer', 'm_category', 'm_image']);
+  } catch (error) {
+    console.error('Error adding monster:', error);
+    showStatus('monster-status', `❌ Error: ${error.message}`, true);
+  }
 }
 
 async function addEquipment() {
-  await supabase.from("equipment").insert({
-    name: e_name.value,
-    slot: e_slot.value,
-    rarity: e_rarity.value,
-    damage: e_damage.value,
-    defense: e_defense.value,
-    crit_bonus: e_crit.value,
-    image_url: e_image.value || null
-  });
-  alert("Equipment added");
+  const required = ['e_name', 'e_damage', 'e_defense', 'e_crit'];
+  if (!validateRequired(required)) {
+    showStatus('equipment-status', 'Please fill all required fields', true);
+    return;
+  }
+
+  try {
+    const { error } = await supabase.from("equipment").insert({
+      name: document.getElementById('e_name').value,
+      slot: document.getElementById('e_slot').value,
+      rarity: document.getElementById('e_rarity').value,
+      damage: parseInt(document.getElementById('e_damage').value) || 0,
+      defense: parseInt(document.getElementById('e_defense').value) || 0,
+      crit_bonus: parseFloat(document.getElementById('e_crit').value) || 0,
+      image_url: document.getElementById('e_image').value || null
+    });
+
+    if (error) throw error;
+    
+    showStatus('equipment-status', '✅ Equipment added successfully!');
+    clearFields(['e_name', 'e_damage', 'e_defense', 'e_crit', 'e_image']);
+  } catch (error) {
+    console.error('Error adding equipment:', error);
+    showStatus('equipment-status', `❌ Error: ${error.message}`, true);
+  }
 }
 
 async function addQuestion() {
-  await supabase.from("questions").insert({
-    category: q_category.value,
-    difficulty: q_difficulty.value,
-    question_text: q_text.value,
-    image_url: q_image.value || null
-  });
-  alert("Question added");
+  const required = ['q_category', 'q_text'];
+  if (!validateRequired(required)) {
+    showStatus('question-status', 'Please fill all required fields', true);
+    return;
+  }
+
+  try {
+    const { error } = await supabase.from("questions").insert({
+      category: document.getElementById('q_category').value,
+      difficulty: document.getElementById('q_difficulty').value,
+      question_text: document.getElementById('q_text').value,
+      image_url: document.getElementById('q_image').value || null
+    });
+
+    if (error) throw error;
+    
+    showStatus('question-status', '✅ Question added successfully!');
+    clearFields(['q_category', 'q_text', 'q_image']);
+  } catch (error) {
+    console.error('Error adding question:', error);
+    showStatus('question-status', `❌ Error: ${error.message}`, true);
+  }
 }
 
 async function addOption() {
-  await supabase.from("question_options").insert({
-    question_id: o_question_id.value,
-    option_text: o_text.value,
-    image_url: o_image.value || null,
-    is_correct: o_correct.value === "true"
-  });
-  alert("Option added");
+  const required = ['o_question_id', 'o_text'];
+  if (!validateRequired(required)) {
+    showStatus('option-status', 'Please fill all required fields', true);
+    return;
+  }
+
+  try {
+    const { error } = await supabase.from("question_options").insert({
+      question_id: parseInt(document.getElementById('o_question_id').value),
+      option_text: document.getElementById('o_text').value,
+      image_url: document.getElementById('o_image').value || null,
+      is_correct: document.getElementById('o_correct').value === "true"
+    });
+
+    if (error) throw error;
+    
+    showStatus('option-status', '✅ Option added successfully!');
+    clearFields(['o_question_id', 'o_text', 'o_image']);
+    document.getElementById('o_correct').selectedIndex = 0;
+  } catch (error) {
+    console.error('Error adding option:', error);
+    showStatus('option-status', `❌ Error: ${error.message}`, true);
+  }
 }
 
 async function addBanner() {
-  await supabase.from("gacha_banners").insert({
-    name: g_name.value,
-    cost: g_cost.value
-  });
-  alert("Banner added");
+  const required = ['g_name', 'g_cost'];
+  if (!validateRequired(required)) {
+    showStatus('banner-status', 'Please fill all required fields', true);
+    return;
+  }
+
+  try {
+    const { error } = await supabase.from("gacha_banners").insert({
+      name: document.getElementById('g_name').value,
+      cost: parseInt(document.getElementById('g_cost').value)
+    });
+
+    if (error) throw error;
+    
+    showStatus('banner-status', '✅ Banner added successfully!');
+    clearFields(['g_name', 'g_cost']);
+  } catch (error) {
+    console.error('Error adding banner:', error);
+    showStatus('banner-status', `❌ Error: ${error.message}`, true);
+  }
 }
 
 async function addRate() {
-  await supabase.from("gacha_rates").insert({
-    banner_id: gr_banner.value,
-    rarity: gr_rarity.value,
-    chance: gr_chance.value
-  });
-  alert("Rate added");
-}
-</script>
+  const required = ['gr_banner', 'gr_chance'];
+  if (!validateRequired(required)) {
+    showStatus('rate-status', 'Please fill all required fields', true);
+    return;
+  }
 
+  try {
+    const { error } = await supabase.from("gacha_rates").insert({
+      banner_id: parseInt(document.getElementById('gr_banner').value),
+      rarity: document.getElementById('gr_rarity').value,
+      chance: parseFloat(document.getElementById('gr_chance').value)
+    });
+
+    if (error) throw error;
+    
+    showStatus('rate-status', '✅ Rate added successfully!');
+    clearFields(['gr_banner', 'gr_chance']);
+    document.getElementById('gr_rarity').selectedIndex = 0;
+  } catch (error) {
+    console.error('Error adding rate:', error);
+    showStatus('rate-status', `❌ Error: ${error.message}`, true);
+  }
+}
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    // Find which section has focus
+    const activeElement = document.activeElement;
+    const section = activeElement.closest('.section');
+    if (section) {
+      const button = section.querySelector('button');
+      if (button) button.click();
+    }
+  }
+});
+</script>
 </body>
 </html>
