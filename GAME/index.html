@@ -13,133 +13,174 @@
 }
 
 body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #333;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #e6e6e6;
   min-height: 100vh;
   padding: 20px;
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 header {
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.7);
   color: white;
-  padding: 20px;
-  border-radius: 10px;
+  padding: 25px;
+  border-radius: 15px;
   margin-bottom: 30px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
 }
 
 header h1 {
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 15px;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+header p {
+  color: #90e0ef;
+  font-size: 1.1rem;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 10px;
-  font-size: 2rem;
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(0, 180, 216, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 180, 216, 0.3);
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #4cc9f0;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
 }
 
 .main-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 25px;
   margin-bottom: 40px;
 }
 
 .section {
-  background: white;
+  background: rgba(25, 25, 35, 0.8);
   padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .section:hover {
   transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  border-color: rgba(0, 180, 216, 0.3);
 }
 
 .section h2 {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
   color: white;
-  padding: 12px;
+  padding: 15px;
   margin: -25px -25px 20px -25px;
-  border-radius: 10px 10px 0 0;
-  font-size: 1.3rem;
+  border-radius: 15px 15px 0 0;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .input-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .input-group label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
   font-weight: 600;
-  color: #555;
+  color: #90e0ef;
+  font-size: 0.95rem;
 }
 
 .input-group input,
 .input-group select,
 .input-group textarea {
   width: 100%;
-  padding: 10px;
-  border: 2px solid #ddd;
-  border-radius: 5px;
-  font-size: 14px;
-  transition: border-color 0.3s;
+  padding: 12px 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+  font-size: 15px;
+  transition: all 0.3s;
 }
 
 .input-group input:focus,
 .input-group select:focus,
 .input-group textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #00b4d8;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+}
+
+.input-group textarea {
+  min-height: 100px;
+  resize: vertical;
 }
 
 button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 5px;
+  padding: 14px 24px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
   font-weight: 600;
   width: 100%;
   transition: all 0.3s ease;
   margin-top: 10px;
+  letter-spacing: 0.5px;
 }
 
 button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 180, 216, 0.4);
 }
 
 button:active {
   transform: translateY(0);
 }
 
-.status-message {
-  padding: 10px;
-  border-radius: 5px;
-  margin-top: 15px;
-  text-align: center;
-  font-weight: 500;
-  display: none;
-}
-
-.success {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
 }
 
 .horizontal-group {
@@ -148,12 +189,54 @@ button:active {
   gap: 15px;
 }
 
+.status-message {
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+  text-align: center;
+  font-weight: 500;
+  display: none;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.success {
+  background: rgba(46, 204, 113, 0.15);
+  color: #2ecc71;
+  border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+.error {
+  background: rgba(231, 76, 60, 0.15);
+  color: #e74c3c;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.loading {
+  background: rgba(52, 152, 219, 0.15);
+  color: #3498db;
+  border: 1px solid rgba(52, 152, 219, 0.3);
+}
+
 footer {
   text-align: center;
-  color: white;
+  color: rgba(255, 255, 255, 0.5);
   margin-top: 40px;
   padding: 20px;
-  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+.section-id {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  color: #4cc9f0;
 }
 
 @media (max-width: 768px) {
@@ -164,14 +247,40 @@ footer {
   .horizontal-group {
     grid-template-columns: 1fr;
   }
+  
+  header h1 {
+    font-size: 2rem;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #0093b6 0%, #005a8c 100%);
 }
 </style>
 </head>
 <body>
 <div class="container">
   <header>
-    <h1>🎮 Game Admin Panel</h1>
-    <p>Manage game content efficiently</p>
+    <h1>🎮 Game Admin Dashboard</h1>
+    <p>Secure management interface for game content</p>
+    <div class="connection-status">
+      <div class="status-indicator"></div>
+      <span id="connection-text">Connected to Supabase</span>
+    </div>
   </header>
 
   <div class="main-grid">
@@ -179,42 +288,44 @@ footer {
     <section class="section">
       <h2>👹 Monsters</h2>
       <div class="input-group">
-        <label for="m_name">Name</label>
-        <input id="m_name" placeholder="Dragon, Goblin, etc.">
+        <label for="m_name">Monster Name *</label>
+        <input id="m_name" placeholder="Fire Dragon, Ice Golem...">
       </div>
       <div class="horizontal-group">
         <div class="input-group">
-          <label for="m_stage">Stage</label>
-          <input id="m_stage" type="number" min="1" placeholder="1">
+          <label for="m_stage">Stage *</label>
+          <input id="m_stage" type="number" min="1" max="100" placeholder="1">
         </div>
         <div class="input-group">
-          <label for="m_hp">HP</label>
+          <label for="m_hp">HP *</label>
           <input id="m_hp" type="number" min="1" placeholder="100">
         </div>
       </div>
       <div class="horizontal-group">
         <div class="input-group">
-          <label for="m_damage">Damage</label>
-          <input id="m_damage" type="number" min="0" placeholder="10">
+          <label for="m_damage">Damage *</label>
+          <input id="m_damage" type="number" min="0" placeholder="25">
         </div>
         <div class="input-group">
-          <label for="m_defense">Defense</label>
-          <input id="m_defense" type="number" min="0" placeholder="5">
+          <label for="m_defense">Defense *</label>
+          <input id="m_defense" type="number" min="0" placeholder="10">
         </div>
       </div>
-      <div class="input-group">
-        <label for="m_timer">Timer (seconds)</label>
-        <input id="m_timer" type="number" min="1" placeholder="60">
-      </div>
-      <div class="input-group">
-        <label for="m_category">Category</label>
-        <input id="m_category" placeholder="Boss, Elite, Common">
+      <div class="horizontal-group">
+        <div class="input-group">
+          <label for="m_timer">Timer (seconds) *</label>
+          <input id="m_timer" type="number" min="1" placeholder="60">
+        </div>
+        <div class="input-group">
+          <label for="m_category">Category</label>
+          <input id="m_category" placeholder="Boss, Elite, Common">
+        </div>
       </div>
       <div class="input-group">
         <label for="m_image">Image URL</label>
-        <input id="m_image" placeholder="https://example.com/image.png">
+        <input id="m_image" placeholder="https://example.com/monster.png" type="url">
       </div>
-      <button onclick="addMonster()">Add Monster</button>
+      <button onclick="addMonster()" id="monster-btn">Add Monster</button>
       <div id="monster-status" class="status-message"></div>
     </section>
 
@@ -222,12 +333,12 @@ footer {
     <section class="section">
       <h2>⚔️ Equipment</h2>
       <div class="input-group">
-        <label for="e_name">Name</label>
-        <input id="e_name" placeholder="Sword of Truth, etc.">
+        <label for="e_name">Equipment Name *</label>
+        <input id="e_name" placeholder="Dragon Slayer Sword, Titan Shield...">
       </div>
       <div class="horizontal-group">
         <div class="input-group">
-          <label for="e_slot">Slot</label>
+          <label for="e_slot">Slot *</label>
           <select id="e_slot">
             <option value="helmet">Helmet</option>
             <option value="chestplate">Chestplate</option>
@@ -238,7 +349,7 @@ footer {
           </select>
         </div>
         <div class="input-group">
-          <label for="e_rarity">Rarity</label>
+          <label for="e_rarity">Rarity *</label>
           <select id="e_rarity">
             <option value="common">Common</option>
             <option value="uncommon">Uncommon</option>
@@ -250,23 +361,23 @@ footer {
       </div>
       <div class="horizontal-group">
         <div class="input-group">
-          <label for="e_damage">Damage</label>
+          <label for="e_damage">Damage *</label>
           <input id="e_damage" type="number" min="0" placeholder="15">
         </div>
         <div class="input-group">
-          <label for="e_defense">Defense</label>
+          <label for="e_defense">Defense *</label>
           <input id="e_defense" type="number" min="0" placeholder="8">
         </div>
       </div>
       <div class="input-group">
-        <label for="e_crit">Crit Bonus %</label>
+        <label for="e_crit">Crit Bonus % *</label>
         <input id="e_crit" type="number" min="0" max="100" step="0.1" placeholder="5.0">
       </div>
       <div class="input-group">
         <label for="e_image">Image URL</label>
-        <input id="e_image" placeholder="https://example.com/weapon.png">
+        <input id="e_image" placeholder="https://example.com/equipment.png" type="url">
       </div>
-      <button onclick="addEquipment()">Add Equipment</button>
+      <button onclick="addEquipment()" id="equipment-btn">Add Equipment</button>
       <div id="equipment-status" class="status-message"></div>
     </section>
 
@@ -275,11 +386,11 @@ footer {
       <h2>❓ Questions</h2>
       <div class="horizontal-group">
         <div class="input-group">
-          <label for="q_category">Category</label>
-          <input id="q_category" placeholder="Math, Science, etc.">
+          <label for="q_category">Category *</label>
+          <input id="q_category" placeholder="Mathematics, Science, History...">
         </div>
         <div class="input-group">
-          <label for="q_difficulty">Difficulty</label>
+          <label for="q_difficulty">Difficulty *</label>
           <select id="q_difficulty">
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
@@ -288,14 +399,14 @@ footer {
         </div>
       </div>
       <div class="input-group">
-        <label for="q_text">Question Text</label>
-        <textarea id="q_text" rows="3" placeholder="Enter your question here..."></textarea>
+        <label for="q_text">Question Text *</label>
+        <textarea id="q_text" placeholder="What is the capital of France?"></textarea>
       </div>
       <div class="input-group">
         <label for="q_image">Image URL (optional)</label>
-        <input id="q_image" placeholder="https://example.com/question.png">
+        <input id="q_image" placeholder="https://example.com/question.png" type="url">
       </div>
-      <button onclick="addQuestion()">Add Question</button>
+      <button onclick="addQuestion()" id="question-btn">Add Question</button>
       <div id="question-status" class="status-message"></div>
     </section>
 
@@ -303,25 +414,26 @@ footer {
     <section class="section">
       <h2>🅰️ Question Options</h2>
       <div class="input-group">
-        <label for="o_question_id">Question ID</label>
+        <label for="o_question_id">Question ID *</label>
+        <div class="section-id">Get ID from Questions table</div>
         <input id="o_question_id" type="number" min="1" placeholder="Enter question ID">
       </div>
       <div class="input-group">
-        <label for="o_text">Option Text</label>
+        <label for="o_text">Option Text *</label>
         <textarea id="o_text" rows="2" placeholder="Enter option text"></textarea>
       </div>
       <div class="input-group">
         <label for="o_image">Image URL (optional)</label>
-        <input id="o_image" placeholder="https://example.com/option.png">
+        <input id="o_image" placeholder="https://example.com/option.png" type="url">
       </div>
       <div class="input-group">
-        <label for="o_correct">Is Correct?</label>
+        <label for="o_correct">Is Correct Answer? *</label>
         <select id="o_correct">
           <option value="false">False</option>
           <option value="true">True</option>
         </select>
       </div>
-      <button onclick="addOption()">Add Option</button>
+      <button onclick="addOption()" id="option-btn">Add Option</button>
       <div id="option-status" class="status-message"></div>
     </section>
 
@@ -329,14 +441,14 @@ footer {
     <section class="section">
       <h2>🎲 Gacha Banner</h2>
       <div class="input-group">
-        <label for="g_name">Banner Name</label>
-        <input id="g_name" placeholder="Summer Special, Legendary Banner">
+        <label for="g_name">Banner Name *</label>
+        <input id="g_name" placeholder="Summer Festival, Legendary Summon...">
       </div>
       <div class="input-group">
-        <label for="g_cost">Cost (in-game currency)</label>
+        <label for="g_cost">Cost (currency) *</label>
         <input id="g_cost" type="number" min="1" placeholder="100">
       </div>
-      <button onclick="addBanner()">Add Banner</button>
+      <button onclick="addBanner()" id="banner-btn">Add Banner</button>
       <div id="banner-status" class="status-message"></div>
     </section>
 
@@ -344,12 +456,13 @@ footer {
     <section class="section">
       <h2>📊 Gacha Rates</h2>
       <div class="input-group">
-        <label for="gr_banner">Banner ID</label>
+        <label for="gr_banner">Banner ID *</label>
+        <div class="section-id">Get ID from Gacha Banner table</div>
         <input id="gr_banner" type="number" min="1" placeholder="Enter banner ID">
       </div>
       <div class="horizontal-group">
         <div class="input-group">
-          <label for="gr_rarity">Rarity</label>
+          <label for="gr_rarity">Rarity *</label>
           <select id="gr_rarity">
             <option value="common">Common</option>
             <option value="uncommon">Uncommon</option>
@@ -359,46 +472,93 @@ footer {
           </select>
         </div>
         <div class="input-group">
-          <label for="gr_chance">Chance %</label>
-          <input id="gr_chance" type="number" min="0" max="100" step="0.1" placeholder="50.0">
+          <label for="gr_chance">Chance % *</label>
+          <input id="gr_chance" type="number" min="0" max="100" step="0.01" placeholder="50.0">
         </div>
       </div>
-      <button onclick="addRate()">Add Rate</button>
+      <button onclick="addRate()" id="rate-btn">Add Rate</button>
       <div id="rate-status" class="status-message"></div>
     </section>
   </div>
 
   <footer>
-    <p>Game Admin Panel v1.0 | All changes are saved to the database</p>
+    <p>© 2024 Game Admin Panel | Connected to: ncdvjkdhczfegwxcdhhz.supabase.co</p>
   </footer>
 </div>
 
 <script>
-// Initialize Supabase client
-const supabase = window.supabase.createClient(
-  "https://ncdvjkdhczfegwxcdhhz.supabase.co",
-  "sb_publishable_M5ocjopAxTiGQYjeRIEBDg_8fWEi4Ww"
-);
+// Initialize Supabase with your credentials
+const supabaseUrl = "https://ncdvjkdhczfegwxcdhhz.supabase.co";
+const supabaseKey = "sb_publishable_M5ocjopAxTiGQYjeRIEBDg_8fWEi4Ww";
 
-// Show status message
-function showStatus(elementId, message, isError = false) {
-  const element = document.getElementById(elementId);
-  element.textContent = message;
-  element.className = `status-message ${isError ? 'error' : 'success'}`;
-  element.style.display = 'block';
-  
-  setTimeout(() => {
-    element.style.display = 'none';
-  }, 5000);
+// Create Supabase client
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+// Test connection on load
+async function testConnection() {
+  try {
+    const { data, error } = await supabase.from('monsters').select('count', { count: 'exact', head: true });
+    
+    if (error) throw error;
+    
+    console.log('✅ Connected to Supabase successfully');
+    document.getElementById('connection-text').textContent = `Connected to Supabase | ${data.count || 0} records`;
+  } catch (error) {
+    console.error('❌ Connection error:', error);
+    document.getElementById('connection-text').textContent = 'Connection Error - Check Console';
+    document.getElementById('connection-text').style.color = '#e74c3c';
+  }
 }
 
-// Clear form fields
+// Call test connection on page load
+window.addEventListener('DOMContentLoaded', testConnection);
+
+// Helper functions
+function showStatus(elementId, message, type = 'success') {
+  const element = document.getElementById(elementId);
+  element.textContent = message;
+  element.className = `status-message ${type}`;
+  element.style.display = 'block';
+  
+  // Auto-hide after 5 seconds for success messages
+  if (type === 'success') {
+    setTimeout(() => {
+      element.style.display = 'none';
+    }, 5000);
+  }
+}
+
+function setLoading(buttonId, isLoading) {
+  const button = document.getElementById(buttonId);
+  if (isLoading) {
+    button.innerHTML = '<span>⏳ Processing...</span>';
+    button.disabled = true;
+  } else {
+    button.innerHTML = button.innerHTML.replace('⏳ Processing...', getOriginalButtonText(buttonId));
+    button.disabled = false;
+  }
+}
+
+function getOriginalButtonText(buttonId) {
+  const texts = {
+    'monster-btn': 'Add Monster',
+    'equipment-btn': 'Add Equipment',
+    'question-btn': 'Add Question',
+    'option-btn': 'Add Option',
+    'banner-btn': 'Add Banner',
+    'rate-btn': 'Add Rate'
+  };
+  return texts[buttonId] || 'Submit';
+}
+
 function clearFields(fieldIds) {
   fieldIds.forEach(id => {
     const element = document.getElementById(id);
     if (element) {
       if (element.tagName === 'SELECT') {
         element.selectedIndex = 0;
+      } else if (element.type === 'number') {
+        element.value = '';
       } else {
         element.value = '';
       }
@@ -406,186 +566,219 @@ function clearFields(fieldIds) {
   });
 }
 
-// Validate required fields
 function validateRequired(fieldIds) {
-  for (const id of fieldIds) {
+  let isValid = true;
+  fieldIds.forEach(id => {
     const element = document.getElementById(id);
     if (element && !element.value.trim()) {
-      element.style.borderColor = 'red';
+      element.style.borderColor = '#e74c3c';
+      element.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
       setTimeout(() => {
-        element.style.borderColor = '#ddd';
+        element.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        element.style.boxShadow = 'none';
       }, 3000);
-      return false;
+      isValid = false;
     }
-  }
-  return true;
+  });
+  return isValid;
 }
 
+// CRUD Operations
 async function addMonster() {
   const required = ['m_name', 'm_stage', 'm_hp', 'm_damage', 'm_defense', 'm_timer'];
   if (!validateRequired(required)) {
-    showStatus('monster-status', 'Please fill all required fields', true);
+    showStatus('monster-status', '❌ Please fill all required fields', 'error');
     return;
   }
 
+  setLoading('monster-btn', true);
+
   try {
-    const { error } = await supabase.from("monsters").insert({
-      name: document.getElementById('m_name').value,
+    const { data, error } = await supabase.from("monsters").insert([{
+      name: document.getElementById('m_name').value.trim(),
       stage: parseInt(document.getElementById('m_stage').value),
       hp: parseInt(document.getElementById('m_hp').value),
       damage: parseInt(document.getElementById('m_damage').value),
       defense: parseInt(document.getElementById('m_defense').value),
       timer_seconds: parseInt(document.getElementById('m_timer').value),
-      category: document.getElementById('m_category').value || null,
-      image_url: document.getElementById('m_image').value || null
-    });
+      category: document.getElementById('m_category').value.trim() || null,
+      image_url: document.getElementById('m_image').value.trim() || null,
+      created_at: new Date().toISOString()
+    }]).select();
 
     if (error) throw error;
     
-    showStatus('monster-status', '✅ Monster added successfully!');
+    showStatus('monster-status', `✅ Monster "${data[0].name}" added successfully! ID: ${data[0].id}`);
     clearFields(['m_name', 'm_stage', 'm_hp', 'm_damage', 'm_defense', 'm_timer', 'm_category', 'm_image']);
   } catch (error) {
     console.error('Error adding monster:', error);
-    showStatus('monster-status', `❌ Error: ${error.message}`, true);
+    showStatus('monster-status', `❌ Error: ${error.message}`, 'error');
+  } finally {
+    setLoading('monster-btn', false);
   }
 }
 
 async function addEquipment() {
   const required = ['e_name', 'e_damage', 'e_defense', 'e_crit'];
   if (!validateRequired(required)) {
-    showStatus('equipment-status', 'Please fill all required fields', true);
+    showStatus('equipment-status', '❌ Please fill all required fields', 'error');
     return;
   }
 
+  setLoading('equipment-btn', true);
+
   try {
-    const { error } = await supabase.from("equipment").insert({
-      name: document.getElementById('e_name').value,
+    const { data, error } = await supabase.from("equipment").insert([{
+      name: document.getElementById('e_name').value.trim(),
       slot: document.getElementById('e_slot').value,
       rarity: document.getElementById('e_rarity').value,
       damage: parseInt(document.getElementById('e_damage').value) || 0,
       defense: parseInt(document.getElementById('e_defense').value) || 0,
       crit_bonus: parseFloat(document.getElementById('e_crit').value) || 0,
-      image_url: document.getElementById('e_image').value || null
-    });
+      image_url: document.getElementById('e_image').value.trim() || null,
+      created_at: new Date().toISOString()
+    }]).select();
 
     if (error) throw error;
     
-    showStatus('equipment-status', '✅ Equipment added successfully!');
+    showStatus('equipment-status', `✅ Equipment "${data[0].name}" added successfully! ID: ${data[0].id}`);
     clearFields(['e_name', 'e_damage', 'e_defense', 'e_crit', 'e_image']);
   } catch (error) {
     console.error('Error adding equipment:', error);
-    showStatus('equipment-status', `❌ Error: ${error.message}`, true);
+    showStatus('equipment-status', `❌ Error: ${error.message}`, 'error');
+  } finally {
+    setLoading('equipment-btn', false);
   }
 }
 
 async function addQuestion() {
   const required = ['q_category', 'q_text'];
   if (!validateRequired(required)) {
-    showStatus('question-status', 'Please fill all required fields', true);
+    showStatus('question-status', '❌ Please fill all required fields', 'error');
     return;
   }
 
+  setLoading('question-btn', true);
+
   try {
-    const { error } = await supabase.from("questions").insert({
-      category: document.getElementById('q_category').value,
+    const { data, error } = await supabase.from("questions").insert([{
+      category: document.getElementById('q_category').value.trim(),
       difficulty: document.getElementById('q_difficulty').value,
-      question_text: document.getElementById('q_text').value,
-      image_url: document.getElementById('q_image').value || null
-    });
+      question_text: document.getElementById('q_text').value.trim(),
+      image_url: document.getElementById('q_image').value.trim() || null,
+      created_at: new Date().toISOString()
+    }]).select();
 
     if (error) throw error;
     
-    showStatus('question-status', '✅ Question added successfully!');
+    showStatus('question-status', `✅ Question added successfully! ID: ${data[0].id} - Use this ID for options`);
     clearFields(['q_category', 'q_text', 'q_image']);
   } catch (error) {
     console.error('Error adding question:', error);
-    showStatus('question-status', `❌ Error: ${error.message}`, true);
+    showStatus('question-status', `❌ Error: ${error.message}`, 'error');
+  } finally {
+    setLoading('question-btn', false);
   }
 }
 
 async function addOption() {
   const required = ['o_question_id', 'o_text'];
   if (!validateRequired(required)) {
-    showStatus('option-status', 'Please fill all required fields', true);
+    showStatus('option-status', '❌ Please fill all required fields', 'error');
     return;
   }
 
+  setLoading('option-btn', true);
+
   try {
-    const { error } = await supabase.from("question_options").insert({
+    const { data, error } = await supabase.from("question_options").insert([{
       question_id: parseInt(document.getElementById('o_question_id').value),
-      option_text: document.getElementById('o_text').value,
-      image_url: document.getElementById('o_image').value || null,
-      is_correct: document.getElementById('o_correct').value === "true"
-    });
+      option_text: document.getElementById('o_text').value.trim(),
+      image_url: document.getElementById('o_image').value.trim() || null,
+      is_correct: document.getElementById('o_correct').value === "true",
+      created_at: new Date().toISOString()
+    }]).select();
 
     if (error) throw error;
     
-    showStatus('option-status', '✅ Option added successfully!');
+    const correctness = data[0].is_correct ? 'Correct' : 'Incorrect';
+    showStatus('option-status', `✅ ${correctness} option added successfully!`);
     clearFields(['o_question_id', 'o_text', 'o_image']);
     document.getElementById('o_correct').selectedIndex = 0;
   } catch (error) {
     console.error('Error adding option:', error);
-    showStatus('option-status', `❌ Error: ${error.message}`, true);
+    showStatus('option-status', `❌ Error: ${error.message}`, 'error');
+  } finally {
+    setLoading('option-btn', false);
   }
 }
 
 async function addBanner() {
   const required = ['g_name', 'g_cost'];
   if (!validateRequired(required)) {
-    showStatus('banner-status', 'Please fill all required fields', true);
+    showStatus('banner-status', '❌ Please fill all required fields', 'error');
     return;
   }
 
+  setLoading('banner-btn', true);
+
   try {
-    const { error } = await supabase.from("gacha_banners").insert({
-      name: document.getElementById('g_name').value,
-      cost: parseInt(document.getElementById('g_cost').value)
-    });
+    const { data, error } = await supabase.from("gacha_banners").insert([{
+      name: document.getElementById('g_name').value.trim(),
+      cost: parseInt(document.getElementById('g_cost').value),
+      created_at: new Date().toISOString()
+    }]).select();
 
     if (error) throw error;
     
-    showStatus('banner-status', '✅ Banner added successfully!');
+    showStatus('banner-status', `✅ Banner "${data[0].name}" added successfully! ID: ${data[0].id}`);
     clearFields(['g_name', 'g_cost']);
   } catch (error) {
     console.error('Error adding banner:', error);
-    showStatus('banner-status', `❌ Error: ${error.message}`, true);
+    showStatus('banner-status', `❌ Error: ${error.message}`, 'error');
+  } finally {
+    setLoading('banner-btn', false);
   }
 }
 
 async function addRate() {
   const required = ['gr_banner', 'gr_chance'];
   if (!validateRequired(required)) {
-    showStatus('rate-status', 'Please fill all required fields', true);
+    showStatus('rate-status', '❌ Please fill all required fields', 'error');
     return;
   }
 
+  setLoading('rate-btn', true);
+
   try {
-    const { error } = await supabase.from("gacha_rates").insert({
+    const { data, error } = await supabase.from("gacha_rates").insert([{
       banner_id: parseInt(document.getElementById('gr_banner').value),
       rarity: document.getElementById('gr_rarity').value,
-      chance: parseFloat(document.getElementById('gr_chance').value)
-    });
+      chance: parseFloat(document.getElementById('gr_chance').value),
+      created_at: new Date().toISOString()
+    }]).select();
 
     if (error) throw error;
     
-    showStatus('rate-status', '✅ Rate added successfully!');
+    showStatus('rate-status', `✅ ${data[0].rarity} rate added: ${data[0].chance}%`);
     clearFields(['gr_banner', 'gr_chance']);
     document.getElementById('gr_rarity').selectedIndex = 0;
   } catch (error) {
     console.error('Error adding rate:', error);
-    showStatus('rate-status', `❌ Error: ${error.message}`, true);
+    showStatus('rate-status', `❌ Error: ${error.message}`, 'error');
+  } finally {
+    setLoading('rate-btn', false);
   }
 }
 
-// Add keyboard shortcuts
+// Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-    // Find which section has focus
     const activeElement = document.activeElement;
     const section = activeElement.closest('.section');
     if (section) {
       const button = section.querySelector('button');
-      if (button) button.click();
+      if (button && !button.disabled) button.click();
     }
   }
 });
