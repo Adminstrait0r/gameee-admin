@@ -763,7 +763,15 @@
         let allData = {};
         let currentQuestionId = null;
         let currentQuestionOptions = [];
-        let gachaBanners = []; // Store banners for dropdown
+        
+        // Store dropdown data
+        let dropdownData = {
+            users: [],      // For user_id dropdowns
+            equipment: [],  // For equipment_id dropdowns
+            monsters: [],   // For monster_id dropdowns
+            questions: [],  // For question_id dropdowns
+            gacha_banners: [] // For banner_id dropdowns
+        };
 
         // Table schemas - NO PRE-INSTALLED DATA, BLANK SLATE
         const tableSchemas = {
@@ -810,7 +818,7 @@
                 displayName: 'Question Options',
                 icon: '📋',
                 columns: [
-                    { name: 'question_id', type: 'text', label: 'Question ID', required: true },
+                    { name: 'question_id', type: 'select', label: 'Question', required: true, options: 'questions', displayField: 'question_text' },
                     { name: 'option_text', type: 'text', label: 'Option Text', required: true },
                     { name: 'is_correct', type: 'checkbox', label: 'Is Correct Answer', required: false, defaultValue: false },
                     { name: 'image_url', type: 'text', label: 'Image URL', required: false }
@@ -829,7 +837,7 @@
                 displayName: 'Gacha Rates',
                 icon: '📊',
                 columns: [
-                    { name: 'banner_id', type: 'select', label: 'Banner', required: true, options: [] },
+                    { name: 'banner_id', type: 'select', label: 'Banner', required: true, options: 'gacha_banners', displayField: 'name' },
                     { name: 'rarity', type: 'text', label: 'Rarity', required: true },
                     { name: 'chance', type: 'number', label: 'Chance (%)', step: '0.01', required: true, defaultValue: 1.0 }
                 ]
@@ -847,7 +855,7 @@
                 displayName: 'Player Stats',
                 icon: '📈',
                 columns: [
-                    { name: 'user_id', type: 'text', label: 'User ID', required: true },
+                    { name: 'user_id', type: 'select', label: 'User', required: true, options: 'users', displayField: 'username' },
                     { name: 'base_hp', type: 'number', label: 'Base HP', required: true, defaultValue: 100 },
                     { name: 'base_damage', type: 'number', label: 'Base Damage', required: true, defaultValue: 10 },
                     { name: 'base_defense', type: 'number', label: 'Base Defense', required: true, defaultValue: 5 },
@@ -858,8 +866,8 @@
                 displayName: 'Player Equipment',
                 icon: '🛡️',
                 columns: [
-                    { name: 'user_id', type: 'text', label: 'User ID', required: true },
-                    { name: 'equipment_id', type: 'text', label: 'Equipment ID', required: true },
+                    { name: 'user_id', type: 'select', label: 'User', required: true, options: 'users', displayField: 'username' },
+                    { name: 'equipment_id', type: 'select', label: 'Equipment', required: true, options: 'equipment', displayField: 'name' },
                     { name: 'is_equipped', type: 'checkbox', label: 'Is Equipped', required: false, defaultValue: false }
                 ]
             },
@@ -867,9 +875,9 @@
                 displayName: 'Game Runs',
                 icon: '🏃',
                 columns: [
-                    { name: 'user_id', type: 'text', label: 'User ID', required: true },
+                    { name: 'user_id', type: 'select', label: 'User', required: true, options: 'users', displayField: 'username' },
                     { name: 'current_stage', type: 'number', label: 'Current Stage', required: true, defaultValue: 1 },
-                    { name: 'current_monster', type: 'text', label: 'Current Monster ID', required: false },
+                    { name: 'current_monster', type: 'select', label: 'Current Monster', required: false, options: 'monsters', displayField: 'name' },
                     { name: 'player_hp', type: 'number', label: 'Player HP', required: true, defaultValue: 100 },
                     { name: 'monster_hp', type: 'number', label: 'Monster HP', required: true, defaultValue: 100 },
                     { name: 'streak', type: 'number', label: 'Streak', required: true, defaultValue: 0 }
@@ -879,7 +887,7 @@
                 displayName: 'Leaderboard',
                 icon: '🏆',
                 columns: [
-                    { name: 'user_id', type: 'text', label: 'User ID', required: true },
+                    { name: 'user_id', type: 'select', label: 'User', required: true, options: 'users', displayField: 'username' },
                     { name: 'highest_stage', type: 'number', label: 'Highest Stage', required: true, defaultValue: 1 },
                     { name: 'monsters_defeated', type: 'number', label: 'Monsters Defeated', required: true, defaultValue: 0 },
                     { name: 'correct_answers', type: 'number', label: 'Correct Answers', required: true, defaultValue: 0 }
@@ -903,8 +911,8 @@
             // Load table counts
             await loadAllTableCounts();
             
-            // Load gacha banners for dropdown
-            await loadGachaBanners();
+            // Pre-load dropdown data
+            await loadAllDropdownData();
             
             // Show dashboard by default
             showSection('dashboard');
@@ -964,22 +972,71 @@
             }
         }
 
-        // Load gacha banners for dropdown
-        async function loadGachaBanners() {
+        // Load all dropdown data
+        async function loadAllDropdownData() {
+            const dropdownTypes = Object.keys(dropdownData);
+            
+            for (const type of dropdownTypes) {
+                try {
+                    const { data, error } = await supabase
+                        .from(type)
+                        .select('id, name, username, question_text')
+                        .order('created_at', { ascending: true });
+                    
+                    if (error) throw error;
+                    
+                    dropdownData[type] = data || [];
+                    console.log(`Loaded ${dropdownData[type].length} ${type} for dropdowns`);
+                    
+                } catch (error) {
+                    console.error(`Error loading dropdown data for ${type}:`, error);
+                    dropdownData[type] = [];
+                }
+            }
+        }
+
+        // Load specific dropdown data
+        async function loadDropdownData(type) {
             try {
+                let selectFields = 'id';
+                
+                // Add appropriate display field based on type
+                if (type === 'users') selectFields += ', username';
+                else if (type === 'questions') selectFields += ', question_text';
+                else selectFields += ', name';
+                
                 const { data, error } = await supabase
-                    .from('gacha_banners')
-                    .select('id, name')
-                    .order('name', { ascending: true });
+                    .from(type)
+                    .select(selectFields)
+                    .order('created_at', { ascending: true });
                 
                 if (error) throw error;
                 
-                gachaBanners = data || [];
-                console.log('Loaded gacha banners:', gachaBanners.length);
+                dropdownData[type] = data || [];
+                console.log(`Loaded ${dropdownData[type].length} ${type} for dropdowns`);
+                return true;
                 
             } catch (error) {
-                console.error('Error loading gacha banners:', error);
-                gachaBanners = [];
+                console.error(`Error loading dropdown data for ${type}:`, error);
+                dropdownData[type] = [];
+                return false;
+            }
+        }
+
+        // Get display value for a dropdown item
+        function getDropdownDisplayValue(item, displayField) {
+            if (!item) return '';
+            
+            if (displayField === 'question_text') {
+                return item.question_text ? 
+                    (item.question_text.length > 50 ? 
+                        item.question_text.substring(0, 50) + '...' : 
+                        item.question_text) : 
+                    'Untitled Question';
+            } else if (displayField === 'username') {
+                return item.username || 'Unnamed User';
+            } else {
+                return item.name || 'Unnamed Item';
             }
         }
 
@@ -1137,13 +1194,18 @@
                     
                     if (col.type === 'checkbox') {
                         html += value ? `✓` : `✗`;
-                    } else if (col.name.includes('_id') && typeof value === 'string' && value.length > 10) {
-                        // For foreign keys, try to show the related name if available
-                        if (col.name === 'banner_id' && gachaBanners.length > 0) {
-                            const banner = gachaBanners.find(b => b.id === value);
-                            html += banner ? `${banner.name.substring(0, 15)}...` : `<span title="${value}">${value.substring(0, 8)}...</span>`;
-                        } else {
+                    } else if (col.type === 'select') {
+                        // For dropdown columns, try to display the related item name
+                        const dropdownItems = dropdownData[col.options] || [];
+                        const relatedItem = dropdownItems.find(d => d.id === value);
+                        
+                        if (relatedItem) {
+                            const displayValue = getDropdownDisplayValue(relatedItem, col.displayField);
+                            html += displayValue;
+                        } else if (value) {
                             html += `<span title="${value}">${value.substring(0, 8)}...</span>`;
+                        } else {
+                            html += `-`;
                         }
                     } else if (col.name === 'image_url' && value) {
                         html += `<div class="image-preview"><img src="${value}" alt="Preview" onerror="this.style.display='none'"></div>`;
@@ -1211,10 +1273,12 @@
                 form.innerHTML = `<input type="hidden" id="record-id" value="${itemId}">`;
             }
             
-            // Special handling for gacha_rates dropdown
-            if (tableName === 'gacha_rates') {
-                // Reload banners to ensure we have latest data
-                await loadGachaBanners();
+            // Check if we need to refresh any dropdown data
+            const dropdownColumns = schema.columns.filter(col => col.type === 'select');
+            for (const col of dropdownColumns) {
+                if (!dropdownData[col.options] || dropdownData[col.options].length === 0) {
+                    await loadDropdownData(col.options);
+                }
             }
             
             // Add form fields based on schema
@@ -1237,14 +1301,14 @@
                         </div>
                     `;
                 } else if (col.type === 'select') {
-                    // Special handling for dropdown (gacha_rates banner_id)
-                    let optionsHtml = `<option value="">Select a banner</option>`;
+                    // Build dropdown options
+                    let optionsHtml = `<option value="">Select ${col.label.toLowerCase()}</option>`;
+                    const dropdownItems = dropdownData[col.options] || [];
                     
-                    if (col.name === 'banner_id' && gachaBanners.length > 0) {
-                        gachaBanners.forEach(banner => {
-                            optionsHtml += `<option value="${banner.id}">${banner.name}</option>`;
-                        });
-                    }
+                    dropdownItems.forEach(item => {
+                        const displayValue = getDropdownDisplayValue(item, col.displayField);
+                        optionsHtml += `<option value="${item.id}">${displayValue}</option>`;
+                    });
                     
                     fieldHtml = `
                         <div class="form-group">
@@ -1350,9 +1414,9 @@
                     if (error) throw error;
                     showMessage(`${schema.displayName} added successfully!`, 'success');
                     
-                    // Reload banners if we added a new one
-                    if (currentTable === 'gacha_banners') {
-                        await loadGachaBanners();
+                    // Reload dropdown data if we added to a referenced table
+                    if (['users', 'equipment', 'monsters', 'questions', 'gacha_banners'].includes(currentTable)) {
+                        await loadDropdownData(currentTable);
                     }
                 }
                 
@@ -1404,9 +1468,9 @@
                 await loadTableData(currentTable);
                 await loadAllTableCounts();
                 
-                // Reload banners if we deleted one
-                if (currentTable === 'gacha_banners') {
-                    await loadGachaBanners();
+                // Reload dropdown data if we deleted from a referenced table
+                if (['users', 'equipment', 'monsters', 'questions', 'gacha_banners'].includes(currentTable)) {
+                    await loadDropdownData(currentTable);
                 }
                 
                 closeDeleteModal();
