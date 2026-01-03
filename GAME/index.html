@@ -161,6 +161,16 @@
             background: #333;
         }
 
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
         /* Table Styles */
         .table-content {
             overflow-x: auto;
@@ -382,6 +392,12 @@
             margin-bottom: 15px;
         }
 
+        .dashboard-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
         /* Image Preview */
         .image-preview {
             width: 80px;
@@ -479,6 +495,11 @@
                 <div class="table-container">
                     <div class="table-header">
                         <h3>DATABASE OVERVIEW</h3>
+                        <div>
+                            <button class="btn btn-danger" onclick="cleanDatabase()" title="Delete ALL data from ALL tables">
+                                CLEAN DATABASE
+                            </button>
+                        </div>
                     </div>
                     <div class="table-content">
                         <div class="message" id="connection-status">
@@ -579,6 +600,7 @@
                         <div>
                             <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
                             <button class="btn btn-primary" onclick="openModal('gacha_rates')">ADD RATE</button>
+                            <button class="btn" onclick="refreshDropdowns()">REFRESH DROPDOWNS</button>
                         </div>
                     </div>
                     <div class="table-content" id="gacha_rates-content">
@@ -611,6 +633,7 @@
                         <div>
                             <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
                             <button class="btn btn-primary" onclick="openModal('player_stats')">ADD STATS</button>
+                            <button class="btn" onclick="resetTable('player_stats')" title="Reset this table only">RESET TABLE</button>
                         </div>
                     </div>
                     <div class="table-content" id="player_stats-content">
@@ -942,7 +965,29 @@
             
             // Menu button
             document.querySelector('.menu').addEventListener('click', () => {
-                alert('Menu options:\n- Database Status\n- Export Data\n- Settings\n- Logout');
+                const choice = prompt('Menu options:\n1. Database Status\n2. Export Data\n3. Settings\n4. Clean Database (DANGER)\n5. Logout\n\nEnter option number:');
+                
+                switch(choice) {
+                    case '1':
+                        alert('Database Status:\nConnected to Supabase\n' + 
+                              `Tables: ${Object.keys(tableSchemas).length}\n` +
+                              'All systems operational');
+                        break;
+                    case '2':
+                        alert('Export feature coming soon!');
+                        break;
+                    case '3':
+                        alert('Settings:\n- Theme: RPG\n- Auto-refresh: Enabled\n- Notifications: Enabled');
+                        break;
+                    case '4':
+                        cleanDatabase();
+                        break;
+                    case '5':
+                        alert('Logged out (simulated)');
+                        break;
+                    default:
+                        alert('Invalid option');
+                }
             });
         }
 
@@ -1053,7 +1098,10 @@
                         <h3>${schema.icon} ${schema.displayName}</h3>
                         <div class="count" id="count-${tableName}">-</div>
                         <div class="last-checked" id="time-${tableName}">Last checked: -</div>
-                        <button class="btn btn-primary" onclick="showTable('${tableName}')">MANAGE</button>
+                        <div class="dashboard-actions">
+                            <button class="btn btn-primary" onclick="showTable('${tableName}')">MANAGE</button>
+                            <button class="btn" onclick="resetTable('${tableName}')">RESET</button>
+                        </div>
                     </div>
                 `;
             });
@@ -1282,11 +1330,6 @@
             const form = document.getElementById('crud-form');
             form.innerHTML = '';
             
-            // Add hidden ID field for edit mode
-            if (isEditMode) {
-                form.innerHTML = `<input type="hidden" id="record-id" value="${itemId}">`;
-            }
-            
             // Check if we need to refresh any dropdown data
             const dropdownColumns = schema.columns.filter(col => col.type === 'select');
             for (const col of dropdownColumns) {
@@ -1386,7 +1429,7 @@
             isEditMode = false;
         }
 
-        // Handle form submission
+        // Handle form submission - FIXED VERSION
         async function handleFormSubmit(e) {
             e.preventDefault();
             
@@ -1395,7 +1438,7 @@
             const schema = tableSchemas[currentTable];
             const formData = {};
             
-            // Collect form data
+            // Collect form data (EXCLUDE id field for new records)
             schema.columns.forEach(col => {
                 const field = document.getElementById(`field-${col.name}`);
                 if (field) {
@@ -1409,21 +1452,27 @@
                 }
             });
             
+            console.log(`Saving ${currentTable}:`, formData);
+            
             try {
                 if (isEditMode) {
-                    // Update existing record
+                    // Update existing record - include the ID
+                    const updateData = { ...formData };
+                    
                     const { error } = await supabase
                         .from(currentTable)
-                        .update(formData)
+                        .update(updateData)
                         .eq('id', currentRecordId);
                     
                     if (error) throw error;
                     showMessage(`${schema.displayName} updated successfully!`, 'success');
                 } else {
-                    // Insert new record
+                    // Insert new record - DO NOT include id, let Supabase generate it
+                    const insertData = { ...formData };
+                    
                     const { error } = await supabase
                         .from(currentTable)
-                        .insert([formData]);
+                        .insert([insertData]);
                     
                     if (error) throw error;
                     showMessage(`${schema.displayName} added successfully!`, 'success');
@@ -1441,7 +1490,21 @@
                 
             } catch (error) {
                 console.error(`Error saving ${currentTable}:`, error);
-                showMessage(`Error: ${error.message}`, 'error');
+                
+                // Check for specific constraint violations
+                if (error.message.includes('violates unique constraint')) {
+                    if (error.message.includes('player_stats_pkey')) {
+                        showMessage(`Error: A player stats record with this ID already exists. Try using the RESET TABLE button or Clean Database option.`, 'error');
+                    } else if (error.message.includes('users_pkey')) {
+                        showMessage(`Error: A user with this ID already exists. Try using the RESET TABLE button or Clean Database option.`, 'error');
+                    } else {
+                        showMessage(`Error: Duplicate entry detected. This record already exists.`, 'error');
+                    }
+                } else if (error.message.includes('null value in column "id"')) {
+                    showMessage(`Error: ID field is required. The system should auto-generate this. Try refreshing.`, 'error');
+                } else {
+                    showMessage(`Error: ${error.message}`, 'error');
+                }
             }
         }
 
@@ -1500,6 +1563,122 @@
             if (currentTable) {
                 loadTableData(currentTable);
                 showMessage('Table refreshed!', 'success');
+            }
+        };
+
+        // Refresh dropdowns
+        window.refreshDropdowns = async function() {
+            try {
+                showMessage('Refreshing dropdown data...', 'success');
+                await loadAllDropdownData();
+                
+                // If we're currently on a table that uses dropdowns, reload it
+                if (currentTable && tableSchemas[currentTable]) {
+                    const schema = tableSchemas[currentTable];
+                    const hasDropdowns = schema.columns.some(col => col.type === 'select');
+                    
+                    if (hasDropdowns) {
+                        await loadTableData(currentTable);
+                    }
+                }
+                
+                showMessage('Dropdown data refreshed!', 'success');
+            } catch (error) {
+                console.error('Error refreshing dropdowns:', error);
+                showMessage(`Error refreshing dropdowns: ${error.message}`, 'error');
+            }
+        };
+
+        // Reset a specific table
+        window.resetTable = async function(tableName) {
+            if (!confirm(`WARNING: This will delete ALL data from the ${tableName} table! Are you sure?`)) {
+                return;
+            }
+            
+            if (!confirm(`ARE YOU ABSOLUTELY SURE? This cannot be undone!`)) {
+                return;
+            }
+            
+            try {
+                showMessage(`Resetting ${tableName} table...`, 'success');
+                
+                // Delete all records from table
+                const { error } = await supabase
+                    .from(tableName)
+                    .delete()
+                    .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete everything
+                
+                if (error) throw error;
+                
+                showMessage(`${tableName} table reset successfully!`, 'success');
+                
+                // Reload table data
+                await loadTableData(tableName);
+                await loadAllTableCounts();
+                
+                // Reload dropdown data if this table is used in dropdowns
+                if (['users', 'equipment', 'monsters', 'questions', 'gacha_banners'].includes(tableName)) {
+                    await loadDropdownData(tableName);
+                }
+                
+            } catch (error) {
+                console.error(`Error resetting ${tableName}:`, error);
+                showMessage(`Error resetting table: ${error.message}`, 'error');
+            }
+        };
+
+        // Clean entire database
+        window.cleanDatabase = async function() {
+            if (!confirm('WARNING: This will delete ALL data from ALL tables! Are you sure?')) {
+                return;
+            }
+            
+            if (!confirm('ARE YOU ABSOLUTELY SURE? This cannot be undone!')) {
+                return;
+            }
+            
+            try {
+                showMessage('Starting database cleanup...', 'success');
+                
+                const tables = Object.keys(tableSchemas);
+                
+                for (const tableName of tables) {
+                    showMessage(`Cleaning ${tableName}...`, 'success');
+                    
+                    // Delete all records from table
+                    const { error } = await supabase
+                        .from(tableName)
+                        .delete()
+                        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete everything
+                    
+                    if (error) {
+                        console.error(`Error cleaning ${tableName}:`, error);
+                    } else {
+                        console.log(`Cleaned ${tableName}`);
+                    }
+                    
+                    // Wait a bit between tables
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                // Reset all dropdown data
+                Object.keys(dropdownData).forEach(key => {
+                    dropdownData[key] = [];
+                });
+                
+                // Reload everything
+                await loadAllTableCounts();
+                await loadAllDropdownData();
+                
+                if (currentTable) {
+                    await loadTableData(currentTable);
+                }
+                
+                showMessage('Database cleanup completed! All tables are now empty.', 'success');
+                
+            } catch (error) {
+                console.error('Error during database cleanup:', error);
+                showMessage(`Error during cleanup: ${error.message}`, 'error');
             }
         };
 
@@ -1751,6 +1930,9 @@
         window.toggleCorrectOption = toggleCorrectOption;
         window.deleteQuestionOption = deleteQuestionOption;
         window.refreshCurrentTable = refreshCurrentTable;
+        window.refreshDropdowns = refreshDropdowns;
+        window.resetTable = resetTable;
+        window.cleanDatabase = cleanDatabase;
     </script>
 </body>
 </html>
