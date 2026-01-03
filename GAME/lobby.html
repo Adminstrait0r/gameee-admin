@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPG Lobby</title>
+<style>
+:root {
+    --bg-main: #f2efe6;
+    --bg-panel: #e8e3d6;
+    --border: #2b2b2b;
+    --accent: #111;
+    --tab-active: #d6c9a8;
+    --tab-inactive: #e8e3d6;
+    --green: #00b85c;
+    --light-green: #c8ff7a;
+    --bright-green: #b6ff5c;
+    --yellow: #ffd84d;
+    --red: #ff4d4d;
+    --blue: #4d9fff;
+    --purple: #9d4edd;
+    --orange: #ff9e4d;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    background: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 16px;
+}
+
+.app {
+    width: 100%;
+    max-width: 1200px;
+    background: var(--bg-main);
+    border: 3px solid var(--border);
+    min-height: 700px;
+}
+
+/* TOP BAR */
+.top-bar {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto;
+    gap: 12px;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 3px solid var(--border);
+    background: var(--bg-panel);
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.pfp {
+    width: 70px;
+    height: 70px;
+    background: var(--yellow);
+    border: 3px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    position: relative;
+    overflow: hidden;
+}
+
+.pfp img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-info {
+    font-size: 14px;
+    line-height: 1.6;
+    font-weight: 600;
+}
+
+.profile-info .username {
+    font-size: 20px;
+    color: var(--accent);
+    margin-bottom: 4px;
+}
+
+.profile-info .level {
+    color: var(--green);
+    font-weight: 700;
+}
+
+.currency-display {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.gold, .gems {
+    border: 2px solid var(--border);
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    min-width: 120px;
+}
+
+.gold {
+    background: var(--yellow);
+}
+
+.gems {
+    background: var(--blue);
+    color: white;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn {
+    border: 2px solid var(--border);
+    background: var(--bg-main);
+    padding: 8px 16px;
+    text-align: center;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.btn:hover {
+    background: var(--tab-active);
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #333;
+}
+
+.btn-success {
+    background: var(--green);
+    color: white;
+}
+
+.btn-warning {
+    background: var(--orange);
+    color: white;
+}
+
+/* MAIN CONTENT */
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    min-height: 500px;
+}
+
+/* LEFT PANEL - STATS & EQUIPMENT */
+.left-panel {
+    padding: 25px;
+    border-right: 3px solid var(--border);
+    background: var(--green);
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.stats-section {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: white;
+    text-align: center;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.stat-card {
+    background: var(--light-green);
+    padding: 15px;
+    border: 2px solid var(--border);
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.health-display {
+    grid-column: 1 / span 2;
+    background: var(--red);
+    border: 2px solid var(--border);
+    padding: 15px;
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.health-bar {
+    height: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.health-fill {
+    height: 100%;
+    background: white;
+    transition: width 0.5s ease;
+}
+
+.health-text {
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* EQUIPMENT SECTION */
+.equipment-section {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+}
+
+.equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, auto);
+    gap: 12px;
+    position: relative;
+}
+
+.equipment-slot {
+    background: var(--light-green);
+    border: 2px solid var(--border);
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.equipment-slot:hover {
+    background: var(--bright-green);
+    transform: translateY(-2px);
+}
+
+.equipment-slot.empty {
+    background: rgba(255, 255, 255, 0.2);
+    border-style: dashed;
+}
+
+.equipment-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: var(--accent);
+}
+
+.slot-name {
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--accent);
+    margin-bottom: 4px;
+}
+
+.item-name {
+    font-size: 10px;
+    color: var(--accent);
+    text-align: center;
+    font-weight: 600;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.item-rarity {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 700;
+}
+
+.rarity-common { background: #808080; color: white; }
+.rarity-uncommon { background: #00b85c; color: white; }
+.rarity-rare { background: #4d9fff; color: white; }
+.rarity-epic { background: #9d4edd; color: white; }
+.rarity-legendary { background: #ff9e4d; color: white; }
+
+/* Equipment positions */
+.helmet-slot { grid-column: 2; grid-row: 1; }
+.shield-slot { grid-column: 1; grid-row: 2; }
+.chest-slot { grid-column: 2; grid-row: 2; }
+.weapon-slot { grid-column: 3; grid-row: 2; }
+.legs-slot { grid-column: 2; grid-row: 3; }
+.boots-slot { grid-column: 2; grid-row: 4; }
+
+/* RIGHT PANEL - ACTIONS & GAME INFO */
+.right-panel {
+    padding: 25px;
+    background: var(--bg-panel);
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* CURRENT RUN SECTION */
+.current-run-section {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+}
+
+.run-info {
+    background: var(--bg-main);
+    padding: 15px;
+    border: 2px solid var(--border);
+    margin-top: 15px;
+}
+
+.monster-display {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border);
+}
+
+.monster-image {
+    width: 80px;
+    height: 80px;
+    border: 2px solid var(--border);
+    background: var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: white;
+}
+
+.monster-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.monster-stats {
+    flex: 1;
+}
+
+.hp-bar {
+    height: 12px;
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
+    margin: 8px 0;
+    overflow: hidden;
+}
+
+.hp-fill {
+    height: 100%;
+    background: var(--red);
+    transition: width 0.5s ease;
+}
+
+.stage-info {
+    text-align: center;
+    padding: 10px;
+    background: var(--bg-main);
+    border: 2px solid var(--border);
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+/* GACHA BANNER SECTION */
+.gacha-section {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+}
+
+.banner-display {
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    padding: 20px;
+    border: 2px solid var(--border);
+    margin-top: 15px;
+    color: white;
+    text-align: center;
+}
+
+.banner-featured {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.featured-item {
+    width: 60px;
+    height: 60px;
+    border: 2px solid var(--yellow);
+    background: var(--bg-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.featured-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.banner-cost {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--yellow);
+    margin: 10px 0;
+}
+
+/* LEADERBOARD PREVIEW */
+.leaderboard-preview {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+}
+
+.leaderboard-list {
+    margin-top: 15px;
+}
+
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: var(--bg-main);
+    border: 2px solid var(--border);
+    margin-bottom: 8px;
+}
+
+.rank {
+    width: 30px;
+    height: 30px;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    border: 2px solid var(--border);
+}
+
+.rank.top { background: var(--yellow); color: var(--accent); }
+.rank.top-3 { background: var(--blue); }
+
+/* ACTION MENU */
+.action-menu {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: auto;
+    padding-top: 25px;
+    border-top: 3px solid var(--border);
+}
+
+.action-btn {
+    background: var(--light-green);
+    padding: 20px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+    border: 3px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.action-btn:hover {
+    background: var(--bright-green);
+    transform: translateY(-3px);
+}
+
+.action-btn i {
+    font-size: 32px;
+}
+
+.action-btn.play { background: var(--red); color: white; }
+.action-btn.play:hover { background: #ff6666; }
+
+.action-btn.gacha { background: var(--yellow); }
+.action-btn.gacha:hover { background: #ffed4d; }
+
+.action-btn.inventory { background: var(--blue); color: white; }
+.action-btn.inventory:hover { background: #66b3ff; }
+
+.action-btn.settings { background: var(--purple); color: white; }
+.action-btn.settings:hover { background: #b366ff; }
+
+/* MODALS */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background-color: var(--bg-main);
+    border-radius: 0;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 3px solid var(--border);
+}
+
+.modal-header {
+    padding: 15px;
+    border-bottom: 3px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-panel);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--border);
+    font-weight: bold;
+}
+
+/* INVENTORY MODAL */
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.inventory-item {
+    border: 2px solid var(--border);
+    padding: 10px;
+    text-align: center;
+    background: var(--bg-panel);
+    cursor: pointer;
+    position: relative;
+}
+
+.inventory-item.equipped {
+    border-color: var(--green);
+    background: rgba(0, 184, 92, 0.1);
+}
+
+.item-image {
+    width: 60px;
+    height: 60px;
+    background: var(--yellow);
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border: 2px solid var(--border);
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+/* GACHA MODAL */
+.gacha-preview {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    color: white;
+    margin-bottom: 20px;
+}
+
+.pull-animation {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    background: rgba(0, 0, 0, 0.2);
+    margin: 20px 0;
+    border: 3px solid var(--border);
+}
+
+/* NOTIFICATIONS */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    background: var(--green);
+    color: white;
+    border: 3px solid var(--border);
+    font-weight: 600;
+    z-index: 1001;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.error {
+    background: var(--red);
+}
+
+.notification.warning {
+    background: var(--yellow);
+    color: var(--accent);
+}
+
+/* LOADING */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-style: italic;
+}
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .left-panel {
+        border-right: none;
+        border-bottom: 3px solid var(--border);
+    }
+    
+    .top-bar {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .currency-display {
+        align-items: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-menu {
+        grid-template-columns: 1fr;
+    }
+    
+    .top-bar .quick-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="app">
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="profile">
+            <div class="pfp" id="player-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-info">
+                <div class="username" id="player-username">Loading...</div>
+                <div>HIGH SCORE: <span id="player-highscore">0</span></div>
+                <div class="level">LEVEL <span id="player-level">1</span></div>
+            </div>
+        </div>
+        
+        <div class="currency-display">
+            <div class="gold" id="player-gold">
+                <i class="fas fa-coins"></i> GOLD: <span id="gold-amount">0</span>
+            </div>
+            <div class="gems" id="player-gems">
+                <i class="fas fa-gem"></i> GEMS: <span id="gems-amount">0</span>
+            </div>
+        </div>
+        
+        <div class="quick-actions">
+            <button class="btn btn-success" onclick="startNewRun()">
+                <i class="fas fa-play"></i> NEW RUN
+            </button>
+            <button class="btn btn-warning" onclick="openGachaModal()">
+                <i class="fas fa-dice"></i> GACHA
+            </button>
+            <button class="btn btn-primary" onclick="openInventoryModal()">
+                <i class="fas fa-backpack"></i> INVENTORY
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <!-- LEFT PANEL -->
+        <div class="left-panel">
+            <!-- STATS SECTION -->
+            <div class="stats-section">
+                <div class="section-title">CHARACTER STATS</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">HEALTH</div>
+                        <div class="stat-value" id="stat-health">100</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">DAMAGE</div>
+                        <div class="stat-value" id="stat-damage">10</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">DEFENSE</div>
+                        <div class="stat-value" id="stat-defense">5</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">CRIT CHANCE</div>
+                        <div class="stat-value" id="stat-crit">5%</div>
+                    </div>
+                    
+                    <div class="health-display">
+                        <div class="health-bar">
+                            <div class="health-fill" id="health-bar-fill" style="width: 100%"></div>
+                        </div>
+                        <div class="health-text" id="health-text">100 / 100 HP</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EQUIPMENT SECTION -->
+            <div class="equipment-section">
+                <div class="section-title">EQUIPMENT</div>
+                <div class="equipment-grid">
+                    <!-- Helmet -->
+                    <div class="equipment-slot helmet-slot empty" onclick="equipSlot('helmet')" id="slot-helmet">
+                        <div class="equipment-icon">
+                            <i class="fas fa-helmet-battle"></i>
+                        </div>
+                        <div class="slot-name">HELMET</div>
+                        <div class="item-name" id="item-helmet">Empty</div>
+                    </div>
+                    
+                    <!-- Shield -->
+                    <div class="equipment-slot shield-slot empty" onclick="equipSlot('shield')" id="slot-shield">
+                        <div class="equipment-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="slot-name">SHIELD</div>
+                        <div class="item-name" id="item-shield">Empty</div>
+                    </div>
+                    
+                    <!-- Chest -->
+                    <div class="equipment-slot chest-slot empty" onclick="equipSlot('chest')" id="slot-chest">
+                        <div class="equipment-icon">
+                            <i class="fas fa-vest"></i>
+                        </div>
+                        <div class="slot-name">CHESTPLATE</div>
+                        <div class="item-name" id="item-chest">Empty</div>
+                    </div>
+                    
+                    <!-- Weapon -->
+                    <div class="equipment-slot weapon-slot empty" onclick="equipSlot('weapon')" id="slot-weapon">
+                        <div class="equipment-icon">
+                            <i class="fas fa-sword"></i>
+                        </div>
+                        <div class="slot-name">WEAPON</div>
+                        <div class="item-name" id="item-weapon">Empty</div>
+                    </div>
+                    
+                    <!-- Legs -->
+                    <div class="equipment-slot legs-slot empty" onclick="equipSlot('legs')" id="slot-legs">
+                        <div class="equipment-icon">
+                            <i class="fas fa-running"></i>
+                        </div>
+                        <div class="slot-name">LEGGINGS</div>
+                        <div class="item-name" id="item-legs">Empty</div>
+                    </div>
+                    
+                    <!-- Boots -->
+                    <div class="equipment-slot boots-slot empty" onclick="equipSlot('boots')" id="slot-boots">
+                        <div class="equipment-icon">
+                            <i class="fas fa-boot"></i>
+                        </div>
+                        <div class="slot-name">BOOTS</div>
+                        <div class="item-name" id="item-boots">Empty</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="right-panel">
+            <!-- CURRENT RUN SECTION -->
+            <div class="current-run-section">
+                <div class="section-title">CURRENT RUN</div>
+                <div class="run-info" id="current-run-info">
+                    <div class="loading">No active run. Start a new one!</div>
+                </div>
+            </div>
+
+            <!-- GACHA BANNER SECTION -->
+            <div class="gacha-section">
+                <div class="section-title">ACTIVE BANNER</div>
+                <div class="banner-display" id="active-banner">
+                    <div class="loading">Loading banner...</div>
+                </div>
+            </div>
+
+            <!-- LEADERBOARD PREVIEW -->
+            <div class="leaderboard-preview">
+                <div class="section-title">LEADERBOARD</div>
+                <div class="leaderboard-list" id="leaderboard-preview">
+                    <div class="loading">Loading leaderboard...</div>
+                </div>
+            </div>
+
+            <!-- ACTION MENU -->
+            <div class="action-menu">
+                <button class="action-btn play" onclick="continueRun()">
+                    <i class="fas fa-play-circle"></i>
+                    <span>CONTINUE</span>
+                </button>
+                <button class="action-btn gacha" onclick="openGachaModal()">
+                    <i class="fas fa-dice"></i>
+                    <span>GACHA</span>
+                </button>
+                <button class="action-btn inventory" onclick="openInventoryModal()">
+                    <i class="fas fa-backpack"></i>
+                    <span>INVENTORY</span>
+                </button>
+                <button class="action-btn settings" onclick="openSettingsModal()">
+                    <i class="fas fa-cog"></i>
+                    <span>SETTINGS</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODALS -->
+<!-- INVENTORY MODAL -->
+<div class="modal" id="inventory-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>INVENTORY</h3>
+            <button class="close-btn" onclick="closeInventoryModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="inventory-grid" id="inventory-items">
+                <div class="loading">Loading inventory...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GACHA MODAL -->
+<div class="modal" id="gacha-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>GACHA SYSTEM</h3>
+            <button class="close-btn" onclick="closeGachaModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="gacha-content">
+                <div class="loading">Loading gacha...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal" id="settings-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>SETTINGS</h3>
+            <button class="close-btn" onclick="closeSettingsModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="text-align: center; padding: 40px;">
+                <h4>Game Settings</h4>
+                <p>Audio, graphics, and gameplay options would go here.</p>
+                <button class="btn btn-primary" style="margin-top: 20px;" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> LOGOUT
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notification" id="notification"></div>
+
+<script type="module">
+// Import Supabase client
+import { supabase } from './supabase.js';
+
+console.log('RPG Lobby - Supabase client loaded');
+
+// Global variables
+let currentUser = null;
+let playerStats = null;
+let playerEquipment = [];
+let equippedItems = {};
+let currentRun = null;
+let inventoryItems = [];
+let gachaBanners = [];
+let leaderboardData = [];
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('Initializing RPG Lobby...');
+    
+    // Load player data
+    await loadPlayerData();
+    
+    // Load active run
+    await loadCurrentRun();
+    
+    // Load gacha banners
+    await loadGachaBanners();
+    
+    // Load leaderboard
+    await loadLeaderboard();
+    
+    // Update UI
+    updateUI();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(async () => {
+        await refreshData();
+    }, 30000);
+});
+
+// Load player data from database
+async function loadPlayerData() {
+    try {
+        // Get current user (for demo, get first user)
+        const { data: users, error: usersError } = await supabase
+            .from('users')
+            .select('*')
+            .limit(1);
+        
+        if (usersError) throw usersError;
+        
+        if (users && users.length > 0) {
+            currentUser = users[0];
+            
+            // Get player stats
+            const { data: stats, error: statsError } = await supabase
+                .from('player_stats')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .single();
+            
+            if (!statsError) {
+                playerStats = stats;
+            }
+            
+            // Get player equipment
+            const { data: equipment, error: equipmentError } = await supabase
+                .from('player_equipment')
+                .select(`
+                    *,
+                    equipment:equipment_id (*)
+                `)
+                .eq('user_id', currentUser.id);
+            
+            if (!equipmentError) {
+                playerEquipment = equipment || [];
+                
+                // Organize equipped items
+                equippedItems = {};
+                playerEquipment.forEach(item => {
+                    if (item.is_equipped && item.equipment) {
+                        const slot = item.equipment.slot.toLowerCase();
+                        equippedItems[slot] = {
+                            ...item.equipment,
+                            player_equipment_id: item.id
+                        };
+                    }
+                });
+                
+                // All items for inventory
+                inventoryItems = playerEquipment.map(item => ({
+                    ...item.equipment,
+                    player_equipment_id: item.id,
+                    is_equipped: item.is_equipped
+                }));
+            }
+            
+            // Update gold from user data
+            document.getElementById('gold-amount').textContent = currentUser.gold || 0;
+            document.getElementById('player-highscore').textContent = currentUser.highest_stage || 1;
+            document.getElementById('player-username').textContent = currentUser.username || 'Player';
+            
+            console.log('Player data loaded successfully');
+        }
+        
+    } catch (error) {
+        console.error('Error loading player data:', error);
+        showNotification('Error loading player data', 'error');
+    }
+}
+
+// Load current active run
+async function loadCurrentRun() {
+    try {
+        if (!currentUser) return;
+        
+        const { data: runs, error } = await supabase
+            .from('runs')
+            .select(`
+                *,
+                monster:current_monster (*)
+            `)
+            .eq('user_id', currentUser.id)
+            .order('created_at', { ascending: false })
+            .limit(1);
+        
+        if (error) throw error;
+        
+        if (runs && runs.length > 0) {
+            currentRun = runs[0];
+            updateRunDisplay();
+        } else {
+            currentRun = null;
+            document.getElementById('current-run-info').innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h4>No Active Run</h4>
+                    <p>Start a new adventure!</p>
+                    <button class="btn btn-success" onclick="startNewRun()" style="margin-top: 10px;">
+                        <i class="fas fa-play"></i> START NEW RUN
+                    </button>
+                </div>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('Error loading current run:', error);
+        document.getElementById('current-run-info').innerHTML = `
+            <div class="loading">Error loading run data</div>
+        `;
+    }
+}
+
+// Load gacha banners
+async function loadGachaBanners() {
+    try {
+        const { data: banners, error } = await supabase
+            .from('gacha_banners')
+            .select(`
+                *,
+                gacha_rates (*)
+            `)
+            .eq('is_active', true)
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        gachaBanners = banners || [];
+        
+        if (gachaBanners.length > 0) {
+            updateBannerDisplay();
+        } else {
+            document.getElementById('active-banner').innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h4>No Active Banners</h4>
+                    <p>Check back later for new banners!</p>
+                </div>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('Error loading gacha banners:', error);
+        document.getElementById('active-banner').innerHTML = `
+            <div class="loading">Error loading banners</div>
+        `;
+    }
+}
+
+// Load leaderboard
+async function loadLeaderboard() {
+    try {
+        const { data: leaderboard, error } = await supabase
+            .from('leaderboard')
+            .select(`
+                *,
+                user:users (username)
+            `)
+            .order('highest_stage', { ascending: false })
+            .order('monsters_defeated', { ascending: false })
+            .limit(5);
+        
+        if (error) throw error;
+        
+        leaderboardData = leaderboard || [];
+        updateLeaderboardDisplay();
+        
+    } catch (error) {
+        console.error('Error loading leaderboard:', error);
+        document.getElementById('leaderboard-preview').innerHTML = `
+            <div class="loading">Error loading leaderboard</div>
+        `;
+    }
+}
+
+// Update UI with loaded data
+function updateUI() {
+    // Update player stats
+    if (playerStats) {
+        const baseHP = playerStats.base_hp || 100;
+        const baseDamage = playerStats.base_damage || 10;
+        const baseDefense = playerStats.base_defense || 5;
+        const critChance = playerStats.crit_chance || 0.05;
+        
+        // Calculate bonuses from equipped items
+        let hpBonus = 0;
+        let damageBonus = 0;
+        let defenseBonus = 0;
+        let critBonus = 0;
+        
+        Object.values(equippedItems).forEach(item => {
+            hpBonus += item.health_bonus || 0;
+            damageBonus += item.damage || 0;
+            defenseBonus += item.defense || 0;
+            critBonus += item.crit_bonus || 0;
+        });
+        
+        const totalHP = baseHP + hpBonus;
+        const totalDamage = baseDamage + damageBonus;
+        const totalDefense = baseDefense + defenseBonus;
+        const totalCrit = critChance + critBonus;
+        
+        document.getElementById('stat-health').textContent = totalHP;
+        document.getElementById('stat-damage').textContent = totalDamage;
+        document.getElementById('stat-defense').textContent = totalDefense;
+        document.getElementById('stat-crit').textContent = `${(totalCrit * 100).toFixed(1)}%`;
+        
+        // Update health bar
+        const healthPercent = currentRun ? (currentRun.player_hp / totalHP * 100) : 100;
+        document.getElementById('health-bar-fill').style.width = `${healthPercent}%`;
+        document.getElementById('health-text').textContent = currentRun ? 
+            `${currentRun.player_hp} / ${totalHP} HP` : 
+            `${totalHP} / ${totalHP} HP`;
+        
+        // Calculate player level (simplified)
+        const level = Math.floor((totalHP + totalDamage + totalDefense) / 100) + 1;
+        document.getElementById('player-level').textContent = level;
+    }
+    
+    // Update equipment slots
+    const slots = ['helmet', 'shield', 'chest', 'weapon', 'legs', 'boots'];
+    slots.forEach(slot => {
+        const element = document.getElementById(`slot-${slot}`);
+        const itemName = document.getElementById(`item-${slot}`);
+        
+        if (equippedItems[slot]) {
+            const item = equippedItems[slot];
+            element.classList.remove('empty');
+            itemName.textContent = item.name || 'Unknown';
+            
+            // Add rarity badge
+            const existingRarity = element.querySelector('.item-rarity');
+            if (existingRarity) existingRarity.remove();
+            
+            const rarityDiv = document.createElement('div');
+            rarityDiv.className = `item-rarity rarity-${item.rarity || 'common'}`;
+            rarityDiv.textContent = item.rarity?.charAt(0).toUpperCase() || 'C';
+            element.appendChild(rarityDiv);
+            
+            // Add image if available
+            const icon = element.querySelector('.equipment-icon');
+            if (item.image_url) {
+                icon.innerHTML = `<img src="${item.image_url}" alt="${item.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas fa-question\\'></i>'">`;
+            }
+        } else {
+            element.classList.add('empty');
+            itemName.textContent = 'Empty';
+            
+            // Reset icon
+            const icon = element.querySelector('.equipment-icon');
+            const iconClass = {
+                helmet: 'fa-helmet-battle',
+                shield: 'fa-shield-alt',
+                chest: 'fa-vest',
+                weapon: 'fa-sword',
+                legs: 'fa-running',
+                boots: 'fa-boot'
+            }[slot];
+            icon.innerHTML = `<i class="fas ${iconClass}"></i>`;
+            
+            // Remove rarity badge
+            const existingRarity = element.querySelector('.item-rarity');
+            if (existingRarity) existingRarity.remove();
+        }
+    });
+}
+
+// Update run display
+function updateRunDisplay() {
+    if (!currentRun) return;
+    
+    const runInfo = document.getElementById('current-run-info');
+    const monster = currentRun.monster;
+    
+    let monsterHTML = '';
+    if (monster) {
+        const monsterHPPercent = (currentRun.monster_hp / monster.hp * 100);
+        
+        monsterHTML = `
+            <div class="monster-display">
+                <div class="monster-image">
+                    ${monster.image_url ? 
+                        `<img src="${monster.image_url}" alt="${monster.name}">` : 
+                        `<i class="fas fa-dragon"></i>`
+                    }
+                </div>
+                <div class="monster-stats">
+                    <h4>${monster.name}</h4>
+                    <div>Stage ${currentRun.current_stage}</div>
+                    <div class="hp-bar">
+                        <div class="hp-fill" style="width: ${monsterHPPercent}%"></div>
+                    </div>
+                    <div>HP: ${currentRun.monster_hp} / ${monster.hp}</div>
+                    <div>Category: ${monster.category || 'Unknown'}</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    runInfo.innerHTML = `
+        ${monsterHTML}
+        <div class="stage-info">
+            Stage ${currentRun.current_stage} | Streak: ${currentRun.streak || 0}
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="btn btn-success" onclick="continueRun()">
+                <i class="fas fa-play"></i> CONTINUE
+            </button>
+            <button class="btn" onclick="abandonRun()">
+                <i class="fas fa-times"></i> ABANDON
+            </button>
+        </div>
+    `;
+}
+
+// Update banner display
+function updateBannerDisplay() {
+    if (gachaBanners.length === 0) return;
+    
+    const banner = gachaBanners[0];
+    const bannerDiv = document.getElementById('active-banner');
+    
+    // Get featured items from rates (simplified)
+    const featuredRates = banner.gacha_rates?.filter(rate => 
+        ['epic', 'legendary'].includes(rate.rarity?.toLowerCase())
+    ) || [];
+    
+    let featuredHTML = '';
+    if (featuredRates.length > 0) {
+        featuredHTML = `
+            <div class="banner-featured">
+                ${featuredRates.slice(0, 3).map(() => `
+                    <div class="featured-item">
+                        <i class="fas fa-star"></i>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    bannerDiv.innerHTML = `
+        <h4>${banner.name}</h4>
+        ${featuredHTML}
+        <div class="banner-cost">
+            <i class="fas fa-coins"></i> ${banner.cost} GOLD
+        </div>
+        <button class="btn btn-warning" onclick="pullGacha('${banner.id}')" style="margin-top: 10px;">
+            <i class="fas fa-dice"></i> PULL ONCE
+        </button>
+        <button class="btn btn-primary" onclick="pullGachaMulti('${banner.id}', 10)" style="margin-top: 10px;">
+            <i class="fas fa-dice-five"></i> 10-PULL
+        </button>
+    `;
+}
+
+// Update leaderboard display
+function updateLeaderboardDisplay() {
+    const leaderboardDiv = document.getElementById('leaderboard-preview');
+    
+    if (leaderboardData.length === 0) {
+        leaderboardDiv.innerHTML = '<div class="loading">No leaderboard data</div>';
+        return;
+    }
+    
+    let html = '';
+    leaderboardData.forEach((entry, index) => {
+        const rankClass = index === 0 ? 'top' : index < 3 ? 'top-3' : '';
+        html += `
+            <div class="leaderboard-item">
+                <div class="rank ${rankClass}">${index + 1}</div>
+                <div style="flex: 1;">
+                    <strong>${entry.user?.username || 'Unknown'}</strong>
+                    <div style="font-size: 12px;">
+                        Stage ${entry.highest_stage} | ${entry.monsters_defeated || 0} kills
+                    </div>
+                </div>
+                <div style="font-weight: 700; color: var(--green);">
+                    ${entry.correct_answers || 0}
+                </div>
+            </div>
+        `;
+    });
+    
+    leaderboardDiv.innerHTML = html;
+}
+
+// Open inventory modal
+async function openInventoryModal() {
+    const modal = document.getElementById('inventory-modal');
+    const itemsDiv = document.getElementById('inventory-items');
+    
+    if (inventoryItems.length === 0) {
+        itemsDiv.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                <h4>No Items</h4>
+                <p>Your inventory is empty. Try the gacha system!</p>
+                <button class="btn btn-warning" onclick="openGachaModal()" style="margin-top: 10px;">
+                    <i class="fas fa-dice"></i> GO TO GACHA
+                </button>
+            </div>
+        `;
+    } else {
+        let html = '';
+        inventoryItems.forEach(item => {
+            const isEquipped = item.is_equipped;
+            const slot = item.slot?.toLowerCase();
+            const equippedClass = isEquipped ? 'equipped' : '';
+            
+            html += `
+                <div class="inventory-item ${equippedClass}" onclick="selectInventoryItem('${item.id}')" data-id="${item.id}">
+                    <div class="item-image">
+                        ${item.image_url ? 
+                            `<img src="${item.image_url}" alt="${item.name}">` : 
+                            `<i class="fas fa-question"></i>`
+                        }
+                    </div>
+                    <div style="font-size: 12px; font-weight: 600;">${item.name}</div>
+                    <div style="font-size: 10px; color: #666;">${item.slot}</div>
+                    <div class="item-rarity rarity-${item.rarity || 'common'}" style="margin-top: 5px;">
+                        ${item.rarity?.toUpperCase() || 'COMMON'}
+                    </div>
+                    <div class="item-actions">
+                        ${!isEquipped ? `
+                            <button class="btn" onclick="event.stopPropagation(); equipItem('${item.id}', '${slot}')" style="font-size: 10px; padding: 4px 8px;">
+                                EQUIP
+                            </button>
+                        ` : `
+                            <button class="btn" onclick="event.stopPropagation(); unequipItem('${item.id}')" style="font-size: 10px; padding: 4px 8px;">
+                                UNEQUIP
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `;
+        });
+        
+        itemsDiv.innerHTML = html;
+    }
+    
+    modal.classList.add('active');
+}
+
+// Close inventory modal
+function closeInventoryModal() {
+    document.getElementById('inventory-modal').classList.remove('active');
+}
+
+// Open gacha modal
+async function openGachaModal() {
+    const modal = document.getElementById('gacha-modal');
+    const contentDiv = document.getElementById('gacha-content');
+    
+    if (gachaBanners.length === 0) {
+        contentDiv.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <h4>No Active Banners</h4>
+                <p>Check back later for gacha banners!</p>
+            </div>
+        `;
+    } else {
+        let bannersHTML = '';
+        gachaBanners.forEach(banner => {
+            const rates = banner.gacha_rates || [];
+            let ratesHTML = '';
+            
+            if (rates.length > 0) {
+                rates.forEach(rate => {
+                    ratesHTML += `
+                        <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--border);">
+                            <span>${rate.rarity}</span>
+                            <span>${rate.chance}%</span>
+                        </div>
+                    `;
+                });
+            }
+            
+            bannersHTML += `
+                <div style="border: 2px solid var(--border); padding: 15px; margin-bottom: 15px; background: linear-gradient(135deg, var(--purple), var(--blue)); color: white;">
+                    <h4>${banner.name}</h4>
+                    <div style="font-size: 24px; font-weight: 700; color: var(--yellow); margin: 10px 0;">
+                        <i class="fas fa-coins"></i> ${banner.cost} GOLD
+                    </div>
+                    <div style="background: rgba(0, 0, 0, 0.2); padding: 10px; margin: 10px 0;">
+                        <h5>Drop Rates</h5>
+                        ${ratesHTML}
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn btn-warning" onclick="pullGacha('${banner.id}')" style="flex: 1;">
+                            <i class="fas fa-dice"></i> SINGLE PULL
+                        </button>
+                        <button class="btn btn-primary" onclick="pullGachaMulti('${banner.id}', 10)" style="flex: 1;">
+                            <i class="fas fa-dice-five"></i> 10-PULL
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        contentDiv.innerHTML = bannersHTML;
+    }
+    
+    modal.classList.add('active');
+}
+
+// Close gacha modal
+function closeGachaModal() {
+    document.getElementById('gacha-modal').classList.remove('active');
+}
+
+// Open settings modal
+function openSettingsModal() {
+    document.getElementById('settings-modal').classList.add('active');
+}
+
+// Close settings modal
+function closeSettingsModal() {
+    document.getElementById('settings-modal').classList.remove('active');
+}
+
+// Equip item
+async function equipItem(equipmentId, slot) {
+    try {
+        if (!currentUser) return;
+        
+        // First, unequip any item in that slot
+        const itemsInSlot = playerEquipment.filter(item => 
+            item.is_equipped && item.equipment?.slot?.toLowerCase() === slot
+        );
+        
+        for (const item of itemsInSlot) {
+            const { error: unequipError } = await supabase
+                .from('player_equipment')
+                .update({ is_equipped: false })
+                .eq('id', item.id);
+            
+            if (unequipError) throw unequipError;
+        }
+        
+        // Equip the new item
+        const { error: equipError } = await supabase
+            .from('player_equipment')
+            .update({ is_equipped: true })
+            .eq('equipment_id', equipmentId)
+            .eq('user_id', currentUser.id);
+        
+        if (equipError) throw equipError;
+        
+        showNotification('Item equipped successfully!', 'success');
+        await refreshData();
+        
+    } catch (error) {
+        console.error('Error equipping item:', error);
+        showNotification('Error equipping item', 'error');
+    }
+}
+
+// Unequip item
+async function unequipItem(equipmentId) {
+    try {
+        if (!currentUser) return;
+        
+        const { error } = await supabase
+            .from('player_equipment')
+            .update({ is_equipped: false })
+            .eq('equipment_id', equipmentId)
+            .eq('user_id', currentUser.id);
+        
+        if (error) throw error;
+        
+        showNotification('Item unequipped', 'success');
+        await refreshData();
+        
+    } catch (error) {
+        console.error('Error unequipping item:', error);
+        showNotification('Error unequipping item', 'error');
+    }
+}
+
+// Select inventory item
+function selectInventoryItem(itemId) {
+    const item = inventoryItems.find(i => i.id === itemId);
+    if (!item) return;
+    
+    alert(`Item Details:\nName: ${item.name}\nSlot: ${item.slot}\nRarity: ${item.rarity}\nDamage: ${item.damage || 0}\nDefense: ${item.defense || 0}`);
+}
+
+// Equip slot click
+function equipSlot(slot) {
+    if (equippedItems[slot]) {
+        // Show equipped item details
+        const item = equippedItems[slot];
+        alert(`Equipped ${slot}:\n${item.name}\nRarity: ${item.rarity}\nDamage: ${item.damage || 0}\nDefense: ${item.defense || 0}\n\nClick "Inventory" to manage items.`);
+    } else {
+        // Open inventory to equip
+        openInventoryModal();
+    }
+}
+
+// Start new run
+async function startNewRun() {
+    try {
+        if (!currentUser) return;
+        
+        // Get first monster for stage 1
+        const { data: monsters, error: monstersError } = await supabase
+            .from('monsters')
+            .select('*')
+            .eq('stage', 1)
+            .limit(1);
+        
+        if (monstersError) throw monstersError;
+        
+        if (!monsters || monsters.length === 0) {
+            showNotification('No monsters found for stage 1', 'error');
+            return;
+        }
+        
+        const monster = monsters[0];
+        const playerHP = (playerStats?.base_hp || 100) + 
+            (equippedItems.weapon?.health_bonus || 0) +
+            (equippedItems.chest?.health_bonus || 0) +
+            (equippedItems.helmet?.health_bonus || 0);
+        
+        // Create new run
+        const { data: run, error: runError } = await supabase
+            .from('runs')
+            .insert([{
+                user_id: currentUser.id,
+                current_stage: 1,
+                current_monster: monster.id,
+                player_hp: playerHP,
+                monster_hp: monster.hp,
+                streak: 0,
+                started_at: new Date().toISOString()
+            }])
+            .select()
+            .single();
+        
+        if (runError) throw runError;
+        
+        currentRun = run;
+        updateRunDisplay();
+        showNotification('New run started! Good luck!', 'success');
+        
+    } catch (error) {
+        console.error('Error starting new run:', error);
+        showNotification('Error starting run', 'error');
+    }
+}
+
+// Continue run
+function continueRun() {
+    if (!currentRun) {
+        showNotification('No active run. Start a new one!', 'warning');
+        return;
+    }
+    
+    // In a real app, this would redirect to the game page
+    showNotification(`Continuing to stage ${currentRun.current_stage}...`, 'success');
+    setTimeout(() => {
+        alert('Game would start here. Redirecting to game page...');
+        // window.location.href = 'game.html';
+    }, 1000);
+}
+
+// Abandon run
+async function abandonRun() {
+    if (!currentRun || !confirm('Are you sure you want to abandon this run?')) return;
+    
+    try {
+        const { error } = await supabase
+            .from('runs')
+            .delete()
+            .eq('id', currentRun.id);
+        
+        if (error) throw error;
+        
+        currentRun = null;
+        await loadCurrentRun();
+        showNotification('Run abandoned', 'success');
+        
+    } catch (error) {
+        console.error('Error abandoning run:', error);
+        showNotification('Error abandoning run', 'error');
+    }
+}
+
+// Pull gacha
+async function pullGacha(bannerId, multi = false) {
+    try {
+        if (!currentUser) return;
+        
+        const banner = gachaBanners.find(b => b.id === bannerId);
+        if (!banner) {
+            showNotification('Banner not found', 'error');
+            return;
+        }
+        
+        // Check if user has enough gold
+        const cost = banner.cost * (multi ? 10 : 1);
+        if (currentUser.gold < cost) {
+            showNotification(`Not enough gold! Need ${cost} gold`, 'error');
+            return;
+        }
+        
+        // Deduct gold
+        const newGold = currentUser.gold - cost;
+        const { error: goldError } = await supabase
+            .from('users')
+            .update({ gold: newGold })
+            .eq('id', currentUser.id);
+        
+        if (goldError) throw goldError;
+        
+        currentUser.gold = newGold;
+        document.getElementById('gold-amount').textContent = newGold;
+        
+        // Get gacha rates for this banner
+        const { data: rates, error: ratesError } = await supabase
+            .from('gacha_rates')
+            .select('*')
+            .eq('banner_id', bannerId);
+        
+        if (ratesError) throw ratesError;
+        
+        if (!rates || rates.length === 0) {
+            showNotification('No gacha rates found for this banner', 'error');
+            return;
+        }
+        
+        // Get equipment based on rarity
+        const pulls = multi ? 10 : 1;
+        const obtainedItems = [];
+        
+        for (let i = 0; i < pulls; i++) {
+            // Simple random selection based on rates
+            const random = Math.random() * 100;
+            let selectedRarity = 'common';
+            let cumulative = 0;
+            
+            for (const rate of rates) {
+                cumulative += Number(rate.chance);
+                if (random <= cumulative) {
+                    selectedRarity = rate.rarity;
+                    break;
+                }
+            }
+            
+            // Get random equipment of selected rarity
+            const { data: equipment, error: equipmentError } = await supabase
+                .from('equipment')
+                .select('*')
+                .eq('rarity', selectedRarity)
+                .limit(1);
+            
+            if (!equipmentError && equipment && equipment.length > 0) {
+                const item = equipment[0];
+                obtainedItems.push(item);
+                
+                // Add to player inventory
+                const { error: inventoryError } = await supabase
+                    .from('player_equipment')
+                    .insert([{
+                        user_id: currentUser.id,
+                        equipment_id: item.id,
+                        is_equipped: false,
+                        obtained_at: new Date().toISOString()
+                    }]);
+                
+                if (inventoryError) {
+                    console.error('Error adding item to inventory:', inventoryError);
+                }
+            }
+        }
+        
+        // Show results
+        showGachaResults(obtainedItems, multi);
+        
+        // Refresh inventory
+        await refreshData();
+        
+    } catch (error) {
+        console.error('Error pulling gacha:', error);
+        showNotification('Error pulling gacha', 'error');
+    }
+}
+
+// Multi-pull gacha
+function pullGachaMulti(bannerId) {
+    pullGacha(bannerId, true);
+}
+
+// Show gacha results
+function showGachaResults(items, multi) {
+    const modal = document.getElementById('gacha-modal');
+    const contentDiv = document.getElementById('gacha-content');
+    
+    let resultsHTML = '';
+    
+    if (multi) {
+        resultsHTML = `
+            <div style="text-align: center;">
+                <h3>10-PULL RESULTS!</h3>
+                <div class="pull-animation">
+                    <i class="fas fa-gift"></i>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px;">
+        `;
+        
+        items.forEach((item, index) => {
+            resultsHTML += `
+                <div style="border: 2px solid var(--border); padding: 10px; text-align: center; background: var(--bg-panel);">
+                    <div style="font-size: 24px; margin-bottom: 10px;">
+                        ${item.image_url ? 
+                            `<img src="${item.image_url}" alt="${item.name}" style="width: 40px; height: 40px; object-fit: cover;">` : 
+                            `<i class="fas fa-question"></i>`
+                        }
+                    </div>
+                    <div style="font-size: 12px; font-weight: 600;">${item.name}</div>
+                    <div style="font-size: 10px; color: #666;">${item.rarity}</div>
+                </div>
+            `;
+        });
+        
+        resultsHTML += `
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="openGachaModal()">
+                        BACK TO BANNERS
+                    </button>
+                </div>
+            </div>
+        `;
+    } else {
+        const item = items[0];
+        resultsHTML = `
+            <div style="text-align: center;">
+                <h3>YOU GOT!</h3>
+                <div class="pull-animation">
+                    ${item.image_url ? 
+                        `<img src="${item.image_url}" alt="${item.name}" style="max-width: 100px; max-height: 100px;">` : 
+                        `<i class="fas fa-gift" style="font-size: 64px;"></i>`
+                    }
+                </div>
+                <div style="margin-top: 20px; padding: 20px; background: var(--bg-panel); border: 2px solid var(--border);">
+                    <h4>${item.name}</h4>
+                    <div class="item-rarity rarity-${item.rarity}" style="margin: 10px auto; display: inline-block;">
+                        ${item.rarity?.toUpperCase()}
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <div>Slot: ${item.slot}</div>
+                        ${item.damage ? `<div>Damage: ${item.damage}</div>` : ''}
+                        ${item.defense ? `<div>Defense: ${item.defense}</div>` : ''}
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="openGachaModal()">
+                        PULL AGAIN
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    contentDiv.innerHTML = resultsHTML;
+}
+
+// Refresh all data
+async function refreshData() {
+    await loadPlayerData();
+    await loadCurrentRun();
+    await loadGachaBanners();
+    await loadLeaderboard();
+    updateUI();
+    showNotification('Data refreshed', 'success');
+}
+
+// Show notification
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.className = `notification ${type} show`;
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+}
+
+// Logout
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        showNotification('Logging out...', 'success');
+        setTimeout(() => {
+            // In a real app, this would clear auth and redirect
+            alert('Logged out. Redirecting to login...');
+            // window.location.href = 'login.html';
+        }, 1000);
+    }
+}
+
+// Make functions globally available
+window.openInventoryModal = openInventoryModal;
+window.closeInventoryModal = closeInventoryModal;
+window.openGachaModal = openGachaModal;
+window.closeGachaModal = closeGachaModal;
+window.openSettingsModal = openSettingsModal;
+window.closeSettingsModal = closeSettingsModal;
+window.startNewRun = startNewRun;
+window.continueRun = continueRun;
+window.abandonRun = abandonRun;
+window.pullGacha = pullGacha;
+window.pullGachaMulti = pullGachaMulti;
+window.equipItem = equipItem;
+window.unequipItem = unequipItem;
+window.selectInventoryItem = selectInventoryItem;
+window.equipSlot = equipSlot;
+window.logout = logout;
+</script>
+</body>
+</html>
