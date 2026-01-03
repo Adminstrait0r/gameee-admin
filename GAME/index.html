@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Content Management</title>
+    <title>Game Admin Panel - Multi-Table Management</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -23,7 +23,7 @@
             --dark-color: #212529;
             --gray-color: #6c757d;
             --border-color: #dee2e6;
-            --sidebar-width: 250px;
+            --sidebar-width: 280px;
             --header-height: 70px;
         }
 
@@ -44,6 +44,7 @@
             z-index: 100;
             position: fixed;
             height: 100vh;
+            overflow-y: auto;
         }
 
         .sidebar-header {
@@ -52,6 +53,9 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            position: sticky;
+            top: 0;
+            background: white;
         }
 
         .sidebar-header h2 {
@@ -61,12 +65,12 @@
 
         .sidebar-menu {
             list-style: none;
-            padding: 20px 0;
+            padding: 10px 0;
             flex-grow: 1;
         }
 
         .sidebar-menu li {
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
 
         .sidebar-menu a {
@@ -77,6 +81,7 @@
             text-decoration: none;
             transition: all 0.3s;
             gap: 10px;
+            border-left: 4px solid transparent;
         }
 
         .sidebar-menu a:hover, .sidebar-menu a.active {
@@ -85,11 +90,23 @@
             border-left: 4px solid var(--primary-color);
         }
 
+        .table-group {
+            padding-left: 20px;
+            font-size: 0.85rem;
+            color: var(--gray-color);
+            margin-top: 20px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
         .sidebar-footer {
             padding: 20px;
             border-top: 1px solid var(--border-color);
             font-size: 0.9rem;
             color: var(--gray-color);
+            position: sticky;
+            bottom: 0;
+            background: white;
         }
 
         /* Main Content Styles */
@@ -97,6 +114,8 @@
             flex: 1;
             margin-left: var(--sidebar-width);
             padding: 20px;
+            overflow-y: auto;
+            height: 100vh;
         }
 
         .header {
@@ -123,7 +142,8 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
 
-        .content-container {
+        /* Table Container */
+        .table-container {
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
@@ -131,7 +151,7 @@
             margin-bottom: 30px;
         }
 
-        .content-header {
+        .table-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -140,8 +160,11 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        .content-header h3 {
+        .table-header h3 {
             color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .btn {
@@ -154,6 +177,7 @@
             align-items: center;
             gap: 8px;
             transition: all 0.3s;
+            font-size: 0.9rem;
         }
 
         .btn-primary {
@@ -181,7 +205,7 @@
         }
 
         /* Table Styles */
-        .table-container {
+        .table-content {
             overflow-x: auto;
             padding: 20px;
         }
@@ -189,6 +213,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 800px;
         }
 
         th {
@@ -198,11 +223,13 @@
             font-weight: 600;
             color: var(--dark-color);
             border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
         }
 
         td {
             padding: 15px;
             border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
         }
 
         tr:hover {
@@ -212,6 +239,7 @@
         .actions {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .action-btn {
@@ -223,6 +251,31 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
+            white-space: nowrap;
+        }
+
+        .badge {
+            background-color: #e9ecef;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin: 2px;
+        }
+
+        .badge-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
         }
 
         /* Form Styles */
@@ -256,7 +309,7 @@
         }
 
         textarea.form-control {
-            min-height: 150px;
+            min-height: 100px;
             resize: vertical;
         }
 
@@ -281,6 +334,7 @@
             z-index: 1000;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
 
         .modal.active {
@@ -291,7 +345,7 @@
             background-color: white;
             border-radius: 10px;
             width: 90%;
-            max-width: 600px;
+            max-width: 800px;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -349,7 +403,6 @@
             border-left: 4px solid var(--danger-color);
         }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 40px 20px;
@@ -362,13 +415,23 @@
             color: var(--border-color);
         }
 
+        /* Connection Status */
+        #supabase-status {
+            margin-top: 5px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background: #dcfce7;
+            color: #16a34a;
+            font-size: 0.8rem;
+        }
+
         /* Responsive */
-        @media (max-width: 992px) {
+        @media (max-width: 1200px) {
             .sidebar {
                 width: 70px;
             }
             
-            .sidebar-header h2, .sidebar-menu span, .sidebar-footer {
+            .sidebar-header h2, .sidebar-menu span, .table-group, .sidebar-footer p {
                 display: none;
             }
             
@@ -385,6 +448,13 @@
                 border-left: none;
                 border-right: 4px solid var(--primary-color);
             }
+            
+            .sidebar-footer #supabase-status {
+                display: block;
+                font-size: 0.7rem;
+                padding: 3px 5px;
+                text-align: center;
+            }
         }
 
         @media (max-width: 768px) {
@@ -398,6 +468,68 @@
                 align-items: flex-start;
                 gap: 15px;
             }
+            
+            .modal-content {
+                width: 95%;
+            }
+        }
+
+        /* Tab Navigation for Tables */
+        .table-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        .table-tab {
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .table-tab:hover {
+            background: #f8f9fa;
+        }
+
+        .table-tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .table-section {
+            display: none;
+        }
+
+        .table-section.active {
+            display: block;
+        }
+        
+        /* Boolean display */
+        .bool-true {
+            color: #16a34a;
+            font-weight: bold;
+        }
+        
+        .bool-false {
+            color: #dc2626;
+            font-weight: bold;
+        }
+        
+        /* UUID display */
+        .uuid-short {
+            font-family: monospace;
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
         }
     </style>
 </head>
@@ -405,129 +537,423 @@
     <!-- Sidebar -->
     <nav class="sidebar">
         <div class="sidebar-header">
-            <i class="fas fa-cogs" style="color: var(--primary-color); font-size: 1.5rem;"></i>
-            <h2>Admin Panel</h2>
+            <i class="fas fa-gamepad" style="color: var(--primary-color); font-size: 1.5rem;"></i>
+            <h2>Game Admin Panel</h2>
         </div>
         
         <ul class="sidebar-menu">
-            <li><a href="#" class="active" id="nav-content"><i class="fas fa-box"></i> <span>Content</span></a></li>
-            <li><a href="#" id="nav-users"><i class="fas fa-users"></i> <span>Users</span></a></li>
-            <li><a href="#" id="nav-settings"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
-            <li><a href="#" id="nav-analytics"><i class="fas fa-chart-bar"></i> <span>Analytics</span></a></li>
+            <li><a href="#" class="active" id="nav-dashboard">
+                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+            </a></li>
+            
+            <div class="table-group">GAME DATA</div>
+            
+            <li><a href="#" data-table="equipment">
+                <i class="fas fa-shield-alt"></i> <span>Equipment</span>
+            </a></li>
+            
+            <li><a href="#" data-table="monsters">
+                <i class="fas fa-dragon"></i> <span>Monsters</span>
+            </a></li>
+            
+            <li><a href="#" data-table="questions">
+                <i class="fas fa-question-circle"></i> <span>Questions</span>
+            </a></li>
+            
+            <li><a href="#" data-table="question_options">
+                <i class="fas fa-list-ul"></i> <span>Question Options</span>
+            </a></li>
+            
+            <div class="table-group">GACHA SYSTEM</div>
+            
+            <li><a href="#" data-table="gacha_banners">
+                <i class="fas fa-gem"></i> <span>Gacha Banners</span>
+            </a></li>
+            
+            <li><a href="#" data-table="gacha_rates">
+                <i class="fas fa-chart-pie"></i> <span>Gacha Rates</span>
+            </a></li>
+            
+            <div class="table-group">PLAYER DATA</div>
+            
+            <li><a href="#" data-table="users">
+                <i class="fas fa-users"></i> <span>Users</span>
+            </a></li>
+            
+            <li><a href="#" data-table="player_stats">
+                <i class="fas fa-chart-line"></i> <span>Player Stats</span>
+            </a></li>
+            
+            <li><a href="#" data-table="player_equipment">
+                <i class="fas fa-vest"></i> <span>Player Equipment</span>
+            </a></li>
+            
+            <div class="table-group">GAME PROGRESSION</div>
+            
+            <li><a href="#" data-table="runs">
+                <i class="fas fa-running"></i> <span>Game Runs</span>
+            </a></li>
+            
+            <li><a href="#" data-table="leaderboard">
+                <i class="fas fa-trophy"></i> <span>Leaderboard</span>
+            </a></li>
         </ul>
         
         <div class="sidebar-footer">
-            <p>Admin Panel v1.0</p>
-            <p>Connected to Supabase</p>
+            <p>Game Admin v1.0</p>
+            <div id="supabase-status">Connecting to Supabase...</div>
         </div>
     </nav>
 
     <!-- Main Content -->
     <main class="main-content">
-        <div class="header">
-            <h1>Content Management</h1>
-            <div class="user-info">
-                <i class="fas fa-user-circle" style="font-size: 1.5rem;"></i>
-                <span>Admin User</span>
+        <!-- Dashboard -->
+        <div id="dashboard-section" class="table-section active">
+            <div class="header">
+                <h1>Game Admin Dashboard</h1>
+                <div class="user-info">
+                    <i class="fas fa-user-circle" style="font-size: 1.5rem;"></i>
+                    <span>Administrator</span>
+                </div>
             </div>
-        </div>
 
-        <!-- Success/Error Messages -->
-        <div id="message-container"></div>
-
-        <!-- Content Management Section -->
-        <div class="content-container">
-            <div class="content-header">
-                <h3><i class="fas fa-box"></i> All Content Items</h3>
-                <button class="btn btn-primary" id="add-content-btn">
-                    <i class="fas fa-plus"></i> Add New Content
-                </button>
+            <div class="message message-success" id="connection-status">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Connecting to your Supabase database...</span>
             </div>
-            
+
             <div class="table-container">
-                <div id="loading" class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Loading content...
+                <div class="table-header">
+                    <h3><i class="fas fa-database"></i> All Database Tables</h3>
                 </div>
-                
-                <div id="empty-state" class="empty-state" style="display: none;">
-                    <i class="fas fa-box-open"></i>
-                    <h3>No Content Found</h3>
-                    <p>Add your first content item by clicking the "Add New Content" button.</p>
+                <div class="table-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Table</th>
+                                <th>Description</th>
+                                <th>Records</th>
+                                <th>Last Checked</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-overview">
+                            <tr>
+                                <td><strong>equipment</strong></td>
+                                <td>Game items with stats</td>
+                                <td id="count-equipment">-</td>
+                                <td id="time-equipment">-</td>
+                                <td><button class="action-btn btn-primary" onclick="showTable('equipment')">Manage</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>monsters</strong></td>
+                                <td>Enemy creatures</td>
+                                <td id="count-monsters">-</td>
+                                <td id="time-monsters">-</td>
+                                <td><button class="action-btn btn-primary" onclick="showTable('monsters')">Manage</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>questions</strong></td>
+                                <td>Quiz questions</td>
+                                <td id="count-questions">-</td>
+                                <td id="time-questions">-</td>
+                                <td><button class="action-btn btn-primary" onclick="showTable('questions')">Manage</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>question_options</strong></td>
+                                <td>Question answer choices</td>
+                                <td id="count-question_options">-</td>
+                                <td id="time-question_options">-</td>
+                                <td><button class="action-btn btn-primary" onclick="showTable('question_options')">Manage</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>gacha_banners</strong></td>
+                                <td>Gacha pool banners</td>
+                                <td id="count-gacha_banners">-</td>
+                                <td id="time-gacha_banners">-</td>
+                                <td><button class="action-btn btn-primary" onclick="showTable('gacha_banners')">Manage</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>gacha_rates</strong></td>
+                                <td>Drop rates for banners</td>
+                                <td id="count-gacha_rates">-</td>
+                                <td id="time-gacha_rates">-</td>
+                                <td><button class="action-btn btn-primary" onclick="showTable('gacha_rates')">Manage</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>users</strong></td>
+                                <td>Player accounts</td>
+                                <td id="count-users">-</td>
+                                <td id="time-users">-</td>
+                                <td><button class="action-btn btn-primary" onclick="showTable('users')">Manage</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>player_stats</strong></td>
+                                <td>Player character stats</td>
+                                <td id="count-player_stats">-</td>
+                                <td id="time-player_stats">-</td>
+                                <td><button class="action-btn btn-primary" onclick="showTable('player_stats')">Manage</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>player_equipment</strong></td>
+                                <td>Player owned items</td>
+                                <td id="count-player_equipment">-</td>
+                                <td id="time-player_equipment">-</td>
+                                <td><button class="action-btn btn-primary" onclick="showTable('player_equipment')">Manage</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>runs</strong></td>
+                                <td>Active game sessions</td>
+                                <td id="count-runs">-</td>
+                                <td id="time-runs">-</td>
+                                <td><button class="action-btn btn-primary" onclick="showTable('runs')">Manage</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>leaderboard</strong></td>
+                                <td>Player rankings</td>
+                                <td id="count-leaderboard">-</td>
+                                <td id="time-leaderboard">-</td>
+                                <td><button class="action-btn btn-primary" onclick="showTable('leaderboard')">Manage</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                
-                <table id="content-table" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Description</th>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="content-table-body">
-                        <!-- Content will be loaded here dynamically -->
-                    </tbody>
-                </table>
             </div>
         </div>
+
+        <!-- Equipment Section -->
+        <div id="equipment-section" class="table-section">
+            <div class="header">
+                <h1><i class="fas fa-shield-alt"></i> Equipment Management</h1>
+                <div>
+                    <button class="btn" onclick="showTable('equipment')">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('equipment')">
+                        <i class="fas fa-plus"></i> Add Equipment
+                    </button>
+                </div>
+            </div>
+            <div id="equipment-content" class="table-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading equipment data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Monsters Section -->
+        <div id="monsters-section" class="table-section">
+            <div class="header">
+                <h1><i class="fas fa-dragon"></i> Monsters Management</h1>
+                <div>
+                    <button class="btn" onclick="showTable('monsters')">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('monsters')">
+                        <i class="fas fa-plus"></i> Add Monster
+                    </button>
+                </div>
+            </div>
+            <div id="monsters-content" class="table-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading monsters data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions Section -->
+        <div id="questions-section" class="table-section">
+            <div class="header">
+                <h1><i class="fas fa-question-circle"></i> Questions Management</h1>
+                <div>
+                    <button class="btn" onclick="showTable('questions')">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('questions')">
+                        <i class="fas fa-plus"></i> Add Question
+                    </button>
+                </div>
+            </div>
+            <div id="questions-content" class="table-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading questions data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Options Section -->
+        <div id="question_options-section" class="table-section">
+            <div class="header">
+                <h1><i class="fas fa-list-ul"></i> Question Options Management</h1>
+                <div>
+                    <button class="btn" onclick="showTable('question_options')">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('question_options')">
+                        <i class="fas fa-plus"></i> Add Option
+                    </button>
+                </div>
+            </div>
+            <div id="question_options-content" class="table-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading options data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Gacha Banners Section -->
+        <div id="gacha_banners-section" class="table-section">
+            <div class="header">
+                <h1><i class="fas fa-gem"></i> Gacha Banners Management</h1>
+                <div>
+                    <button class="btn" onclick="showTable('gacha_banners')">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('gacha_banners')">
+                        <i class="fas fa-plus"></i> Add Banner
+                    </button>
+                </div>
+            </div>
+            <div id="gacha_banners-content" class="table-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading banners data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Gacha Rates Section -->
+        <div id="gacha_rates-section" class="table-section">
+            <div class="header">
+                <h1><i class="fas fa-chart-pie"></i> Gacha Rates Management</h1>
+                <div>
+                    <button class="btn" onclick="showTable('gacha_rates')">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('gacha_rates')">
+                        <i class="fas fa-plus"></i> Add Rate
+                    </button>
+                </div>
+            </div>
+            <div id="gacha_rates-content" class="table-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading rates data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="users-section" class="table-section">
+            <div class="header">
+                <h1><i class="fas fa-users"></i> Users Management</h1>
+                <div>
+                    <button class="btn" onclick="showTable('users')">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('users')">
+                        <i class="fas fa-plus"></i> Add User
+                    </button>
+                </div>
+            </div>
+            <div id="users-content" class="table-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading users data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Player Stats Section -->
+        <div id="player_stats-section" class="table-section">
+            <div class="header">
+                <h1><i class="fas fa-chart-line"></i> Player Stats Management</h1>
+                <div>
+                    <button class="btn" onclick="showTable('player_stats')">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('player_stats')">
+                        <i class="fas fa-plus"></i> Add Player Stats
+                    </button>
+                </div>
+            </div>
+            <div id="player_stats-content" class="table-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading player stats data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Player Equipment Section -->
+        <div id="player_equipment-section" class="table-section">
+            <div class="header">
+                <h1><i class="fas fa-vest"></i> Player Equipment Management</h1>
+                <div>
+                    <button class="btn" onclick="showTable('player_equipment')">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('player_equipment')">
+                        <i class="fas fa-plus"></i> Add Player Equipment
+                    </button>
+                </div>
+            </div>
+            <div id="player_equipment-content" class="table-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading player equipment data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Runs Section -->
+        <div id="runs-section" class="table-section">
+            <div class="header">
+                <h1><i class="fas fa-running"></i> Game Runs Management</h1>
+                <div>
+                    <button class="btn" onclick="showTable('runs')">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('runs')">
+                        <i class="fas fa-plus"></i> Add Game Run
+                    </button>
+                </div>
+            </div>
+            <div id="runs-content" class="table-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading runs data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Section -->
+        <div id="leaderboard-section" class="table-section">
+            <div class="header">
+                <h1><i class="fas fa-trophy"></i> Leaderboard Management</h1>
+                <div>
+                    <button class="btn" onclick="showTable('leaderboard')">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('leaderboard')">
+                        <i class="fas fa-plus"></i> Add Leaderboard Entry
+                    </button>
+                </div>
+            </div>
+            <div id="leaderboard-content" class="table-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading leaderboard data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Container -->
+        <div id="message-container" style="position: fixed; top: 20px; right: 20px; width: 300px; z-index: 1000;"></div>
     </main>
 
-    <!-- Add/Edit Content Modal -->
-    <div class="modal" id="content-modal">
+    <!-- Modal for All Tables -->
+    <div class="modal" id="crud-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modal-title">Add New Content</h3>
-                <button class="close-btn" id="close-modal">&times;</button>
+                <h3 id="modal-title">Add New Item</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="content-form">
-                    <input type="hidden" id="content-id">
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="content-title">Title *</label>
-                            <input type="text" id="content-title" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="content-category">Category</label>
-                            <select id="content-category" class="form-control">
-                                <option value="general">General</option>
-                                <option value="news">News</option>
-                                <option value="tutorial">Tutorial</option>
-                                <option value="product">Product</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="content-description">Description *</label>
-                        <textarea id="content-description" class="form-control" required></textarea>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="content-status">Status</label>
-                            <select id="content-status" class="form-control">
-                                <option value="published">Published</option>
-                                <option value="draft">Draft</option>
-                                <option value="archived">Archived</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="content-image">Image URL</label>
-                            <input type="text" id="content-image" class="form-control" placeholder="https://example.com/image.jpg">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px;">
-                        <button type="button" class="btn" id="cancel-btn" style="background-color: #e9ecef;">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="submit-btn">Save Content</button>
-                    </div>
-                </form>
+                <form id="crud-form"></form>
             </div>
         </div>
     </div>
@@ -537,404 +963,707 @@
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
                 <h3><i class="fas fa-exclamation-triangle" style="color: var(--danger-color);"></i> Confirm Delete</h3>
-                <button class="close-btn" id="close-delete-modal">&times;</button>
+                <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete this content item? This action cannot be undone.</p>
+                <p>Are you sure you want to delete this item? This action cannot be undone.</p>
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px;">
-                    <button type="button" class="btn" id="cancel-delete-btn" style="background-color: #e9ecef;">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete Content</button>
+                    <button type="button" class="btn" onclick="closeDeleteModal()" style="background-color: #e9ecef;">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete Item</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // Import your existing Supabase client
-        // Assuming you have a supabase.js file that exports the supabase client
-        // This code assumes supabase is available globally or you can import it
-        // For this example, we'll simulate the Supabase functionality with localStorage
-        // Replace this with your actual Supabase integration
+    <!-- Import your existing supabase.js DIRECTLY -->
+    <script type="module">
+        // ============================================
+        // DIRECT SUPABASE IMPORT - USING YOUR EXISTING FILE
+        // ============================================
+        import { supabase } from './supabase.js';
         
-        // Mock data for demonstration
-        let contentItems = [
-            { id: 1, title: "Welcome to Our Platform", description: "Introduction to our services and features", category: "general", status: "published", created_at: "2023-10-15", image_url: "" },
-            { id: 2, title: "Getting Started Guide", description: "Step-by-step guide for new users", category: "tutorial", status: "published", created_at: "2023-10-10", image_url: "" },
-            { id: 3, title: "Product Update v2.0", description: "Details about our latest product release", category: "product", status: "published", created_at: "2023-10-05", image_url: "" },
-            { id: 4, title: "Upcoming Features", description: "Preview of features in development", category: "news", status: "draft", created_at: "2023-10-01", image_url: "" },
-            { id: 5, title: "Customer Success Story", description: "How our platform helped XYZ Corp", category: "general", status: "published", created_at: "2023-09-28", image_url: "" }
-        ];
+        console.log('Supabase client loaded:', supabase ? 'YES' : 'NO');
+        console.log('Supabase URL:', supabase?.supabaseUrl);
 
-        // DOM Elements
-        const contentTable = document.getElementById('content-table');
-        const contentTableBody = document.getElementById('content-table-body');
-        const loadingElement = document.getElementById('loading');
-        const emptyStateElement = document.getElementById('empty-state');
-        const addContentBtn = document.getElementById('add-content-btn');
-        const contentModal = document.getElementById('content-modal');
-        const deleteModal = document.getElementById('delete-modal');
-        const closeModalBtn = document.getElementById('close-modal');
-        const closeDeleteModalBtn = document.getElementById('close-delete-modal');
-        const cancelBtn = document.getElementById('cancel-btn');
-        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
-        const contentForm = document.getElementById('content-form');
-        const modalTitle = document.getElementById('modal-title');
-        const messageContainer = document.getElementById('message-container');
-        
-        // Variables for state management
-        let currentContentId = null;
-        let deleteContentId = null;
+        // ============================================
+        // GLOBAL VARIABLES
+        // ============================================
+        let currentTable = null;
+        let currentRecordId = null;
         let isEditMode = false;
+        let allData = {};
 
-        // Initialize the admin panel
-        document.addEventListener('DOMContentLoaded', function() {
-            loadContent();
+        // ============================================
+        // TABLE SCHEMA DEFINITIONS
+        // ============================================
+        const tableSchemas = {
+            equipment: {
+                displayName: 'Equipment',
+                icon: 'fa-shield-alt',
+                columns: [
+                    { name: 'name', type: 'text', label: 'Name', required: true },
+                    { name: 'slot', type: 'select', label: 'Slot', options: ['weapon', 'armor', 'accessory'], required: true },
+                    { name: 'rarity', type: 'select', label: 'Rarity', options: ['common', 'uncommon', 'rare', 'epic', 'legendary'], required: true },
+                    { name: 'damage', type: 'number', label: 'Damage', required: false, defaultValue: 0 },
+                    { name: 'defense', type: 'number', label: 'Defense', required: false, defaultValue: 0 },
+                    { name: 'crit_bonus', type: 'number', label: 'Crit Bonus', step: '0.01', required: false, defaultValue: 0 },
+                    { name: 'image_url', type: 'text', label: 'Image URL', required: false }
+                ]
+            },
+            monsters: {
+                displayName: 'Monsters',
+                icon: 'fa-dragon',
+                columns: [
+                    { name: 'name', type: 'text', label: 'Name', required: true },
+                    { name: 'stage', type: 'number', label: 'Stage', required: true, defaultValue: 1 },
+                    { name: 'hp', type: 'number', label: 'HP', required: true, defaultValue: 100 },
+                    { name: 'damage', type: 'number', label: 'Damage', required: true, defaultValue: 10 },
+                    { name: 'defense', type: 'number', label: 'Defense', required: true, defaultValue: 5 },
+                    { name: 'timer_seconds', type: 'number', label: 'Timer (seconds)', required: true, defaultValue: 30 },
+                    { name: 'category', type: 'select', label: 'Category', options: ['math', 'science', 'history', 'geography', 'general'], required: true },
+                    { name: 'image_url', type: 'text', label: 'Image URL', required: false }
+                ]
+            },
+            questions: {
+                displayName: 'Questions',
+                icon: 'fa-question-circle',
+                columns: [
+                    { name: 'category', type: 'select', label: 'Category', options: ['math', 'science', 'history', 'geography', 'general'], required: true },
+                    { name: 'difficulty', type: 'select', label: 'Difficulty', options: ['easy', 'medium', 'hard'], required: true },
+                    { name: 'question_text', type: 'textarea', label: 'Question Text', required: true },
+                    { name: 'image_url', type: 'text', label: 'Image URL', required: false }
+                ]
+            },
+            question_options: {
+                displayName: 'Question Options',
+                icon: 'fa-list-ul',
+                columns: [
+                    { name: 'question_id', type: 'text', label: 'Question ID (UUID)', required: true },
+                    { name: 'option_text', type: 'text', label: 'Option Text', required: true },
+                    { name: 'is_correct', type: 'checkbox', label: 'Is Correct Answer', required: false, defaultValue: false },
+                    { name: 'image_url', type: 'text', label: 'Image URL', required: false }
+                ]
+            },
+            gacha_banners: {
+                displayName: 'Gacha Banners',
+                icon: 'fa-gem',
+                columns: [
+                    { name: 'name', type: 'text', label: 'Banner Name', required: true },
+                    { name: 'cost', type: 'number', label: 'Cost (gold)', required: true, defaultValue: 100 },
+                    { name: 'is_active', type: 'checkbox', label: 'Is Active', required: false, defaultValue: true }
+                ]
+            },
+            gacha_rates: {
+                displayName: 'Gacha Rates',
+                icon: 'fa-chart-pie',
+                columns: [
+                    { name: 'banner_id', type: 'text', label: 'Banner ID (UUID)', required: true },
+                    { name: 'rarity', type: 'select', label: 'Rarity', options: ['common', 'uncommon', 'rare', 'epic', 'legendary'], required: true },
+                    { name: 'chance', type: 'number', label: 'Chance (%)', step: '0.01', required: true, defaultValue: 1.0 }
+                ]
+            },
+            users: {
+                displayName: 'Users',
+                icon: 'fa-users',
+                columns: [
+                    { name: 'username', type: 'text', label: 'Username', required: true },
+                    { name: 'highest_stage', type: 'number', label: 'Highest Stage', required: false, defaultValue: 1 },
+                    { name: 'gold', type: 'number', label: 'Gold', required: false, defaultValue: 0 }
+                ]
+            },
+            player_stats: {
+                displayName: 'Player Stats',
+                icon: 'fa-chart-line',
+                columns: [
+                    { name: 'user_id', type: 'text', label: 'User ID (UUID)', required: true },
+                    { name: 'base_hp', type: 'number', label: 'Base HP', required: true, defaultValue: 100 },
+                    { name: 'base_damage', type: 'number', label: 'Base Damage', required: true, defaultValue: 10 },
+                    { name: 'base_defense', type: 'number', label: 'Base Defense', required: true, defaultValue: 5 },
+                    { name: 'crit_chance', type: 'number', label: 'Crit Chance', step: '0.01', required: true, defaultValue: 0.05 }
+                ]
+            },
+            player_equipment: {
+                displayName: 'Player Equipment',
+                icon: 'fa-vest',
+                columns: [
+                    { name: 'user_id', type: 'text', label: 'User ID (UUID)', required: true },
+                    { name: 'equipment_id', type: 'text', label: 'Equipment ID (UUID)', required: true },
+                    { name: 'is_equipped', type: 'checkbox', label: 'Is Equipped', required: false, defaultValue: false }
+                ]
+            },
+            runs: {
+                displayName: 'Game Runs',
+                icon: 'fa-running',
+                columns: [
+                    { name: 'user_id', type: 'text', label: 'User ID (UUID)', required: true },
+                    { name: 'current_stage', type: 'number', label: 'Current Stage', required: true, defaultValue: 1 },
+                    { name: 'current_monster', type: 'text', label: 'Current Monster ID (UUID)', required: false },
+                    { name: 'player_hp', type: 'number', label: 'Player HP', required: true, defaultValue: 100 },
+                    { name: 'monster_hp', type: 'number', label: 'Monster HP', required: true, defaultValue: 100 },
+                    { name: 'streak', type: 'number', label: 'Streak', required: true, defaultValue: 0 }
+                ]
+            },
+            leaderboard: {
+                displayName: 'Leaderboard',
+                icon: 'fa-trophy',
+                columns: [
+                    { name: 'user_id', type: 'text', label: 'User ID (UUID)', required: true },
+                    { name: 'highest_stage', type: 'number', label: 'Highest Stage', required: true, defaultValue: 1 },
+                    { name: 'monsters_defeated', type: 'number', label: 'Monsters Defeated', required: true, defaultValue: 0 },
+                    { name: 'correct_answers', type: 'number', label: 'Correct Answers', required: true, defaultValue: 0 }
+                ]
+            }
+        };
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('DOM loaded, initializing...');
+            
+            // Set up event listeners
             setupEventListeners();
+            
+            // Connect to Supabase automatically
+            await connectToSupabase();
+            
+            // Load all table counts
+            await loadAllTableCounts();
+            
+            // Show dashboard by default
+            showSection('dashboard');
         });
 
-        // Setup event listeners
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
         function setupEventListeners() {
-            // Add content button
-            addContentBtn.addEventListener('click', () => openContentModal());
-            
-            // Close modal buttons
-            closeModalBtn.addEventListener('click', () => closeContentModal());
-            cancelBtn.addEventListener('click', () => closeContentModal());
-            closeDeleteModalBtn.addEventListener('click', () => closeDeleteModal());
-            cancelDeleteBtn.addEventListener('click', () => closeDeleteModal());
-            
-            // Form submission
-            contentForm.addEventListener('submit', handleFormSubmit);
-            
-            // Confirm delete button
-            document.getElementById('confirm-delete-btn').addEventListener('click', confirmDelete);
+            console.log('Setting up event listeners...');
             
             // Navigation
-            document.querySelectorAll('.sidebar-menu a').forEach(item => {
-                item.addEventListener('click', function(e) {
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    document.querySelectorAll('.sidebar-menu a').forEach(link => link.classList.remove('active'));
+                    
+                    // Update active state
+                    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
                     this.classList.add('active');
                     
-                    // In a real app, you would load different content based on navigation
-                    showMessage(`Navigated to ${this.querySelector('span').textContent} section`, 'success');
+                    // Show correct section
+                    if (this.id === 'nav-dashboard') {
+                        showSection('dashboard');
+                    } else if (this.dataset.table) {
+                        showSection(this.dataset.table);
+                    }
                 });
             });
+
+            // Form submission
+            document.getElementById('crud-form').addEventListener('submit', handleFormSubmit);
             
-            // Close modals when clicking outside
-            window.addEventListener('click', (e) => {
-                if (e.target === contentModal) closeContentModal();
-                if (e.target === deleteModal) closeDeleteModal();
-            });
+            // Delete confirmation
+            document.getElementById('confirm-delete-btn').addEventListener('click', confirmDelete);
         }
 
-        // Load content from "Supabase" (simulated)
-        function loadContent() {
-            // Simulate API call delay
-            setTimeout(() => {
-                // In a real app, you would use:
-                // const { data, error } = await supabase.from('contents').select('*');
+        // ============================================
+        // SUPABASE CONNECTION
+        // ============================================
+        async function connectToSupabase() {
+            console.log('Attempting to connect to Supabase...');
+            
+            try {
+                // Test connection by making a simple query
+                const { data, error } = await supabase
+                    .from('equipment')
+                    .select('id', { count: 'exact', head: true })
+                    .limit(1);
                 
-                if (contentItems.length === 0) {
-                    loadingElement.style.display = 'none';
-                    emptyStateElement.style.display = 'block';
-                    return;
+                if (error) {
+                    throw new Error(`Supabase connection failed: ${error.message}`);
                 }
                 
-                renderContentTable(contentItems);
-                loadingElement.style.display = 'none';
-                contentTable.style.display = 'table';
-            }, 800);
+                // Update UI to show connected
+                document.getElementById('supabase-status').textContent = '🟢 Connected to Supabase';
+                document.getElementById('connection-status').innerHTML = '<i class="fas fa-check-circle"></i> <span>Successfully connected to your Supabase database!</span>';
+                document.getElementById('connection-status').className = 'message message-success';
+                
+                console.log('Supabase connected successfully!');
+                return true;
+                
+            } catch (error) {
+                console.error('Supabase connection error:', error);
+                
+                document.getElementById('supabase-status').textContent = '🔴 Connection Failed';
+                document.getElementById('supabase-status').style.backgroundColor = '#fee2e2';
+                document.getElementById('supabase-status').style.color = '#dc2626';
+                
+                document.getElementById('connection-status').innerHTML = `<i class="fas fa-exclamation-circle"></i> <span>Connection failed: ${error.message}</span>`;
+                document.getElementById('connection-status').className = 'message message-error';
+                
+                return false;
+            }
         }
 
-        // Render content table
-        function renderContentTable(items) {
-            contentTableBody.innerHTML = '';
+        // ============================================
+        // SECTION MANAGEMENT
+        // ============================================
+        function showSection(tableName) {
+            console.log('Showing section:', tableName);
             
-            items.forEach(item => {
-                const row = document.createElement('tr');
+            // Hide all sections
+            document.querySelectorAll('.table-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            const sectionId = tableName === 'dashboard' ? 'dashboard-section' : `${tableName}-section`;
+            const sectionElement = document.getElementById(sectionId);
+            
+            if (sectionElement) {
+                sectionElement.classList.add('active');
                 
-                // Format date
-                const formattedDate = new Date(item.created_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
+                // Load data if not dashboard
+                if (tableName !== 'dashboard') {
+                    currentTable = tableName;
+                    loadTableData(tableName);
+                }
+            }
+        }
+
+        // Shortcut function for buttons
+        window.showTable = function(tableName) {
+            // Update sidebar active state
+            document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+            const sidebarLink = document.querySelector(`.sidebar-menu a[data-table="${tableName}"]`);
+            if (sidebarLink) {
+                sidebarLink.classList.add('active');
+            }
+            
+            showSection(tableName);
+        };
+
+        // ============================================
+        // DATA LOADING
+        // ============================================
+        async function loadAllTableCounts() {
+            console.log('Loading all table counts...');
+            
+            const tables = Object.keys(tableSchemas);
+            
+            for (const tableName of tables) {
+                try {
+                    const { count, error } = await supabase
+                        .from(tableName)
+                        .select('*', { count: 'exact', head: true });
+                    
+                    const countElement = document.getElementById(`count-${tableName}`);
+                    const timeElement = document.getElementById(`time-${tableName}`);
+                    
+                    if (!error && countElement && timeElement) {
+                        countElement.textContent = count || 0;
+                        timeElement.textContent = new Date().toLocaleTimeString();
+                        
+                        // Update badge color based on count
+                        const row = countElement.closest('tr');
+                        if (row) {
+                            const statusCell = row.querySelector('td:nth-child(4)');
+                            if (statusCell) {
+                                statusCell.innerHTML = count > 0 ? 
+                                    `<span class="badge badge-success">${count} records</span>` : 
+                                    `<span class="badge">Empty</span>`;
+                            }
+                        }
+                    } else if (error) {
+                        console.error(`Error loading count for ${tableName}:`, error);
+                        if (countElement) countElement.textContent = 'Error';
+                        if (timeElement) timeElement.textContent = 'Error';
+                    }
+                    
+                    // Small delay to avoid rate limiting
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                } catch (error) {
+                    console.error(`Error loading count for ${tableName}:`, error);
+                }
+            }
+        }
+
+        async function loadTableData(tableName) {
+            console.log(`Loading data for table: ${tableName}`);
+            
+            const contentDiv = document.getElementById(`${tableName}-content`);
+            if (!contentDiv) return;
+            
+            // Show loading state
+            contentDiv.innerHTML = `<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading ${tableName} data...</div>`;
+            
+            try {
+                const { data, error } = await supabase
+                    .from(tableName)
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(100);
+                
+                if (error) {
+                    throw new Error(`Supabase error: ${error.message}`);
+                }
+                
+                console.log(`Loaded ${data?.length || 0} records from ${tableName}`);
+                
+                // Store data globally
+                allData[tableName] = data || [];
+                
+                // Render the table
+                renderTable(tableName, data);
+                
+            } catch (error) {
+                console.error(`Error loading ${tableName}:`, error);
+                contentDiv.innerHTML = `
+                    <div class="message message-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Error loading data: ${error.message}</span>
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================
+        // RENDER FUNCTIONS
+        // ============================================
+        function renderTable(tableName, data) {
+            const contentDiv = document.getElementById(`${tableName}-content`);
+            
+            if (!data || data.length === 0) {
+                contentDiv.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-database"></i>
+                        <h3>No ${tableName} Found</h3>
+                        <p>Add your first item using the "Add New" button.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const schema = tableSchemas[tableName];
+            const columns = schema.columns;
+            
+            // Create table
+            let html = `
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+            `;
+            
+            // Add column headers
+            columns.forEach(col => {
+                html += `<th>${col.label}</th>`;
+            });
+            
+            // Add actions header
+            html += `
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            `;
+            
+            // Add rows
+            data.forEach(item => {
+                html += `<tr>`;
+                
+                // ID cell (shortened UUID)
+                html += `<td><span class="uuid-short" title="${item.id}">${item.id.substring(0, 8)}...</span></td>`;
+                
+                // Add data cells
+                columns.forEach(col => {
+                    const value = item[col.name];
+                    html += `<td>`;
+                    
+                    if (col.type === 'checkbox') {
+                        html += value ? 
+                            `<span class="bool-true">✓</span>` : 
+                            `<span class="bool-false">✗</span>`;
+                    } else if (col.type === 'select') {
+                        html += `<span class="badge">${value || ''}</span>`;
+                    } else if (col.name.includes('_id') && typeof value === 'string' && value.length > 10) {
+                        // Shorten UUIDs
+                        html += `<span class="uuid-short" title="${value}">${value.substring(0, 8)}...</span>`;
+                    } else if (typeof value === 'string' && value.length > 50) {
+                        html += `${value.substring(0, 50)}...`;
+                    } else if (value === null || value === undefined) {
+                        html += `<span style="color: #9ca3af; font-style: italic;">null</span>`;
+                    } else {
+                        html += value;
+                    }
+                    
+                    html += `</td>`;
                 });
                 
-                // Status badge
-                let statusClass = '';
-                switch(item.status) {
-                    case 'published': statusClass = 'btn-success'; break;
-                    case 'draft': statusClass = 'btn-warning'; break;
-                    case 'archived': statusClass = ''; break;
-                }
+                // Add created at
+                const createdDate = item.created_at ? 
+                    new Date(item.created_at).toLocaleDateString() + ' ' + 
+                    new Date(item.created_at).toLocaleTimeString() : 'N/A';
+                html += `<td>${createdDate}</td>`;
                 
-                row.innerHTML = `
-                    <td>${item.id}</td>
-                    <td><strong>${item.title}</strong></td>
-                    <td>${item.description.substring(0, 60)}${item.description.length > 60 ? '...' : ''}</td>
-                    <td><span style="background-color: #e9ecef; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem;">${item.category}</span></td>
-                    <td><span class="action-btn ${statusClass}" style="cursor: default;">${item.status}</span></td>
-                    <td>${formattedDate}</td>
+                // Add action buttons
+                html += `
                     <td>
                         <div class="actions">
-                            <button class="action-btn btn-primary edit-btn" data-id="${item.id}">
+                            <button class="action-btn btn-primary" onclick="editItem('${tableName}', '${item.id}')">
                                 <i class="fas fa-edit"></i> Edit
                             </button>
-                            <button class="action-btn btn-danger delete-btn" data-id="${item.id}">
+                            <button class="action-btn btn-danger" onclick="deleteItem('${tableName}', '${item.id}')">
                                 <i class="fas fa-trash"></i> Delete
                             </button>
                         </div>
                     </td>
                 `;
                 
-                contentTableBody.appendChild(row);
+                html += `</tr>`;
             });
             
-            // Add event listeners to edit and delete buttons
-            document.querySelectorAll('.edit-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const id = parseInt(e.currentTarget.getAttribute('data-id'));
-                    editContent(id);
-                });
-            });
-            
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const id = parseInt(e.currentTarget.getAttribute('data-id'));
-                    openDeleteModal(id);
-                });
-            });
+            html += `</tbody></table></div>`;
+            contentDiv.innerHTML = html;
         }
 
-        // Open content modal (for add or edit)
-        function openContentModal(content = null) {
-            isEditMode = content !== null;
+        // ============================================
+        // CRUD OPERATIONS
+        // ============================================
+        function openModal(tableName, itemId = null) {
+            console.log(`Opening modal for ${tableName}, edit mode: ${!!itemId}`);
             
+            currentTable = tableName;
+            currentRecordId = itemId;
+            isEditMode = !!itemId;
+            
+            const schema = tableSchemas[tableName];
+            document.getElementById('modal-title').textContent = 
+                `${isEditMode ? 'Edit' : 'Add New'} ${schema.displayName}`;
+            
+            const form = document.getElementById('crud-form');
+            form.innerHTML = '';
+            
+            // Add hidden ID field for edit mode
             if (isEditMode) {
-                modalTitle.textContent = 'Edit Content';
-                document.getElementById('content-id').value = content.id;
-                document.getElementById('content-title').value = content.title;
-                document.getElementById('content-description').value = content.description;
-                document.getElementById('content-category').value = content.category;
-                document.getElementById('content-status').value = content.status;
-                document.getElementById('content-image').value = content.image_url || '';
-                currentContentId = content.id;
-            } else {
-                modalTitle.textContent = 'Add New Content';
-                contentForm.reset();
-                currentContentId = null;
+                form.innerHTML = `<input type="hidden" id="record-id" value="${itemId}">`;
             }
             
-            contentModal.classList.add('active');
+            // Add form fields based on schema
+            schema.columns.forEach(col => {
+                const fieldId = `field-${col.name}`;
+                let fieldHtml = '';
+                
+                if (col.type === 'textarea') {
+                    fieldHtml = `
+                        <div class="form-group">
+                            <label for="${fieldId}">${col.label}${col.required ? ' *' : ''}</label>
+                            <textarea id="${fieldId}" class="form-control" ${col.required ? 'required' : ''}></textarea>
+                        </div>
+                    `;
+                } else if (col.type === 'select') {
+                    const options = col.options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+                    fieldHtml = `
+                        <div class="form-group">
+                            <label for="${fieldId}">${col.label}${col.required ? ' *' : ''}</label>
+                            <select id="${fieldId}" class="form-control" ${col.required ? 'required' : ''}>
+                                <option value="">Select...</option>
+                                ${options}
+                            </select>
+                        </div>
+                    `;
+                } else if (col.type === 'checkbox') {
+                    fieldHtml = `
+                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="${fieldId}" style="width: auto;">
+                            <label for="${fieldId}" style="margin-bottom: 0;">${col.label}</label>
+                        </div>
+                    `;
+                } else {
+                    const inputType = col.type === 'number' ? 'number' : 'text';
+                    const stepAttr = col.step ? `step="${col.step}"` : '';
+                    const valueAttr = col.defaultValue !== undefined ? `value="${col.defaultValue}"` : '';
+                    fieldHtml = `
+                        <div class="form-group">
+                            <label for="${fieldId}">${col.label}${col.required ? ' *' : ''}</label>
+                            <input type="${inputType}" id="${fieldId}" class="form-control" ${stepAttr} ${valueAttr} ${col.required ? 'required' : ''}>
+                        </div>
+                    `;
+                }
+                
+                form.innerHTML += fieldHtml;
+            });
+            
+            // Add submit button
+            form.innerHTML += `
+                <div class="form-group" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px;">
+                    <button type="button" class="btn" onclick="closeModal()" style="background-color: #e9ecef;">Cancel</button>
+                    <button type="submit" class="btn btn-primary">${isEditMode ? 'Update' : 'Save'}</button>
+                </div>
+            `;
+            
+            // Populate form if editing
+            if (isEditMode) {
+                const item = allData[tableName]?.find(i => i.id === itemId);
+                if (item) {
+                    schema.columns.forEach(col => {
+                        const field = document.getElementById(`field-${col.name}`);
+                        if (field) {
+                            if (col.type === 'checkbox') {
+                                field.checked = !!item[col.name];
+                            } else {
+                                field.value = item[col.name] || '';
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // Show modal
+            document.getElementById('crud-modal').classList.add('active');
         }
 
-        // Close content modal
-        function closeContentModal() {
-            contentModal.classList.remove('active');
-            contentForm.reset();
-            currentContentId = null;
+        function closeModal() {
+            document.getElementById('crud-modal').classList.remove('active');
+            currentTable = null;
+            currentRecordId = null;
             isEditMode = false;
         }
 
-        // Open delete confirmation modal
-        function openDeleteModal(id) {
-            deleteContentId = id;
-            deleteModal.classList.add('active');
-        }
-
-        // Close delete confirmation modal
-        function closeDeleteModal() {
-            deleteModal.classList.remove('active');
-            deleteContentId = null;
-        }
-
-        // Handle form submission (add or update)
-        function handleFormSubmit(e) {
+        async function handleFormSubmit(e) {
             e.preventDefault();
             
-            const contentData = {
-                title: document.getElementById('content-title').value,
-                description: document.getElementById('content-description').value,
-                category: document.getElementById('content-category').value,
-                status: document.getElementById('content-status').value,
-                image_url: document.getElementById('content-image').value || '',
-                created_at: new Date().toISOString().split('T')[0]
-            };
+            if (!currentTable) return;
             
-            // In a real app, you would use:
-            // if (isEditMode) {
-            //     const { data, error } = await supabase
-            //         .from('contents')
-            //         .update(contentData)
-            //         .eq('id', currentContentId);
-            // } else {
-            //     const { data, error } = await supabase
-            //         .from('contents')
-            //         .insert([contentData]);
-            // }
+            const schema = tableSchemas[currentTable];
+            const formData = {};
             
-            // Simulate API call
-            setTimeout(() => {
-                if (isEditMode) {
-                    // Update existing item
-                    const index = contentItems.findIndex(item => item.id === currentContentId);
-                    if (index !== -1) {
-                        contentItems[index] = { ...contentItems[index], ...contentData };
+            // Collect form data
+            schema.columns.forEach(col => {
+                const field = document.getElementById(`field-${col.name}`);
+                if (field) {
+                    if (col.type === 'checkbox') {
+                        formData[col.name] = field.checked;
+                    } else if (col.type === 'number') {
+                        formData[col.name] = field.value ? parseFloat(field.value) : null;
+                    } else {
+                        formData[col.name] = field.value || null;
                     }
-                    showMessage('Content updated successfully!', 'success');
+                }
+            });
+            
+            console.log(`Saving ${currentTable}:`, formData);
+            
+            try {
+                if (isEditMode) {
+                    // Update existing record
+                    const { error } = await supabase
+                        .from(currentTable)
+                        .update(formData)
+                        .eq('id', currentRecordId);
+                    
+                    if (error) throw error;
+                    showMessage(`${schema.displayName} updated successfully!`, 'success');
                 } else {
-                    // Add new item
-                    const newId = contentItems.length > 0 ? Math.max(...contentItems.map(item => item.id)) + 1 : 1;
-                    contentData.id = newId;
-                    contentItems.unshift(contentData);
-                    showMessage('Content added successfully!', 'success');
+                    // Insert new record
+                    const { error } = await supabase
+                        .from(currentTable)
+                        .insert([formData]);
+                    
+                    if (error) throw error;
+                    showMessage(`${schema.displayName} added successfully!`, 'success');
                 }
                 
-                renderContentTable(contentItems);
-                closeContentModal();
-            }, 600);
-        }
-
-        // Edit content
-        function editContent(id) {
-            const content = contentItems.find(item => item.id === id);
-            if (content) {
-                openContentModal(content);
+                // Reload table data
+                await loadTableData(currentTable);
+                await loadAllTableCounts();
+                closeModal();
+                
+            } catch (error) {
+                console.error(`Error saving ${currentTable}:`, error);
+                showMessage(`Error: ${error.message}`, 'error');
             }
         }
 
-        // Confirm delete
-        function confirmDelete() {
-            if (!deleteContentId) return;
-            
-            // In a real app, you would use:
-            // const { data, error } = await supabase
-            //     .from('contents')
-            //     .delete()
-            //     .eq('id', deleteContentId);
-            
-            // Simulate API call
-            setTimeout(() => {
-                contentItems = contentItems.filter(item => item.id !== deleteContentId);
-                
-                if (contentItems.length === 0) {
-                    contentTable.style.display = 'none';
-                    emptyStateElement.style.display = 'block';
-                } else {
-                    renderContentTable(contentItems);
-                }
-                
-                showMessage('Content deleted successfully!', 'success');
-                closeDeleteModal();
-            }, 600);
+        function deleteItem(tableName, itemId) {
+            currentTable = tableName;
+            currentRecordId = itemId;
+            document.getElementById('delete-modal').classList.add('active');
         }
 
-        // Show message
-        function showMessage(text, type) {
-            // Remove existing messages
-            const existingMessages = document.querySelectorAll('.message');
-            existingMessages.forEach(msg => {
-                msg.style.opacity = '0';
-                setTimeout(() => msg.remove(), 300);
-            });
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.remove('active');
+            currentTable = null;
+            currentRecordId = null;
+        }
+
+        async function confirmDelete() {
+            if (!currentTable || !currentRecordId) return;
             
-            // Create new message
+            try {
+                const { error } = await supabase
+                    .from(currentTable)
+                    .delete()
+                    .eq('id', currentRecordId);
+                
+                if (error) throw error;
+                
+                showMessage(`${tableSchemas[currentTable].displayName} deleted successfully!`, 'success');
+                
+                // Reload data
+                await loadTableData(currentTable);
+                await loadAllTableCounts();
+                closeDeleteModal();
+                
+            } catch (error) {
+                console.error(`Error deleting ${currentTable}:`, error);
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function editItem(tableName, itemId) {
+            openModal(tableName, itemId);
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function showMessage(text, type) {
+            const container = document.getElementById('message-container');
             const message = document.createElement('div');
             message.className = `message message-${type}`;
+            message.style.marginBottom = '10px';
+            message.style.animation = 'slideIn 0.3s ease-out';
+            message.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> <span>${text}</span>`;
             
-            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-            message.innerHTML = `<i class="fas ${icon}"></i> <span>${text}</span>`;
+            container.appendChild(message);
             
-            messageContainer.appendChild(message);
-            
-            // Remove message after 5 seconds
+            // Auto-remove after 5 seconds
             setTimeout(() => {
                 message.style.opacity = '0';
                 setTimeout(() => message.remove(), 300);
             }, 5000);
         }
 
-        // Simulate Supabase integration (replace with your actual Supabase code)
-        // In your actual implementation, you would import supabase from your supabase.js file
-        // and use it to perform CRUD operations
+        // Make functions available globally
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.editItem = editItem;
+        window.deleteItem = deleteItem;
+        window.closeDeleteModal = closeDeleteModal;
+        window.showTable = showTable;
         
-        // Example of what your actual Supabase code might look like:
-        /*
-        // Import your supabase client
-        import { supabase } from './supabase.js';
-        
-        // Load content from Supabase
-        async function loadContent() {
-            loadingElement.style.display = 'block';
-            
-            const { data, error } = await supabase
-                .from('contents')
-                .select('*')
-                .order('created_at', { ascending: false });
-            
-            if (error) {
-                showMessage('Error loading content: ' + error.message, 'error');
-                loadingElement.style.display = 'none';
-                return;
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
             }
-            
-            if (data.length === 0) {
-                loadingElement.style.display = 'none';
-                emptyStateElement.style.display = 'block';
-                return;
-            }
-            
-            contentItems = data;
-            renderContentTable(contentItems);
-            loadingElement.style.display = 'none';
-            contentTable.style.display = 'table';
-        }
-        
-        // Add new content
-        async function addContent(contentData) {
-            const { data, error } = await supabase
-                .from('contents')
-                .insert([contentData]);
-            
-            if (error) {
-                showMessage('Error adding content: ' + error.message, 'error');
-                return false;
-            }
-            
-            return data;
-        }
-        
-        // Update content
-        async function updateContent(id, contentData) {
-            const { data, error } = await supabase
-                .from('contents')
-                .update(contentData)
-                .eq('id', id);
-            
-            if (error) {
-                showMessage('Error updating content: ' + error.message, 'error');
-                return false;
-            }
-            
-            return data;
-        }
-        
-        // Delete content
-        async function deleteContent(id) {
-            const { data, error } = await supabase
-                .from('contents')
-                .delete()
-                .eq('id', id);
-            
-            if (error) {
-                showMessage('Error deleting content: ' + error.message, 'error');
-                return false;
-            }
-            
-            return data;
-        }
-        */
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
