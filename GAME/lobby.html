@@ -17,7 +17,7 @@
     --bright-green: #b6ff5c;
     --yellow: #ffd84d;
     --red: #ff4d4d;
-    --blue: #4d9fff;
+    --blue: #5c7cfa;
     --purple: #9d4edd;
     --orange: #ff9e4d;
 }
@@ -50,7 +50,7 @@ body {
 /* TOP BAR */
 .top-bar {
     display: grid;
-    grid-template-columns: auto 1fr auto auto auto;
+    grid-template-columns: auto 1fr auto auto;
     gap: 12px;
     align-items: center;
     padding: 15px 20px;
@@ -109,22 +109,14 @@ body {
     align-items: flex-end;
 }
 
-.gold, .gems {
+.gold {
     border: 2px solid var(--border);
     padding: 10px 20px;
     font-size: 14px;
     font-weight: bold;
     text-align: center;
     min-width: 120px;
-}
-
-.gold {
     background: var(--yellow);
-}
-
-.gems {
-    background: var(--blue);
-    color: white;
 }
 
 .quick-actions {
@@ -337,9 +329,9 @@ body {
 
 .rarity-common { background: #808080; color: white; }
 .rarity-uncommon { background: #00b85c; color: white; }
-.rarity-rare { background: #4d9fff; color: white; }
-.rarity-epic { background: #9d4edd; color: white; }
-.rarity-legendary { background: #ff9e4d; color: white; }
+.rarity-rare { background: var(--blue); color: white; }
+.rarity-epic { background: var(--purple); color: white; }
+.rarity-legendary { background: var(--orange); color: white; }
 
 /* Equipment positions */
 .helmet-slot { grid-column: 2; grid-row: 1; }
@@ -765,18 +757,15 @@ body {
                 <i class="fas fa-user"></i>
             </div>
             <div class="profile-info">
-                <div class="username" id="player-username">Loading...</div>
-                <div>HIGH SCORE: <span id="player-highscore">0</span></div>
-                <div class="level">LEVEL <span id="player-level">1</span></div>
+                <div class="username" id="player-username">-</div>
+                <div>HIGH SCORE: <span id="player-highscore">-</span></div>
+                <div class="level">LEVEL <span id="player-level">-</span></div>
             </div>
         </div>
         
         <div class="currency-display">
             <div class="gold" id="player-gold">
-                <i class="fas fa-coins"></i> GOLD: <span id="gold-amount">0</span>
-            </div>
-            <div class="gems" id="player-gems">
-                <i class="fas fa-gem"></i> GEMS: <span id="gems-amount">0</span>
+                <i class="fas fa-coins"></i> GOLD: <span id="gold-amount">-</span>
             </div>
         </div>
         
@@ -803,29 +792,29 @@ body {
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-label">HEALTH</div>
-                        <div class="stat-value" id="stat-health">100</div>
+                        <div class="stat-value" id="stat-health">-</div>
                     </div>
                     
                     <div class="stat-card">
                         <div class="stat-label">DAMAGE</div>
-                        <div class="stat-value" id="stat-damage">10</div>
+                        <div class="stat-value" id="stat-damage">-</div>
                     </div>
                     
                     <div class="stat-card">
                         <div class="stat-label">DEFENSE</div>
-                        <div class="stat-value" id="stat-defense">5</div>
+                        <div class="stat-value" id="stat-defense">-</div>
                     </div>
                     
                     <div class="stat-card">
                         <div class="stat-label">CRIT CHANCE</div>
-                        <div class="stat-value" id="stat-crit">5%</div>
+                        <div class="stat-value" id="stat-crit">-</div>
                     </div>
                     
                     <div class="health-display">
                         <div class="health-bar">
                             <div class="health-fill" id="health-bar-fill" style="width: 100%"></div>
                         </div>
-                        <div class="health-text" id="health-text">100 / 100 HP</div>
+                        <div class="health-text" id="health-text">- / - HP</div>
                     </div>
                 </div>
             </div>
@@ -840,7 +829,7 @@ body {
                             <i class="fas fa-helmet-battle"></i>
                         </div>
                         <div class="slot-name">HELMET</div>
-                        <div class="item-name" id="item-helmet">Empty</div>
+                        <div class="item-name" id="item-helmet">-</div>
                     </div>
                     
                     <!-- Shield -->
@@ -849,7 +838,7 @@ body {
                             <i class="fas fa-shield-alt"></i>
                         </div>
                         <div class="slot-name">SHIELD</div>
-                        <div class="item-name" id="item-shield">Empty</div>
+                        <div class="item-name" id="item-shield">-</div>
                     </div>
                     
                     <!-- Chest -->
@@ -858,7 +847,7 @@ body {
                             <i class="fas fa-vest"></i>
                         </div>
                         <div class="slot-name">CHESTPLATE</div>
-                        <div class="item-name" id="item-chest">Empty</div>
+                        <div class="item-name" id="item-chest">-</div>
                     </div>
                     
                     <!-- Weapon -->
@@ -867,7 +856,7 @@ body {
                             <i class="fas fa-sword"></i>
                         </div>
                         <div class="slot-name">WEAPON</div>
-                        <div class="item-name" id="item-weapon">Empty</div>
+                        <div class="item-name" id="item-weapon">-</div>
                     </div>
                     
                     <!-- Legs -->
@@ -876,7 +865,7 @@ body {
                             <i class="fas fa-running"></i>
                         </div>
                         <div class="slot-name">LEGGINGS</div>
-                        <div class="item-name" id="item-legs">Empty</div>
+                        <div class="item-name" id="item-legs">-</div>
                     </div>
                     
                     <!-- Boots -->
@@ -885,7 +874,7 @@ body {
                             <i class="fas fa-boot"></i>
                         </div>
                         <div class="slot-name">BOOTS</div>
-                        <div class="item-name" id="item-boots">Empty</div>
+                        <div class="item-name" id="item-boots">-</div>
                     </div>
                 </div>
             </div>
@@ -897,7 +886,7 @@ body {
             <div class="current-run-section">
                 <div class="section-title">CURRENT RUN</div>
                 <div class="run-info" id="current-run-info">
-                    <div class="loading">No active run. Start a new one!</div>
+                    <div class="loading">-</div>
                 </div>
             </div>
 
@@ -905,7 +894,7 @@ body {
             <div class="gacha-section">
                 <div class="section-title">ACTIVE BANNER</div>
                 <div class="banner-display" id="active-banner">
-                    <div class="loading">Loading banner...</div>
+                    <div class="loading">-</div>
                 </div>
             </div>
 
@@ -913,7 +902,7 @@ body {
             <div class="leaderboard-preview">
                 <div class="section-title">LEADERBOARD</div>
                 <div class="leaderboard-list" id="leaderboard-preview">
-                    <div class="loading">Loading leaderboard...</div>
+                    <div class="loading">-</div>
                 </div>
             </div>
 
@@ -950,7 +939,7 @@ body {
         </div>
         <div class="modal-body">
             <div class="inventory-grid" id="inventory-items">
-                <div class="loading">Loading inventory...</div>
+                <div class="loading">-</div>
             </div>
         </div>
     </div>
@@ -965,7 +954,7 @@ body {
         </div>
         <div class="modal-body">
             <div id="gacha-content">
-                <div class="loading">Loading gacha...</div>
+                <div class="loading">-</div>
             </div>
         </div>
     </div>
@@ -985,6 +974,28 @@ body {
                 <button class="btn btn-primary" style="margin-top: 20px;" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i> LOGOUT
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ERROR MODAL -->
+<div class="modal" id="error-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 style="color: var(--red);">ERROR</h3>
+            <button class="close-btn" onclick="closeErrorModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="text-align: center; padding: 20px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 64px; color: var(--red); margin-bottom: 20px;"></i>
+                <h4 id="error-title">Game Setup Required</h4>
+                <p id="error-message">No game data found. Please set up the game first.</p>
+                <div style="margin-top: 30px;">
+                    <button class="btn btn-primary" onclick="goToAdmin()">
+                        <i class="fas fa-cog"></i> GO TO ADMIN PANEL
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1037,71 +1048,88 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Load player data from database
 async function loadPlayerData() {
     try {
-        // Get current user (for demo, get first user)
+        // Get current user
         const { data: users, error: usersError } = await supabase
             .from('users')
             .select('*')
+            .order('created_at', { ascending: true })
             .limit(1);
         
-        if (usersError) throw usersError;
-        
-        if (users && users.length > 0) {
-            currentUser = users[0];
-            
-            // Get player stats
-            const { data: stats, error: statsError } = await supabase
-                .from('player_stats')
-                .select('*')
-                .eq('user_id', currentUser.id)
-                .single();
-            
-            if (!statsError) {
-                playerStats = stats;
-            }
-            
-            // Get player equipment
-            const { data: equipment, error: equipmentError } = await supabase
-                .from('player_equipment')
-                .select(`
-                    *,
-                    equipment:equipment_id (*)
-                `)
-                .eq('user_id', currentUser.id);
-            
-            if (!equipmentError) {
-                playerEquipment = equipment || [];
-                
-                // Organize equipped items
-                equippedItems = {};
-                playerEquipment.forEach(item => {
-                    if (item.is_equipped && item.equipment) {
-                        const slot = item.equipment.slot.toLowerCase();
-                        equippedItems[slot] = {
-                            ...item.equipment,
-                            player_equipment_id: item.id
-                        };
-                    }
-                });
-                
-                // All items for inventory
-                inventoryItems = playerEquipment.map(item => ({
-                    ...item.equipment,
-                    player_equipment_id: item.id,
-                    is_equipped: item.is_equipped
-                }));
-            }
-            
-            // Update gold from user data
-            document.getElementById('gold-amount').textContent = currentUser.gold || 0;
-            document.getElementById('player-highscore').textContent = currentUser.highest_stage || 1;
-            document.getElementById('player-username').textContent = currentUser.username || 'Player';
-            
-            console.log('Player data loaded successfully');
+        if (usersError) {
+            console.error('Error loading users:', usersError);
+            showError('Database Error', 'Could not load user data. Please check database connection.');
+            return;
         }
+        
+        if (!users || users.length === 0) {
+            showError('No User Found', 'Please create a user in the admin panel first.');
+            return;
+        }
+        
+        currentUser = users[0];
+        
+        // Update player info
+        document.getElementById('player-username').textContent = currentUser.username || '-';
+        document.getElementById('player-highscore').textContent = currentUser.highest_stage || '-';
+        document.getElementById('gold-amount').textContent = currentUser.gold || '-';
+        
+        // Get player stats
+        const { data: stats, error: statsError } = await supabase
+            .from('player_stats')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .single();
+        
+        if (statsError) {
+            console.error('Error loading player stats:', statsError);
+            showError('Missing Player Stats', 'Please set up player stats in the admin panel.');
+            return;
+        }
+        
+        if (stats) {
+            playerStats = stats;
+        } else {
+            showError('Missing Player Stats', 'Please set up player stats in the admin panel.');
+            return;
+        }
+        
+        // Get player equipment
+        const { data: equipment, error: equipmentError } = await supabase
+            .from('player_equipment')
+            .select(`
+                *,
+                equipment:equipment_id (*)
+            `)
+            .eq('user_id', currentUser.id);
+        
+        if (!equipmentError) {
+            playerEquipment = equipment || [];
+            
+            // Organize equipped items
+            equippedItems = {};
+            playerEquipment.forEach(item => {
+                if (item.is_equipped && item.equipment) {
+                    const slot = item.equipment.slot.toLowerCase();
+                    equippedItems[slot] = {
+                        ...item.equipment,
+                        player_equipment_id: item.id
+                    };
+                }
+            });
+            
+            // All items for inventory
+            inventoryItems = playerEquipment.map(item => ({
+                ...item.equipment,
+                player_equipment_id: item.id,
+                is_equipped: item.is_equipped
+            }));
+        }
+        
+        console.log('Player data loaded successfully');
         
     } catch (error) {
         console.error('Error loading player data:', error);
-        showNotification('Error loading player data', 'error');
+        showError('Game Error', 'Failed to load player data. Please try again.');
     }
 }
 
@@ -1120,7 +1148,10 @@ async function loadCurrentRun() {
             .order('created_at', { ascending: false })
             .limit(1);
         
-        if (error) throw error;
+        if (error) {
+            console.error('Error loading runs:', error);
+            return;
+        }
         
         if (runs && runs.length > 0) {
             currentRun = runs[0];
@@ -1141,7 +1172,7 @@ async function loadCurrentRun() {
     } catch (error) {
         console.error('Error loading current run:', error);
         document.getElementById('current-run-info').innerHTML = `
-            <div class="loading">Error loading run data</div>
+            <div class="loading">-</div>
         `;
     }
 }
@@ -1158,7 +1189,10 @@ async function loadGachaBanners() {
             .eq('is_active', true)
             .order('created_at', { ascending: false });
         
-        if (error) throw error;
+        if (error) {
+            console.error('Error loading gacha banners:', error);
+            return;
+        }
         
         gachaBanners = banners || [];
         
@@ -1176,7 +1210,7 @@ async function loadGachaBanners() {
     } catch (error) {
         console.error('Error loading gacha banners:', error);
         document.getElementById('active-banner').innerHTML = `
-            <div class="loading">Error loading banners</div>
+            <div class="loading">-</div>
         `;
     }
 }
@@ -1194,7 +1228,10 @@ async function loadLeaderboard() {
             .order('monsters_defeated', { ascending: false })
             .limit(5);
         
-        if (error) throw error;
+        if (error) {
+            console.error('Error loading leaderboard:', error);
+            return;
+        }
         
         leaderboardData = leaderboard || [];
         updateLeaderboardDisplay();
@@ -1202,7 +1239,7 @@ async function loadLeaderboard() {
     } catch (error) {
         console.error('Error loading leaderboard:', error);
         document.getElementById('leaderboard-preview').innerHTML = `
-            <div class="loading">Error loading leaderboard</div>
+            <div class="loading">-</div>
         `;
     }
 }
@@ -1260,7 +1297,7 @@ function updateUI() {
         if (equippedItems[slot]) {
             const item = equippedItems[slot];
             element.classList.remove('empty');
-            itemName.textContent = item.name || 'Unknown';
+            itemName.textContent = item.name || '-';
             
             // Add rarity badge
             const existingRarity = element.querySelector('.item-rarity');
@@ -1278,7 +1315,7 @@ function updateUI() {
             }
         } else {
             element.classList.add('empty');
-            itemName.textContent = 'Empty';
+            itemName.textContent = '-';
             
             // Reset icon
             const icon = element.querySelector('.equipment-icon');
@@ -1325,7 +1362,7 @@ function updateRunDisplay() {
                         <div class="hp-fill" style="width: ${monsterHPPercent}%"></div>
                     </div>
                     <div>HP: ${currentRun.monster_hp} / ${monster.hp}</div>
-                    <div>Category: ${monster.category || 'Unknown'}</div>
+                    <div>Category: ${monster.category || '-'}</div>
                 </div>
             </div>
         `;
@@ -1392,7 +1429,7 @@ function updateLeaderboardDisplay() {
     const leaderboardDiv = document.getElementById('leaderboard-preview');
     
     if (leaderboardData.length === 0) {
-        leaderboardDiv.innerHTML = '<div class="loading">No leaderboard data</div>';
+        leaderboardDiv.innerHTML = '<div class="loading">-</div>';
         return;
     }
     
@@ -1403,7 +1440,7 @@ function updateLeaderboardDisplay() {
             <div class="leaderboard-item">
                 <div class="rank ${rankClass}">${index + 1}</div>
                 <div style="flex: 1;">
-                    <strong>${entry.user?.username || 'Unknown'}</strong>
+                    <strong>${entry.user?.username || '-'}</strong>
                     <div style="font-size: 12px;">
                         Stage ${entry.highest_stage} | ${entry.monsters_defeated || 0} kills
                     </div>
@@ -1448,8 +1485,8 @@ async function openInventoryModal() {
                             `<i class="fas fa-question"></i>`
                         }
                     </div>
-                    <div style="font-size: 12px; font-weight: 600;">${item.name}</div>
-                    <div style="font-size: 10px; color: #666;">${item.slot}</div>
+                    <div style="font-size: 12px; font-weight: 600;">${item.name || '-'}</div>
+                    <div style="font-size: 10px; color: #666;">${item.slot || '-'}</div>
                     <div class="item-rarity rarity-${item.rarity || 'common'}" style="margin-top: 5px;">
                         ${item.rarity?.toUpperCase() || 'COMMON'}
                     </div>
@@ -1549,6 +1586,23 @@ function openSettingsModal() {
 // Close settings modal
 function closeSettingsModal() {
     document.getElementById('settings-modal').classList.remove('active');
+}
+
+// Show error modal
+function showError(title, message) {
+    document.getElementById('error-title').textContent = title;
+    document.getElementById('error-message').textContent = message;
+    document.getElementById('error-modal').classList.add('active');
+}
+
+// Close error modal
+function closeErrorModal() {
+    document.getElementById('error-modal').classList.remove('active');
+}
+
+// Go to admin panel
+function goToAdmin() {
+    window.location.href = 'adminside.html';
 }
 
 // Equip item
@@ -1850,8 +1904,8 @@ function showGachaResults(items, multi) {
                             `<i class="fas fa-question"></i>`
                         }
                     </div>
-                    <div style="font-size: 12px; font-weight: 600;">${item.name}</div>
-                    <div style="font-size: 10px; color: #666;">${item.rarity}</div>
+                    <div style="font-size: 12px; font-weight: 600;">${item.name || '-'}</div>
+                    <div style="font-size: 10px; color: #666;">${item.rarity || '-'}</div>
                 </div>
             `;
         });
@@ -1877,12 +1931,12 @@ function showGachaResults(items, multi) {
                     }
                 </div>
                 <div style="margin-top: 20px; padding: 20px; background: var(--bg-panel); border: 2px solid var(--border);">
-                    <h4>${item.name}</h4>
-                    <div class="item-rarity rarity-${item.rarity}" style="margin: 10px auto; display: inline-block;">
-                        ${item.rarity?.toUpperCase()}
+                    <h4>${item.name || '-'}</h4>
+                    <div class="item-rarity rarity-${item.rarity || 'common'}" style="margin: 10px auto; display: inline-block;">
+                        ${item.rarity?.toUpperCase() || 'COMMON'}
                     </div>
                     <div style="margin-top: 10px;">
-                        <div>Slot: ${item.slot}</div>
+                        <div>Slot: ${item.slot || '-'}</div>
                         ${item.damage ? `<div>Damage: ${item.damage}</div>` : ''}
                         ${item.defense ? `<div>Defense: ${item.defense}</div>` : ''}
                     </div>
@@ -1949,6 +2003,8 @@ window.unequipItem = unequipItem;
 window.selectInventoryItem = selectInventoryItem;
 window.equipSlot = equipSlot;
 window.logout = logout;
+window.goToAdmin = goToAdmin;
+window.closeErrorModal = closeErrorModal;
 </script>
 </body>
 </html>
