@@ -171,155 +171,161 @@
             background: #c82333;
         }
 
-        /* Table Styles */
-        .table-content {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 800px;
-        }
-
-        th {
-            background-color: var(--bg-panel);
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--accent);
-            border-bottom: 2px solid var(--border);
-            white-space: nowrap;
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border);
-            vertical-align: top;
-        }
-
-        tr:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-
-        .actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .action-btn {
-            padding: 6px 12px;
-            border-radius: 0;
-            border: 2px solid var(--border);
-            cursor: pointer;
-            font-size: 0.8rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            white-space: nowrap;
-            background: var(--bg-main);
-            font-weight: 600;
-        }
-
-        .action-btn:hover {
-            background: #ddd6c7;
-        }
-
-        .action-btn.edit {
-            background: #d6e4ff;
-        }
-
-        .action-btn.delete {
-            background: #ffe6e6;
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
+        /* Stats Editor Styles */
+        .stats-editor {
             padding: 20px;
         }
 
-        .modal.active {
-            display: flex;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
         }
 
-        .modal-content {
-            background-color: var(--bg-main);
-            border-radius: 0;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 3px solid var(--border);
+        .user-stats-card {
+            border: 2px solid var(--border);
+            background: var(--bg-panel);
+            padding: 20px;
         }
 
-        .modal-header {
-            padding: 15px;
-            border-bottom: 3px solid var(--border);
+        .user-stats-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--bg-panel);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
         }
 
-        .modal-header h3 {
+        .user-stats-header h4 {
             margin: 0;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
 
-        .modal-body {
-            padding: 20px;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--border);
-            font-weight: bold;
-        }
-
-        /* Form Styles */
-        .form-group {
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             margin-bottom: 15px;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 10px;
+        .user-avatar {
+            width: 50px;
+            height: 50px;
             border: 2px solid var(--border);
             background: var(--bg-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .user-level {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .stats-form {
+            display: grid;
+            gap: 12px;
+        }
+
+        .stat-row {
+            display: grid;
+            grid-template-columns: 120px 1fr 60px;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-label {
+            font-weight: 600;
             font-size: 0.9rem;
         }
 
-        select.form-control {
+        .stat-slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%232b2b2b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 12px;
-            padding-right: 30px;
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            outline: none;
         }
 
-        textarea.form-control {
-            min-height: 80px;
-            resize: vertical;
+        .stat-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .stat-value {
+            text-align: center;
+            font-weight: bold;
+            min-width: 40px;
+            padding: 4px 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-main);
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .quick-stat {
+            text-align: center;
+            padding: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-main);
+        }
+
+        .quick-stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .quick-stat-value {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .stats-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.3s;
         }
 
         /* Message Styles */
@@ -398,47 +404,6 @@
             margin-top: 10px;
         }
 
-        /* Image Preview */
-        .image-preview {
-            width: 80px;
-            height: 80px;
-            border: 2px solid var(--border);
-            background: var(--bg-main);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .image-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Question Options */
-        .question-options {
-            margin-top: 20px;
-            border: 2px solid var(--border);
-            background: var(--bg-panel);
-            padding: 15px;
-        }
-
-        .option-item {
-            border: 2px solid var(--border);
-            background: var(--bg-main);
-            padding: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .option-item.correct {
-            border-left: 4px solid #4CAF50;
-            background: #f0fff0;
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             .tabs {
@@ -458,6 +423,21 @@
             
             .dashboard-tables {
                 grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-row {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+            
+            .user-stats-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
             }
         }
     </style>
@@ -501,7 +481,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="table-content">
+                    <div class="stats-editor">
                         <div class="message" id="connection-status">
                             <span>Connecting to database...</span>
                         </div>
@@ -522,7 +502,7 @@
                             <button class="btn btn-primary" onclick="openModal('equipment')">ADD EQUIPMENT</button>
                         </div>
                     </div>
-                    <div class="table-content" id="equipment-content">
+                    <div class="stats-editor" id="equipment-content">
                         <div class="loading">Loading equipment data...</div>
                     </div>
                 </div>
@@ -538,7 +518,7 @@
                             <button class="btn btn-primary" onclick="openModal('monsters')">ADD MONSTER</button>
                         </div>
                     </div>
-                    <div class="table-content" id="monsters-content">
+                    <div class="stats-editor" id="monsters-content">
                         <div class="loading">Loading monsters data...</div>
                     </div>
                 </div>
@@ -554,7 +534,7 @@
                             <button class="btn btn-primary" onclick="openModal('questions')">ADD QUESTION</button>
                         </div>
                     </div>
-                    <div class="table-content" id="questions-content">
+                    <div class="stats-editor" id="questions-content">
                         <div class="loading">Loading questions data...</div>
                     </div>
                 </div>
@@ -570,7 +550,7 @@
                             <button class="btn btn-primary" onclick="openModal('question_options')">ADD OPTION</button>
                         </div>
                     </div>
-                    <div class="table-content" id="question_options-content">
+                    <div class="stats-editor" id="question_options-content">
                         <div class="loading">Loading options data...</div>
                     </div>
                 </div>
@@ -586,7 +566,7 @@
                             <button class="btn btn-primary" onclick="openModal('gacha_banners')">ADD BANNER</button>
                         </div>
                     </div>
-                    <div class="table-content" id="gacha_banners-content">
+                    <div class="stats-editor" id="gacha_banners-content">
                         <div class="loading">Loading banners data...</div>
                     </div>
                 </div>
@@ -603,7 +583,7 @@
                             <button class="btn" onclick="refreshDropdowns()">REFRESH DROPDOWNS</button>
                         </div>
                     </div>
-                    <div class="table-content" id="gacha_rates-content">
+                    <div class="stats-editor" id="gacha_rates-content">
                         <div class="loading">Loading rates data...</div>
                     </div>
                 </div>
@@ -619,24 +599,23 @@
                             <button class="btn btn-primary" onclick="openModal('users')">ADD USER</button>
                         </div>
                     </div>
-                    <div class="table-content" id="users-content">
+                    <div class="stats-editor" id="users-content">
                         <div class="loading">Loading users data...</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Player Stats Section -->
+            <!-- Player Stats Section - REDESIGNED -->
             <div id="player_stats-section" class="table-section">
                 <div class="table-container">
                     <div class="table-header">
-                        <h3>PLAYER STATS</h3>
+                        <h3>PLAYER STATS EDITOR</h3>
                         <div>
-                            <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
-                            <button class="btn btn-primary" onclick="openModal('player_stats')">ADD STATS</button>
-                            <button class="btn" onclick="resetTable('player_stats')" title="Reset this table only">RESET TABLE</button>
+                            <button class="btn" onclick="refreshPlayerStats()">REFRESH</button>
+                            <button class="btn btn-primary" onclick="refreshAllPlayerStats()">UPDATE ALL STATS</button>
                         </div>
                     </div>
-                    <div class="table-content" id="player_stats-content">
+                    <div class="stats-editor" id="player_stats-content">
                         <div class="loading">Loading player stats data...</div>
                     </div>
                 </div>
@@ -652,7 +631,7 @@
                             <button class="btn btn-primary" onclick="openModal('player_equipment')">ADD GEAR</button>
                         </div>
                     </div>
-                    <div class="table-content" id="player_equipment-content">
+                    <div class="stats-editor" id="player_equipment-content">
                         <div class="loading">Loading player equipment data...</div>
                     </div>
                 </div>
@@ -668,7 +647,7 @@
                             <button class="btn btn-primary" onclick="openModal('runs')">ADD RUN</button>
                         </div>
                     </div>
-                    <div class="table-content" id="runs-content">
+                    <div class="stats-editor" id="runs-content">
                         <div class="loading">Loading runs data...</div>
                     </div>
                 </div>
@@ -684,7 +663,7 @@
                             <button class="btn btn-primary" onclick="openModal('leaderboard')">ADD ENTRY</button>
                         </div>
                     </div>
-                    <div class="table-content" id="leaderboard-content">
+                    <div class="stats-editor" id="leaderboard-content">
                         <div class="loading">Loading leaderboard data...</div>
                     </div>
                 </div>
@@ -795,6 +774,9 @@
             questions: [],  // For question_id dropdowns
             gacha_banners: [] // For banner_id dropdowns
         };
+
+        // Store player stats for editing
+        let playerStatsData = [];
 
         // Table schemas - NO PRE-INSTALLED DATA, BLANK SLATE
         const tableSchemas = {
@@ -1150,7 +1132,13 @@
                 // Load data if not dashboard
                 if (tableName !== 'dashboard') {
                     currentTable = tableName;
-                    loadTableData(tableName);
+                    
+                    // Special handling for player stats
+                    if (tableName === 'player_stats') {
+                        loadPlayerStatsEditor();
+                    } else {
+                        loadTableData(tableName);
+                    }
                 }
             }
         }
@@ -1167,7 +1155,7 @@
             showSection(tableName);
         };
 
-        // Load table data
+        // Load table data for normal tables
         async function loadTableData(tableName) {
             const contentDiv = document.getElementById(`${tableName}-content`);
             if (!contentDiv) return;
@@ -1196,7 +1184,7 @@
             }
         }
 
-        // Render table - FIXED VERSION
+        // Render table for normal tables
         function renderTable(tableName, data) {
             const contentDiv = document.getElementById(`${tableName}-content`);
             
@@ -1316,6 +1304,286 @@
             html += `</tbody></table>`;
             contentDiv.innerHTML = html;
         }
+
+        // Load player stats editor
+        async function loadPlayerStatsEditor() {
+            const contentDiv = document.getElementById('player_stats-content');
+            contentDiv.innerHTML = `<div class="loading">Loading player stats editor...</div>`;
+            
+            try {
+                // Load all users
+                const { data: users, error: usersError } = await supabase
+                    .from('users')
+                    .select('*')
+                    .order('username', { ascending: true });
+                
+                if (usersError) throw usersError;
+                
+                // Load all player stats
+                const { data: stats, error: statsError } = await supabase
+                    .from('player_stats')
+                    .select('*');
+                
+                if (statsError) throw statsError;
+                
+                // Combine user data with their stats
+                playerStatsData = users.map(user => {
+                    const userStats = stats?.find(stat => stat.user_id === user.id);
+                    return {
+                        user_id: user.id,
+                        username: user.username,
+                        highest_stage: user.highest_stage || 1,
+                        gold: user.gold || 0,
+                        stats_id: userStats?.id || null,
+                        base_hp: userStats?.base_hp || 100,
+                        base_damage: userStats?.base_damage || 10,
+                        base_defense: userStats?.base_defense || 5,
+                        crit_chance: userStats?.crit_chance || 0.05
+                    };
+                });
+                
+                renderPlayerStatsEditor(playerStatsData);
+                
+            } catch (error) {
+                console.error('Error loading player stats editor:', error);
+                contentDiv.innerHTML = `
+                    <div class="message message-error">
+                        <span>Error loading player stats: ${error.message}</span>
+                    </div>
+                `;
+            }
+        }
+
+        // Render player stats editor
+        function renderPlayerStatsEditor(players) {
+            const contentDiv = document.getElementById('player_stats-content');
+            
+            if (!players || players.length === 0) {
+                contentDiv.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No Players Found</h3>
+                        <p>Add some users first, then come back to edit their stats.</p>
+                        <button class="btn btn-primary" onclick="showTable('users')">GO TO USERS</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div class="stats-grid">
+            `;
+            
+            players.forEach(player => {
+                const hasStats = !!player.stats_id;
+                const avatarLetter = player.username?.charAt(0).toUpperCase() || '?';
+                
+                html += `
+                    <div class="user-stats-card" data-user-id="${player.user_id}">
+                        <div class="user-stats-header">
+                            <h4>${player.username}</h4>
+                            <span class="badge">${hasStats ? 'STATS SAVED' : 'NO STATS'}</span>
+                        </div>
+                        
+                        <div class="user-info">
+                            <div class="user-avatar">${avatarLetter}</div>
+                            <div class="user-details">
+                                <div class="user-name">${player.username}</div>
+                                <div class="user-level">Stage ${player.highest_stage} • ${player.gold} Gold</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-form">
+                            <div class="stat-row">
+                                <div class="stat-label">Base HP:</div>
+                                <input type="range" min="50" max="500" value="${player.base_hp}" 
+                                       class="stat-slider" data-stat="base_hp" 
+                                       oninput="updateStatValue(this, '${player.user_id}')">
+                                <div class="stat-value" id="hp-${player.user_id}">${player.base_hp}</div>
+                            </div>
+                            
+                            <div class="stat-row">
+                                <div class="stat-label">Base Damage:</div>
+                                <input type="range" min="5" max="100" value="${player.base_damage}" 
+                                       class="stat-slider" data-stat="base_damage" 
+                                       oninput="updateStatValue(this, '${player.user_id}')">
+                                <div class="stat-value" id="damage-${player.user_id}">${player.base_damage}</div>
+                            </div>
+                            
+                            <div class="stat-row">
+                                <div class="stat-label">Base Defense:</div>
+                                <input type="range" min="0" max="50" value="${player.base_defense}" 
+                                       class="stat-slider" data-stat="base_defense" 
+                                       oninput="updateStatValue(this, '${player.user_id}')">
+                                <div class="stat-value" id="defense-${player.user_id}">${player.base_defense}</div>
+                            </div>
+                            
+                            <div class="stat-row">
+                                <div class="stat-label">Crit Chance:</div>
+                                <input type="range" min="0" max="1" step="0.01" value="${player.crit_chance}" 
+                                       class="stat-slider" data-stat="crit_chance" 
+                                       oninput="updateStatValue(this, '${player.user_id}')">
+                                <div class="stat-value" id="crit-${player.user_id}">${player.crit_chance.toFixed(2)}</div>
+                            </div>
+                            
+                            <div class="quick-stats">
+                                <div class="quick-stat">
+                                    <div class="quick-stat-label">Total Power</div>
+                                    <div class="quick-stat-value">${Math.round(player.base_hp + player.base_damage * 10 + player.base_defense * 5)}</div>
+                                </div>
+                                <div class="quick-stat">
+                                    <div class="quick-stat-label">Survivability</div>
+                                    <div class="quick-stat-value">${Math.round(player.base_hp / (player.base_defense + 1))}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="stats-actions">
+                                <button class="btn btn-primary" onclick="savePlayerStats('${player.user_id}')">
+                                    ${hasStats ? 'UPDATE STATS' : 'SAVE STATS'}
+                                </button>
+                                <button class="btn" onclick="resetPlayerStats('${player.user_id}')">
+                                    RESET
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            contentDiv.innerHTML = html;
+        }
+
+        // Update stat value display
+        window.updateStatValue = function(slider, userId) {
+            const statName = slider.getAttribute('data-stat');
+            const value = statName === 'crit_chance' ? 
+                parseFloat(slider.value).toFixed(2) : 
+                Math.round(slider.value);
+            
+            document.getElementById(`${statName.split('_')[1] || statName}-${userId}`).textContent = value;
+            
+            // Update the player data in memory
+            const playerIndex = playerStatsData.findIndex(p => p.user_id === userId);
+            if (playerIndex !== -1) {
+                playerStatsData[playerIndex][statName] = parseFloat(slider.value);
+            }
+        };
+
+        // Save player stats
+        window.savePlayerStats = async function(userId) {
+            const player = playerStatsData.find(p => p.user_id === userId);
+            if (!player) return;
+            
+            try {
+                const statsData = {
+                    user_id: userId,
+                    base_hp: player.base_hp,
+                    base_damage: player.base_damage,
+                    base_defense: player.base_defense,
+                    crit_chance: player.crit_chance
+                };
+                
+                let result;
+                
+                if (player.stats_id) {
+                    // Update existing stats
+                    result = await supabase
+                        .from('player_stats')
+                        .update(statsData)
+                        .eq('id', player.stats_id);
+                } else {
+                    // Insert new stats
+                    result = await supabase
+                        .from('player_stats')
+                        .insert([statsData]);
+                    
+                    if (!result.error && result.data && result.data[0]) {
+                        player.stats_id = result.data[0].id;
+                    }
+                }
+                
+                if (result.error) throw result.error;
+                
+                showMessage(`Stats saved for ${player.username}!`, 'success');
+                
+                // Update the UI
+                const card = document.querySelector(`.user-stats-card[data-user-id="${userId}"] .badge`);
+                if (card) {
+                    card.textContent = 'STATS SAVED';
+                }
+                
+            } catch (error) {
+                console.error('Error saving player stats:', error);
+                showMessage(`Error saving stats: ${error.message}`, 'error');
+            }
+        };
+
+        // Reset player stats to defaults
+        window.resetPlayerStats = function(userId) {
+            const player = playerStatsData.find(p => p.user_id === userId);
+            if (!player) return;
+            
+            if (!confirm(`Reset stats for ${player.username} to defaults?`)) return;
+            
+            // Set default values
+            player.base_hp = 100;
+            player.base_damage = 10;
+            player.base_defense = 5;
+            player.crit_chance = 0.05;
+            
+            // Update UI
+            document.getElementById(`hp-${userId}`).textContent = '100';
+            document.getElementById(`damage-${userId}`).textContent = '10';
+            document.getElementById(`defense-${userId}`).textContent = '5';
+            document.getElementById(`crit-${userId}`).textContent = '0.05';
+            
+            // Update sliders
+            const card = document.querySelector(`.user-stats-card[data-user-id="${userId}"]`);
+            if (card) {
+                card.querySelector('[data-stat="base_hp"]').value = 100;
+                card.querySelector('[data-stat="base_damage"]').value = 10;
+                card.querySelector('[data-stat="base_defense"]').value = 5;
+                card.querySelector('[data-stat="crit_chance"]').value = 0.05;
+            }
+            
+            showMessage(`Stats reset for ${player.username}`, 'success');
+        };
+
+        // Refresh player stats
+        window.refreshPlayerStats = function() {
+            loadPlayerStatsEditor();
+        };
+
+        // Update all player stats at once
+        window.refreshAllPlayerStats = async function() {
+            if (!confirm('Update stats for ALL players? This will save all current changes.')) return;
+            
+            try {
+                showMessage('Updating all player stats...', 'success');
+                
+                let savedCount = 0;
+                let errorCount = 0;
+                
+                for (const player of playerStatsData) {
+                    try {
+                        await savePlayerStats(player.user_id);
+                        savedCount++;
+                    } catch (error) {
+                        console.error(`Error saving stats for ${player.username}:`, error);
+                        errorCount++;
+                    }
+                    
+                    // Small delay to avoid rate limiting
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                showMessage(`Updated ${savedCount} players. ${errorCount > 0 ? `${errorCount} errors occurred.` : ''}`, 'success');
+                
+            } catch (error) {
+                console.error('Error updating all player stats:', error);
+                showMessage(`Error updating all stats: ${error.message}`, 'error');
+            }
+        };
 
         // Open modal for CRUD operations
         async function openModal(tableName, itemId = null) {
@@ -1561,7 +1829,11 @@
         // Refresh current table
         window.refreshCurrentTable = function() {
             if (currentTable) {
-                loadTableData(currentTable);
+                if (currentTable === 'player_stats') {
+                    loadPlayerStatsEditor();
+                } else {
+                    loadTableData(currentTable);
+                }
                 showMessage('Table refreshed!', 'success');
             }
         };
@@ -1621,6 +1893,11 @@
                     await loadDropdownData(tableName);
                 }
                 
+                // If resetting player_stats, also reload the editor
+                if (tableName === 'player_stats') {
+                    await loadPlayerStatsEditor();
+                }
+                
             } catch (error) {
                 console.error(`Error resetting ${tableName}:`, error);
                 showMessage(`Error resetting table: ${error.message}`, 'error');
@@ -1666,12 +1943,19 @@
                     dropdownData[key] = [];
                 });
                 
+                // Reset player stats data
+                playerStatsData = [];
+                
                 // Reload everything
                 await loadAllTableCounts();
                 await loadAllDropdownData();
                 
                 if (currentTable) {
-                    await loadTableData(currentTable);
+                    if (currentTable === 'player_stats') {
+                        await loadPlayerStatsEditor();
+                    } else {
+                        await loadTableData(currentTable);
+                    }
                 }
                 
                 showMessage('Database cleanup completed! All tables are now empty.', 'success');
@@ -1933,6 +2217,11 @@
         window.refreshDropdowns = refreshDropdowns;
         window.resetTable = resetTable;
         window.cleanDatabase = cleanDatabase;
+        window.savePlayerStats = savePlayerStats;
+        window.resetPlayerStats = resetPlayerStats;
+        window.refreshPlayerStats = refreshPlayerStats;
+        window.refreshAllPlayerStats = refreshAllPlayerStats;
+        window.updateStatValue = updateStatValue;
     </script>
 </body>
 </html>
