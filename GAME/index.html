@@ -1148,7 +1148,7 @@
             }
         }
 
-        // Render table
+        // Render table - FIXED VERSION
         function renderTable(tableName, data) {
             const contentDiv = document.getElementById(`${tableName}-content`);
             
@@ -1182,10 +1182,13 @@
             
             // Add rows
             data.forEach(item => {
+                if (!item) return;
+                
                 html += `<tr>`;
                 
-                // ID cell
-                html += `<td><span title="${item.id}">${item.id.substring(0, 8)}...</span></td>`;
+                // ID cell - SAFELY handle potential undefined
+                const itemId = item?.id || '';
+                html += `<td><span title="${itemId}">${itemId && typeof itemId === 'string' ? itemId.substring(0, 8) + '...' : 'N/A'}</span></td>`;
                 
                 // Add data cells
                 columns.forEach(col => {
@@ -1202,51 +1205,62 @@
                         if (relatedItem) {
                             const displayValue = getDropdownDisplayValue(relatedItem, col.displayField);
                             html += displayValue;
-                        } else if (value) {
+                        } else if (value && typeof value === 'string' && value.length > 0) {
+                            // Only show substring if value exists and is a non-empty string
                             html += `<span title="${value}">${value.substring(0, 8)}...</span>`;
                         } else {
                             html += `-`;
                         }
-                    } else if (col.name === 'image_url' && value) {
+                    } else if (col.name === 'image_url' && value && typeof value === 'string') {
                         html += `<div class="image-preview"><img src="${value}" alt="Preview" onerror="this.style.display='none'"></div>`;
-                    } else if (typeof value === 'string' && value.length > 30) {
+                    } else if (value && typeof value === 'string' && value.length > 30) {
                         html += `${value.substring(0, 30)}...`;
-                    } else if (value === null || value === undefined) {
+                    } else if (value === null || value === undefined || value === '') {
                         html += `-`;
-                    } else {
+                    } else if (typeof value === 'number' || typeof value === 'boolean') {
                         html += value;
+                    } else if (typeof value === 'object') {
+                        html += `[Object]`;
+                    } else {
+                        html += value || '-';
                     }
                     
                     html += `</td>`;
                 });
                 
                 // Add options column for questions
-                if (tableName === 'questions') {
+                if (tableName === 'questions' && item.id) {
                     html += `<td>
                         <button class="action-btn" onclick="manageQuestionOptions('${item.id}')">
                             MANAGE OPTIONS
                         </button>
                     </td>`;
+                } else if (tableName === 'questions') {
+                    html += `<td>-</td>`;
                 }
                 
-                // Add created at
-                const createdDate = item.created_at ? 
+                // Add created at - SAFELY handle potential undefined
+                const createdDate = item?.created_at ? 
                     new Date(item.created_at).toLocaleDateString() : 'N/A';
                 html += `<td>${createdDate}</td>`;
                 
-                // Add action buttons
-                html += `
-                    <td>
-                        <div class="actions">
-                            <button class="action-btn edit" onclick="editItem('${tableName}', '${item.id}')">
-                                EDIT
-                            </button>
-                            <button class="action-btn delete" onclick="deleteItem('${tableName}', '${item.id}')">
-                                DELETE
-                            </button>
-                        </div>
-                    </td>
-                `;
+                // Add action buttons - SAFELY handle potential undefined
+                if (item.id) {
+                    html += `
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn edit" onclick="editItem('${tableName}', '${item.id}')">
+                                    EDIT
+                                </button>
+                                <button class="action-btn delete" onclick="deleteItem('${tableName}', '${item.id}')">
+                                    DELETE
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                } else {
+                    html += `<td>-</td>`;
+                }
                 
                 html += `</tr>`;
             });
@@ -1551,10 +1565,12 @@
             
             let html = '';
             options.forEach(option => {
+                if (!option || !option.id) return;
+                
                 html += `
                     <div class="option-item ${option.is_correct ? 'correct' : ''}" data-id="${option.id}">
                         <div class="option-content">
-                            <strong>${option.option_text}</strong>
+                            <strong>${option.option_text || 'No text'}</strong>
                             ${option.image_url ? `<div style="margin-top: 5px;"><small>Has image</small></div>` : ''}
                             ${option.is_correct ? `<div style="margin-top: 5px; color: green;"><strong>✓ Correct Answer</strong></div>` : ''}
                         </div>
