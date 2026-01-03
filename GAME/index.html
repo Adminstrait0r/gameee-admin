@@ -728,7 +728,7 @@
                 </div>
             </div>
 
-            <div class="message message-success" id="connection-status">
+            <div class="message" id="connection-status">
                 <i class="fas fa-spinner fa-spin"></i>
                 <span>Connecting to your Supabase database...</span>
             </div>
@@ -749,83 +749,7 @@
                             </tr>
                         </thead>
                         <tbody id="table-overview">
-                            <tr>
-                                <td><strong>equipment</strong></td>
-                                <td>Game items with stats</td>
-                                <td id="count-equipment">-</td>
-                                <td id="time-equipment">-</td>
-                                <td><button class="action-btn btn-primary" onclick="showTable('equipment')">Manage</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>monsters</strong></td>
-                                <td>Enemy creatures</td>
-                                <td id="count-monsters">-</td>
-                                <td id="time-monsters">-</td>
-                                <td><button class="action-btn btn-primary" onclick="showTable('monsters')">Manage</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>questions</strong></td>
-                                <td>Quiz questions</td>
-                                <td id="count-questions">-</td>
-                                <td id="time-questions">-</td>
-                                <td><button class="action-btn btn-primary" onclick="showTable('questions')">Manage</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>question_options</strong></td>
-                                <td>Question answer choices</td>
-                                <td id="count-question_options">-</td>
-                                <td id="time-question_options">-</td>
-                                <td><button class="action-btn btn-primary" onclick="showTable('question_options')">Manage</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>gacha_banners</strong></td>
-                                <td>Gacha pool banners</td>
-                                <td id="count-gacha_banners">-</td>
-                                <td id="time-gacha_banners">-</td>
-                                <td><button class="action-btn btn-primary" onclick="showTable('gacha_banners')">Manage</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>gacha_rates</strong></td>
-                                <td>Drop rates for banners</td>
-                                <td id="count-gacha_rates">-</td>
-                                <td id="time-gacha_rates">-</td>
-                                <td><button class="action-btn btn-primary" onclick="showTable('gacha_rates')">Manage</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>users</strong></td>
-                                <td>Player accounts</td>
-                                <td id="count-users">-</td>
-                                <td id="time-users">-</td>
-                                <td><button class="action-btn btn-primary" onclick="showTable('users')">Manage</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>player_stats</strong></td>
-                                <td>Player character stats</td>
-                                <td id="count-player_stats">-</td>
-                                <td id="time-player_stats">-</td>
-                                <td><button class="action-btn btn-primary" onclick="showTable('player_stats')">Manage</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>player_equipment</strong></td>
-                                <td>Player owned items</td>
-                                <td id="count-player_equipment">-</td>
-                                <td id="time-player_equipment">-</td>
-                                <td><button class="action-btn btn-primary" onclick="showTable('player_equipment')">Manage</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>runs</strong></td>
-                                <td>Active game sessions</td>
-                                <td id="count-runs">-</td>
-                                <td id="time-runs">-</td>
-                                <td><button class="action-btn btn-primary" onclick="showTable('runs')">Manage</button></td>
-                            </tr>
-                            <tr>
-                                <td><strong>leaderboard</strong></td>
-                                <td>Player rankings</td>
-                                <td id="count-leaderboard">-</td>
-                                <td id="time-leaderboard">-</td>
-                                <td><button class="action-btn btn-primary" onclick="showTable('leaderboard')">Manage</button></td>
-                            </tr>
+                            <!-- Will be populated by JavaScript -->
                         </tbody>
                     </table>
                 </div>
@@ -837,7 +761,7 @@
             <div class="header">
                 <h1><i class="fas fa-shield-alt"></i> Equipment Management</h1>
                 <div>
-                    <button class="btn" onclick="showTable('equipment')">
+                    <button class="btn" onclick="refreshCurrentTable()">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
                     <button class="btn btn-primary" onclick="openModal('equipment')">
@@ -857,7 +781,7 @@
             <div class="header">
                 <h1><i class="fas fa-dragon"></i> Monsters Management</h1>
                 <div>
-                    <button class="btn" onclick="showTable('monsters')">
+                    <button class="btn" onclick="refreshCurrentTable()">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
                     <button class="btn btn-primary" onclick="openModal('monsters')">
@@ -877,7 +801,7 @@
             <div class="header">
                 <h1><i class="fas fa-question-circle"></i> Questions Management</h1>
                 <div>
-                    <button class="btn" onclick="showTable('questions')">
+                    <button class="btn" onclick="refreshCurrentTable()">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
                     <button class="btn btn-primary" onclick="openModal('questions')">
@@ -897,7 +821,7 @@
             <div class="header">
                 <h1><i class="fas fa-list-ul"></i> Question Options Management</h1>
                 <div>
-                    <button class="btn" onclick="showTable('question_options')">
+                    <button class="btn" onclick="refreshCurrentTable()">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
                     <button class="btn btn-primary" onclick="openModal('question_options')">
@@ -917,7 +841,7 @@
             <div class="header">
                 <h1><i class="fas fa-gem"></i> Gacha Banners Management</h1>
                 <div>
-                    <button class="btn" onclick="showTable('gacha_banners')">
+                    <button class="btn" onclick="refreshCurrentTable()">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
                     <button class="btn btn-primary" onclick="openModal('gacha_banners')">
@@ -937,7 +861,7 @@
             <div class="header">
                 <h1><i class="fas fa-chart-pie"></i> Gacha Rates Management</h1>
                 <div>
-                    <button class="btn" onclick="showTable('gacha_rates')">
+                    <button class="btn" onclick="refreshCurrentTable()">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
                     <button class="btn btn-primary" onclick="openModal('gacha_rates')">
@@ -957,7 +881,7 @@
             <div class="header">
                 <h1><i class="fas fa-users"></i> Users Management</h1>
                 <div>
-                    <button class="btn" onclick="showTable('users')">
+                    <button class="btn" onclick="refreshCurrentTable()">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
                     <button class="btn btn-primary" onclick="openModal('users')">
@@ -977,7 +901,7 @@
             <div class="header">
                 <h1><i class="fas fa-chart-line"></i> Player Stats Management</h1>
                 <div>
-                    <button class="btn" onclick="showTable('player_stats')">
+                    <button class="btn" onclick="refreshCurrentTable()">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
                     <button class="btn btn-primary" onclick="openModal('player_stats')">
@@ -997,7 +921,7 @@
             <div class="header">
                 <h1><i class="fas fa-vest"></i> Player Equipment Management</h1>
                 <div>
-                    <button class="btn" onclick="showTable('player_equipment')">
+                    <button class="btn" onclick="refreshCurrentTable()">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
                     <button class="btn btn-primary" onclick="openModal('player_equipment')">
@@ -1017,7 +941,7 @@
             <div class="header">
                 <h1><i class="fas fa-running"></i> Game Runs Management</h1>
                 <div>
-                    <button class="btn" onclick="showTable('runs')">
+                    <button class="btn" onclick="refreshCurrentTable()">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
                     <button class="btn btn-primary" onclick="openModal('runs')">
@@ -1037,7 +961,7 @@
             <div class="header">
                 <h1><i class="fas fa-trophy"></i> Leaderboard Management</h1>
                 <div>
-                    <button class="btn" onclick="showTable('leaderboard')">
+                    <button class="btn" onclick="refreshCurrentTable()">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
                     <button class="btn btn-primary" onclick="openModal('leaderboard')">
@@ -1145,7 +1069,6 @@
         import { supabase } from './supabase.js';
         
         console.log('Supabase client loaded:', supabase ? 'YES' : 'NO');
-        console.log('Supabase URL:', supabase?.supabaseUrl);
 
         // ============================================
         // GLOBAL VARIABLES
@@ -1158,7 +1081,8 @@
         let currentQuestionOptions = [];
 
         // ============================================
-        // TABLE SCHEMA DEFINITIONS - UPDATED FOR GAMEPLAY
+        // TABLE SCHEMA DEFINITIONS - COMPLETELY BLANK
+        // NO PRE-INSTALLED DATA - JUST TEXT FIELDS
         // ============================================
         const tableSchemas = {
             equipment: {
@@ -1166,8 +1090,8 @@
                 icon: 'fa-shield-alt',
                 columns: [
                     { name: 'name', type: 'text', label: 'Name', required: true },
-                    { name: 'slot', type: 'select', label: 'Slot', options: ['Helmet', 'Chestplate', 'Leggings', 'Boots', 'Weapon', 'Shield'], required: true },
-                    { name: 'rarity', type: 'select', label: 'Rarity', options: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'], required: true },
+                    { name: 'slot', type: 'text', label: 'Slot (weapon, armor, helmet, etc.)', required: true },
+                    { name: 'rarity', type: 'text', label: 'Rarity (common, uncommon, rare, etc.)', required: true },
                     { name: 'damage', type: 'number', label: 'Damage', required: false, defaultValue: 0 },
                     { name: 'defense', type: 'number', label: 'Defense', required: false, defaultValue: 0 },
                     { name: 'crit_bonus', type: 'number', label: 'Crit Bonus', step: '0.01', required: false, defaultValue: 0 },
@@ -1180,12 +1104,12 @@
                 icon: 'fa-dragon',
                 columns: [
                     { name: 'name', type: 'text', label: 'Name', required: true },
-                    { name: 'stage', type: 'number', label: 'Stage (1-10 for each boss cycle)', required: true, defaultValue: 1 },
+                    { name: 'stage', type: 'number', label: 'Stage (1-10)', required: true, defaultValue: 1 },
                     { name: 'hp', type: 'number', label: 'HP', required: true, defaultValue: 100 },
                     { name: 'damage', type: 'number', label: 'Damage', required: true, defaultValue: 10 },
                     { name: 'defense', type: 'number', label: 'Defense', required: true, defaultValue: 5 },
                     { name: 'timer_seconds', type: 'number', label: 'Timer (seconds)', required: true, defaultValue: 30 },
-                    { name: 'category', type: 'select', label: 'Category', options: ['math', 'science', 'history', 'geography', 'general', 'religion', 'mixed'], required: true },
+                    { name: 'category', type: 'text', label: 'Category', required: true },
                     { name: 'image_url', type: 'text', label: 'Image URL', required: false }
                 ]
             },
@@ -1193,8 +1117,8 @@
                 displayName: 'Questions',
                 icon: 'fa-question-circle',
                 columns: [
-                    { name: 'category', type: 'select', label: 'Category', options: ['math', 'science', 'history', 'geography', 'general', 'religion', 'mixed'], required: true },
-                    { name: 'difficulty', type: 'select', label: 'Difficulty', options: ['easy', 'medium', 'hard'], required: true },
+                    { name: 'category', type: 'text', label: 'Category', required: true },
+                    { name: 'difficulty', type: 'text', label: 'Difficulty (easy, medium, hard)', required: true },
                     { name: 'question_text', type: 'textarea', label: 'Question Text', required: true },
                     { name: 'timer_seconds', type: 'number', label: 'Timer (seconds)', required: true, defaultValue: 30 },
                     { name: 'image_url', type: 'text', label: 'Image URL', required: false }
@@ -1224,7 +1148,7 @@
                 icon: 'fa-chart-pie',
                 columns: [
                     { name: 'banner_id', type: 'text', label: 'Banner ID (UUID)', required: true },
-                    { name: 'rarity', type: 'select', label: 'Rarity', options: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'], required: true },
+                    { name: 'rarity', type: 'text', label: 'Rarity', required: true },
                     { name: 'chance', type: 'number', label: 'Chance (%)', step: '0.01', required: true, defaultValue: 1.0 }
                 ]
             },
@@ -1287,8 +1211,11 @@
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('DOM loaded, initializing...');
             
-            // Set up event listeners
+            // Set up event listeners FIRST
             setupEventListeners();
+            
+            // Initialize dashboard table
+            initializeDashboardTable();
             
             // Connect to Supabase automatically
             await connectToSupabase();
@@ -1301,27 +1228,52 @@
         });
 
         // ============================================
-        // EVENT LISTENERS
+        // DASHBOARD TABLE INITIALIZATION
+        // ============================================
+        function initializeDashboardTable() {
+            const tableBody = document.getElementById('table-overview');
+            const tables = Object.keys(tableSchemas);
+            
+            let html = '';
+            tables.forEach(tableName => {
+                const schema = tableSchemas[tableName];
+                html += `
+                    <tr>
+                        <td><strong>${tableName}</strong></td>
+                        <td>${schema.displayName}</td>
+                        <td id="count-${tableName}">-</td>
+                        <td id="time-${tableName}">-</td>
+                        <td><button class="action-btn btn-primary" onclick="showTable('${tableName}')">Manage</button></td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+        }
+
+        // ============================================
+        // EVENT LISTENERS - FIXED SIDEBAR
         // ============================================
         function setupEventListeners() {
             console.log('Setting up event listeners...');
             
-            // Navigation
-            document.querySelectorAll('.sidebar-menu a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Update active state
-                    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Show correct section
-                    if (this.id === 'nav-dashboard') {
-                        showSection('dashboard');
-                    } else if (this.dataset.table) {
-                        showSection(this.dataset.table);
-                    }
-                });
+            // Navigation - FIXED: Using event delegation
+            document.querySelector('.sidebar-menu').addEventListener('click', function(e) {
+                const link = e.target.closest('a');
+                if (!link) return;
+                
+                e.preventDefault();
+                
+                // Update active state
+                document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+                link.classList.add('active');
+                
+                // Show correct section
+                if (link.id === 'nav-dashboard') {
+                    showSection('dashboard');
+                } else if (link.dataset.table) {
+                    showSection(link.dataset.table);
+                }
             });
 
             // Form submission
@@ -1329,6 +1281,13 @@
             
             // Delete confirmation
             document.getElementById('confirm-delete-btn').addEventListener('click', confirmDelete);
+            
+            // Make sure buttons work
+            window.refreshCurrentTable = function() {
+                if (currentTable) {
+                    loadTableData(currentTable);
+                }
+            };
         }
 
         // ============================================
@@ -1371,7 +1330,7 @@
         }
 
         // ============================================
-        // SECTION MANAGEMENT
+        // SECTION MANAGEMENT - FIXED
         // ============================================
         function showSection(tableName) {
             console.log('Showing section:', tableName);
@@ -1428,17 +1387,6 @@
                     if (!error && countElement && timeElement) {
                         countElement.textContent = count || 0;
                         timeElement.textContent = new Date().toLocaleTimeString();
-                        
-                        // Update badge color based on count
-                        const row = countElement.closest('tr');
-                        if (row) {
-                            const statusCell = row.querySelector('td:nth-child(4)');
-                            if (statusCell) {
-                                statusCell.innerHTML = count > 0 ? 
-                                    `<span class="badge badge-success">${count} records</span>` : 
-                                    `<span class="badge">Empty</span>`;
-                            }
-                        }
                     } else if (error) {
                         console.error(`Error loading count for ${tableName}:`, error);
                         if (countElement) countElement.textContent = 'Error';
@@ -1557,17 +1505,6 @@
                         html += value ? 
                             `<span class="bool-true">✓</span>` : 
                             `<span class="bool-false">✗</span>`;
-                    } else if (col.type === 'select') {
-                        // Special styling for categories and difficulties
-                        if (col.name === 'category') {
-                            html += `<span class="category-badge">${value || ''}</span>`;
-                        } else if (col.name === 'difficulty') {
-                            html += `<span class="badge difficulty-${value?.toLowerCase() || ''}">${value || ''}</span>`;
-                        } else if (col.name === 'rarity') {
-                            html += `<span class="badge">${value || ''}</span>`;
-                        } else {
-                            html += value || '';
-                        }
                     } else if (col.name.includes('_id') && typeof value === 'string' && value.length > 10) {
                         // Shorten UUIDs
                         html += `<span class="uuid-short" title="${value}">${value.substring(0, 8)}...</span>`;
@@ -1625,26 +1562,6 @@
             });
             
             html += `</tbody></table></div>`;
-            
-            // Add linked records for specific tables
-            if (tableName === 'questions') {
-                html += `
-                    <div class="quick-actions">
-                        <button class="quick-action-btn" onclick="showTable('question_options')">
-                            <i class="fas fa-external-link-alt"></i> View All Question Options
-                        </button>
-                    </div>
-                `;
-            } else if (tableName === 'monsters') {
-                html += `
-                    <div class="quick-actions">
-                        <button class="quick-action-btn" onclick="showTable('questions')">
-                            <i class="fas fa-question-circle"></i> View Questions by Category
-                        </button>
-                    </div>
-                `;
-            }
-            
             contentDiv.innerHTML = html;
         }
 
@@ -1670,7 +1587,7 @@
                 form.innerHTML = `<input type="hidden" id="record-id" value="${itemId}">`;
             }
             
-            // Add form fields based on schema
+            // Add form fields based on schema - ALL TEXT FIELDS, NO DROPDOWNS
             schema.columns.forEach(col => {
                 const fieldId = `field-${col.name}`;
                 let fieldHtml = '';
@@ -1680,17 +1597,6 @@
                         <div class="form-group">
                             <label for="${fieldId}">${col.label}${col.required ? ' *' : ''}</label>
                             <textarea id="${fieldId}" class="form-control" ${col.required ? 'required' : ''}></textarea>
-                        </div>
-                    `;
-                } else if (col.type === 'select') {
-                    const options = col.options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
-                    fieldHtml = `
-                        <div class="form-group">
-                            <label for="${fieldId}">${col.label}${col.required ? ' *' : ''}</label>
-                            <select id="${fieldId}" class="form-control" ${col.required ? 'required' : ''}>
-                                <option value="">Select...</option>
-                                ${options}
-                            </select>
                         </div>
                     `;
                 } else if (col.type === 'checkbox') {
@@ -1878,8 +1784,8 @@
                 
                 // Update question info
                 document.getElementById('question-text').textContent = question.question_text;
-                document.getElementById('question-category').innerHTML = `<span class="category-badge">${question.category}</span>`;
-                document.getElementById('question-difficulty').innerHTML = `<span class="badge difficulty-${question.difficulty}">${question.difficulty}</span>`;
+                document.getElementById('question-category').textContent = `Category: ${question.category}`;
+                document.getElementById('question-difficulty').textContent = `Difficulty: ${question.difficulty}`;
                 document.getElementById('question-timer').innerHTML = `<span class="timer-display"><i class="fas fa-clock"></i> ${question.timer_seconds}s</span>`;
                 
                 // Render options
@@ -2059,7 +1965,6 @@
             const message = document.createElement('div');
             message.className = `message message-${type}`;
             message.style.marginBottom = '10px';
-            message.style.animation = 'slideIn 0.3s ease-out';
             message.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> <span>${text}</span>`;
             
             container.appendChild(message);
@@ -2085,16 +1990,11 @@
         window.saveNewOption = saveNewOption;
         window.toggleCorrectOption = toggleCorrectOption;
         window.deleteQuestionOption = deleteQuestionOption;
-        
-        // Add CSS animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
+        window.refreshCurrentTable = function() {
+            if (currentTable) {
+                loadTableData(currentTable);
             }
-        `;
-        document.head.appendChild(style);
+        };
     </script>
 </body>
 </html>
