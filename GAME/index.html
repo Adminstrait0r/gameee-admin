@@ -1004,7 +1004,8 @@
         let allData = {};
 
         // ============================================
-        // TABLE SCHEMA DEFINITIONS - UPDATED WITH HEALTH_BONUS
+        // TABLE SCHEMA DEFINITIONS - COMPLETELY BLANK SLATE
+        // NO PRE-INSTALLED VALUES - JUST EMPTY TEXT FIELDS
         // ============================================
         const tableSchemas = {
             equipment: {
@@ -1012,8 +1013,8 @@
                 icon: 'fa-shield-alt',
                 columns: [
                     { name: 'name', type: 'text', label: 'Name', required: true },
-                    { name: 'slot', type: 'select', label: 'Slot', options: ['weapon', 'armor', 'accessory'], required: true },
-                    { name: 'rarity', type: 'select', label: 'Rarity', options: ['common', 'uncommon', 'rare', 'epic', 'legendary'], required: true },
+                    { name: 'slot', type: 'text', label: 'Slot (e.g., weapon, armor, accessory)', required: true },
+                    { name: 'rarity', type: 'text', label: 'Rarity (e.g., common, uncommon, rare)', required: true },
                     { name: 'damage', type: 'number', label: 'Damage', required: false, defaultValue: 0 },
                     { name: 'defense', type: 'number', label: 'Defense', required: false, defaultValue: 0 },
                     { name: 'crit_bonus', type: 'number', label: 'Crit Bonus', step: '0.01', required: false, defaultValue: 0 },
@@ -1031,7 +1032,7 @@
                     { name: 'damage', type: 'number', label: 'Damage', required: true, defaultValue: 10 },
                     { name: 'defense', type: 'number', label: 'Defense', required: true, defaultValue: 5 },
                     { name: 'timer_seconds', type: 'number', label: 'Timer (seconds)', required: true, defaultValue: 30 },
-                    { name: 'category', type: 'select', label: 'Category', options: ['math', 'science', 'history', 'geography', 'general'], required: true },
+                    { name: 'category', type: 'text', label: 'Category', required: true },
                     { name: 'image_url', type: 'text', label: 'Image URL', required: false }
                 ]
             },
@@ -1039,8 +1040,8 @@
                 displayName: 'Questions',
                 icon: 'fa-question-circle',
                 columns: [
-                    { name: 'category', type: 'select', label: 'Category', options: ['math', 'science', 'history', 'geography', 'general'], required: true },
-                    { name: 'difficulty', type: 'select', label: 'Difficulty', options: ['easy', 'medium', 'hard'], required: true },
+                    { name: 'category', type: 'text', label: 'Category', required: true },
+                    { name: 'difficulty', type: 'text', label: 'Difficulty', required: true },
                     { name: 'question_text', type: 'textarea', label: 'Question Text', required: true },
                     { name: 'image_url', type: 'text', label: 'Image URL', required: false }
                 ]
@@ -1069,7 +1070,7 @@
                 icon: 'fa-chart-pie',
                 columns: [
                     { name: 'banner_id', type: 'text', label: 'Banner ID (UUID)', required: true },
-                    { name: 'rarity', type: 'select', label: 'Rarity', options: ['common', 'uncommon', 'rare', 'epic', 'legendary'], required: true },
+                    { name: 'rarity', type: 'text', label: 'Rarity', required: true },
                     { name: 'chance', type: 'number', label: 'Chance (%)', step: '0.01', required: true, defaultValue: 1.0 }
                 ]
             },
@@ -1397,8 +1398,6 @@
                         html += value ? 
                             `<span class="bool-true">✓</span>` : 
                             `<span class="bool-false">✗</span>`;
-                    } else if (col.type === 'select') {
-                        html += `<span class="badge">${value || ''}</span>`;
                     } else if (col.name.includes('_id') && typeof value === 'string' && value.length > 10) {
                         // Shorten UUIDs
                         html += `<span class="uuid-short" title="${value}">${value.substring(0, 8)}...</span>`;
@@ -1469,7 +1468,7 @@
                 form.innerHTML = `<input type="hidden" id="record-id" value="${itemId}">`;
             }
             
-            // Add form fields based on schema
+            // Add form fields based on schema - ALL TEXT FIELDS, NO PRE-FILLED OPTIONS
             schema.columns.forEach(col => {
                 const fieldId = `field-${col.name}`;
                 let fieldHtml = '';
@@ -1479,17 +1478,6 @@
                         <div class="form-group">
                             <label for="${fieldId}">${col.label}${col.required ? ' *' : ''}</label>
                             <textarea id="${fieldId}" class="form-control" ${col.required ? 'required' : ''}></textarea>
-                        </div>
-                    `;
-                } else if (col.type === 'select') {
-                    const options = col.options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
-                    fieldHtml = `
-                        <div class="form-group">
-                            <label for="${fieldId}">${col.label}${col.required ? ' *' : ''}</label>
-                            <select id="${fieldId}" class="form-control" ${col.required ? 'required' : ''}>
-                                <option value="">Select...</option>
-                                ${options}
-                            </select>
                         </div>
                     `;
                 } else if (col.type === 'checkbox') {
