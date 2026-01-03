@@ -531,6 +531,16 @@
             border-radius: 4px;
             font-size: 0.85rem;
         }
+        
+        /* Stat display */
+        .stat-positive {
+            color: #16a34a;
+            font-weight: bold;
+        }
+        
+        .stat-neutral {
+            color: #6b7280;
+        }
     </style>
 </head>
 <body>
@@ -994,7 +1004,7 @@
         let allData = {};
 
         // ============================================
-        // TABLE SCHEMA DEFINITIONS
+        // TABLE SCHEMA DEFINITIONS - UPDATED WITH HEALTH_BONUS
         // ============================================
         const tableSchemas = {
             equipment: {
@@ -1007,6 +1017,7 @@
                     { name: 'damage', type: 'number', label: 'Damage', required: false, defaultValue: 0 },
                     { name: 'defense', type: 'number', label: 'Defense', required: false, defaultValue: 0 },
                     { name: 'crit_bonus', type: 'number', label: 'Crit Bonus', step: '0.01', required: false, defaultValue: 0 },
+                    { name: 'health_bonus', type: 'number', label: 'Health Bonus', required: false, defaultValue: 0 },
                     { name: 'image_url', type: 'text', label: 'Image URL', required: false }
                 ]
             },
@@ -1395,6 +1406,13 @@
                         html += `${value.substring(0, 50)}...`;
                     } else if (value === null || value === undefined) {
                         html += `<span style="color: #9ca3af; font-style: italic;">null</span>`;
+                    } else if ((col.name === 'damage' || col.name === 'defense' || col.name === 'health_bonus' || 
+                               col.name === 'crit_bonus' || col.name === 'chance' || col.name === 'crit_chance') && 
+                               value !== 0) {
+                        // Highlight non-zero stats
+                        html += `<span class="stat-positive">${value}</span>`;
+                    } else if (col.name === 'damage' || col.name === 'defense' || col.name === 'health_bonus') {
+                        html += `<span class="stat-neutral">${value}</span>`;
                     } else {
                         html += value;
                     }
