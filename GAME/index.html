@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Admin Panel - Multi-Table Management</title>
+    <title>Game Admin Panel - Complete Management</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -425,6 +425,64 @@
             font-size: 0.8rem;
         }
 
+        /* Question Options Section */
+        .question-options-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .options-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .option-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .option-item.correct {
+            border-left: 4px solid var(--success-color);
+            background: #f0f9ff;
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Timer Display */
+        .timer-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #e9ecef;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .timer-display .fas {
+            color: var(--danger-color);
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .sidebar {
@@ -472,46 +530,18 @@
             .modal-content {
                 width: 95%;
             }
+            
+            .option-item {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .option-actions {
+                align-self: flex-end;
+            }
         }
 
-        /* Tab Navigation for Tables */
-        .table-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 5px;
-        }
-
-        .table-tab {
-            padding: 10px 20px;
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 5px 5px 0 0;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .table-tab:hover {
-            background: #f8f9fa;
-        }
-
-        .table-tab.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        .table-section {
-            display: none;
-        }
-
-        .table-section.active {
-            display: block;
-        }
-        
         /* Boolean display */
         .bool-true {
             color: #16a34a;
@@ -540,6 +570,77 @@
         
         .stat-neutral {
             color: #6b7280;
+        }
+        
+        /* Category badge */
+        .category-badge {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        /* Difficulty badge */
+        .difficulty-easy {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .difficulty-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .difficulty-hard {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .quick-action-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .quick-action-btn:hover {
+            background: #f8f9fa;
+            border-color: var(--primary-color);
+        }
+        
+        /* Linked Records */
+        .linked-records {
+            margin-top: 30px;
+        }
+        
+        .linked-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .linked-table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
         }
     </style>
 </head>
@@ -985,6 +1086,57 @@
         </div>
     </div>
 
+    <!-- Question Options Modal -->
+    <div class="modal" id="question-options-modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 id="options-modal-title">Manage Question Options</h3>
+                <button class="close-btn" onclick="closeQuestionOptionsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="question-info" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                    <h4 id="question-text"></h4>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <span id="question-category"></span>
+                        <span id="question-difficulty"></span>
+                        <span id="question-timer"></span>
+                    </div>
+                </div>
+                
+                <div class="options-header">
+                    <h4>Options for this Question</h4>
+                    <button class="btn btn-success" onclick="addNewOption()">
+                        <i class="fas fa-plus"></i> Add Option
+                    </button>
+                </div>
+                
+                <div id="options-list" class="question-options-section">
+                    <!-- Options will be loaded here -->
+                </div>
+                
+                <div id="new-option-form" style="display: none; margin-top: 20px; padding: 20px; background: white; border: 2px dashed var(--border-color); border-radius: 8px;">
+                    <h4>Add New Option</h4>
+                    <div class="form-group">
+                        <label>Option Text *</label>
+                        <input type="text" id="new-option-text" class="form-control" placeholder="Enter option text">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="new-option-correct">
+                        <label style="margin-bottom: 0;">Correct Answer</label>
+                    </div>
+                    <div class="form-group">
+                        <label>Image URL (Optional)</label>
+                        <input type="text" id="new-option-image" class="form-control" placeholder="https://example.com/image.jpg">
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button class="btn" onclick="cancelNewOption()">Cancel</button>
+                        <button class="btn btn-primary" onclick="saveNewOption()">Save Option</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Import your existing supabase.js DIRECTLY -->
     <script type="module">
         // ============================================
@@ -1002,10 +1154,11 @@
         let currentRecordId = null;
         let isEditMode = false;
         let allData = {};
+        let currentQuestionId = null;
+        let currentQuestionOptions = [];
 
         // ============================================
-        // TABLE SCHEMA DEFINITIONS - COMPLETELY BLANK SLATE
-        // NO PRE-INSTALLED VALUES - JUST EMPTY TEXT FIELDS
+        // TABLE SCHEMA DEFINITIONS - UPDATED FOR GAMEPLAY
         // ============================================
         const tableSchemas = {
             equipment: {
@@ -1013,8 +1166,8 @@
                 icon: 'fa-shield-alt',
                 columns: [
                     { name: 'name', type: 'text', label: 'Name', required: true },
-                    { name: 'slot', type: 'text', label: 'Slot (e.g., weapon, armor, accessory)', required: true },
-                    { name: 'rarity', type: 'text', label: 'Rarity (e.g., common, uncommon, rare)', required: true },
+                    { name: 'slot', type: 'select', label: 'Slot', options: ['Helmet', 'Chestplate', 'Leggings', 'Boots', 'Weapon', 'Shield'], required: true },
+                    { name: 'rarity', type: 'select', label: 'Rarity', options: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'], required: true },
                     { name: 'damage', type: 'number', label: 'Damage', required: false, defaultValue: 0 },
                     { name: 'defense', type: 'number', label: 'Defense', required: false, defaultValue: 0 },
                     { name: 'crit_bonus', type: 'number', label: 'Crit Bonus', step: '0.01', required: false, defaultValue: 0 },
@@ -1027,12 +1180,12 @@
                 icon: 'fa-dragon',
                 columns: [
                     { name: 'name', type: 'text', label: 'Name', required: true },
-                    { name: 'stage', type: 'number', label: 'Stage', required: true, defaultValue: 1 },
+                    { name: 'stage', type: 'number', label: 'Stage (1-10 for each boss cycle)', required: true, defaultValue: 1 },
                     { name: 'hp', type: 'number', label: 'HP', required: true, defaultValue: 100 },
                     { name: 'damage', type: 'number', label: 'Damage', required: true, defaultValue: 10 },
                     { name: 'defense', type: 'number', label: 'Defense', required: true, defaultValue: 5 },
                     { name: 'timer_seconds', type: 'number', label: 'Timer (seconds)', required: true, defaultValue: 30 },
-                    { name: 'category', type: 'text', label: 'Category', required: true },
+                    { name: 'category', type: 'select', label: 'Category', options: ['math', 'science', 'history', 'geography', 'general', 'religion', 'mixed'], required: true },
                     { name: 'image_url', type: 'text', label: 'Image URL', required: false }
                 ]
             },
@@ -1040,9 +1193,10 @@
                 displayName: 'Questions',
                 icon: 'fa-question-circle',
                 columns: [
-                    { name: 'category', type: 'text', label: 'Category', required: true },
-                    { name: 'difficulty', type: 'text', label: 'Difficulty', required: true },
+                    { name: 'category', type: 'select', label: 'Category', options: ['math', 'science', 'history', 'geography', 'general', 'religion', 'mixed'], required: true },
+                    { name: 'difficulty', type: 'select', label: 'Difficulty', options: ['easy', 'medium', 'hard'], required: true },
                     { name: 'question_text', type: 'textarea', label: 'Question Text', required: true },
+                    { name: 'timer_seconds', type: 'number', label: 'Timer (seconds)', required: true, defaultValue: 30 },
                     { name: 'image_url', type: 'text', label: 'Image URL', required: false }
                 ]
             },
@@ -1070,7 +1224,7 @@
                 icon: 'fa-chart-pie',
                 columns: [
                     { name: 'banner_id', type: 'text', label: 'Banner ID (UUID)', required: true },
-                    { name: 'rarity', type: 'text', label: 'Rarity', required: true },
+                    { name: 'rarity', type: 'select', label: 'Rarity', options: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'], required: true },
                     { name: 'chance', type: 'number', label: 'Chance (%)', step: '0.01', required: true, defaultValue: 1.0 }
                 ]
             },
@@ -1373,6 +1527,11 @@
                 html += `<th>${col.label}</th>`;
             });
             
+            // Add extra headers for specific tables
+            if (tableName === 'questions') {
+                html += `<th>Options</th>`;
+            }
+            
             // Add actions header
             html += `
                 <th>Created At</th>
@@ -1398,9 +1557,23 @@
                         html += value ? 
                             `<span class="bool-true">✓</span>` : 
                             `<span class="bool-false">✗</span>`;
+                    } else if (col.type === 'select') {
+                        // Special styling for categories and difficulties
+                        if (col.name === 'category') {
+                            html += `<span class="category-badge">${value || ''}</span>`;
+                        } else if (col.name === 'difficulty') {
+                            html += `<span class="badge difficulty-${value?.toLowerCase() || ''}">${value || ''}</span>`;
+                        } else if (col.name === 'rarity') {
+                            html += `<span class="badge">${value || ''}</span>`;
+                        } else {
+                            html += value || '';
+                        }
                     } else if (col.name.includes('_id') && typeof value === 'string' && value.length > 10) {
                         // Shorten UUIDs
                         html += `<span class="uuid-short" title="${value}">${value.substring(0, 8)}...</span>`;
+                    } else if (col.name === 'timer_seconds') {
+                        // Timer display
+                        html += `<span class="timer-display"><i class="fas fa-clock"></i> ${value}s</span>`;
                     } else if (typeof value === 'string' && value.length > 50) {
                         html += `${value.substring(0, 50)}...`;
                     } else if (value === null || value === undefined) {
@@ -1418,6 +1591,15 @@
                     
                     html += `</td>`;
                 });
+                
+                // Add options column for questions
+                if (tableName === 'questions') {
+                    html += `<td>
+                        <button class="action-btn btn-success" onclick="manageQuestionOptions('${item.id}')">
+                            <i class="fas fa-list"></i> Manage Options
+                        </button>
+                    </td>`;
+                }
                 
                 // Add created at
                 const createdDate = item.created_at ? 
@@ -1443,6 +1625,26 @@
             });
             
             html += `</tbody></table></div>`;
+            
+            // Add linked records for specific tables
+            if (tableName === 'questions') {
+                html += `
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" onclick="showTable('question_options')">
+                            <i class="fas fa-external-link-alt"></i> View All Question Options
+                        </button>
+                    </div>
+                `;
+            } else if (tableName === 'monsters') {
+                html += `
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" onclick="showTable('questions')">
+                            <i class="fas fa-question-circle"></i> View Questions by Category
+                        </button>
+                    </div>
+                `;
+            }
+            
             contentDiv.innerHTML = html;
         }
 
@@ -1468,7 +1670,7 @@
                 form.innerHTML = `<input type="hidden" id="record-id" value="${itemId}">`;
             }
             
-            // Add form fields based on schema - ALL TEXT FIELDS, NO PRE-FILLED OPTIONS
+            // Add form fields based on schema
             schema.columns.forEach(col => {
                 const fieldId = `field-${col.name}`;
                 let fieldHtml = '';
@@ -1478,6 +1680,17 @@
                         <div class="form-group">
                             <label for="${fieldId}">${col.label}${col.required ? ' *' : ''}</label>
                             <textarea id="${fieldId}" class="form-control" ${col.required ? 'required' : ''}></textarea>
+                        </div>
+                    `;
+                } else if (col.type === 'select') {
+                    const options = col.options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+                    fieldHtml = `
+                        <div class="form-group">
+                            <label for="${fieldId}">${col.label}${col.required ? ' *' : ''}</label>
+                            <select id="${fieldId}" class="form-control" ${col.required ? 'required' : ''}>
+                                <option value="">Select...</option>
+                                ${options}
+                            </select>
                         </div>
                     `;
                 } else if (col.type === 'checkbox') {
@@ -1634,6 +1847,211 @@
         }
 
         // ============================================
+        // QUESTION OPTIONS MANAGEMENT
+        // ============================================
+        async function manageQuestionOptions(questionId) {
+            currentQuestionId = questionId;
+            
+            try {
+                // Load question details
+                const { data: question, error: questionError } = await supabase
+                    .from('questions')
+                    .select('*')
+                    .eq('id', questionId)
+                    .single();
+                
+                if (questionError) throw questionError;
+                
+                // Load options for this question
+                const { data: options, error: optionsError } = await supabase
+                    .from('question_options')
+                    .select('*')
+                    .eq('question_id', questionId)
+                    .order('created_at', { ascending: true });
+                
+                if (optionsError) throw optionsError;
+                
+                currentQuestionOptions = options || [];
+                
+                // Update modal title
+                document.getElementById('options-modal-title').textContent = `Options for: ${question.question_text.substring(0, 50)}${question.question_text.length > 50 ? '...' : ''}`;
+                
+                // Update question info
+                document.getElementById('question-text').textContent = question.question_text;
+                document.getElementById('question-category').innerHTML = `<span class="category-badge">${question.category}</span>`;
+                document.getElementById('question-difficulty').innerHTML = `<span class="badge difficulty-${question.difficulty}">${question.difficulty}</span>`;
+                document.getElementById('question-timer').innerHTML = `<span class="timer-display"><i class="fas fa-clock"></i> ${question.timer_seconds}s</span>`;
+                
+                // Render options
+                renderQuestionOptions(currentQuestionOptions);
+                
+                // Show modal
+                document.getElementById('question-options-modal').classList.add('active');
+                
+            } catch (error) {
+                console.error('Error loading question options:', error);
+                showMessage(`Error loading options: ${error.message}`, 'error');
+            }
+        }
+
+        function renderQuestionOptions(options) {
+            const optionsList = document.getElementById('options-list');
+            
+            if (!options || options.length === 0) {
+                optionsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-list-ul"></i>
+                        <h3>No Options Yet</h3>
+                        <p>Add options for this question using the "Add Option" button.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            options.forEach(option => {
+                html += `
+                    <div class="option-item ${option.is_correct ? 'correct' : ''}" data-id="${option.id}">
+                        <div class="option-content">
+                            <strong>${option.option_text}</strong>
+                            ${option.image_url ? `<div style="margin-top: 5px; font-size: 0.85rem; color: #6c757d;"><i class="fas fa-image"></i> Has image</div>` : ''}
+                            ${option.is_correct ? `<div style="margin-top: 5px; color: var(--success-color); font-weight: bold;"><i class="fas fa-check-circle"></i> Correct Answer</div>` : ''}
+                        </div>
+                        <div class="option-actions">
+                            <button class="action-btn btn-warning" onclick="toggleCorrectOption('${option.id}')">
+                                ${option.is_correct ? '<i class="fas fa-times"></i> Mark Incorrect' : '<i class="fas fa-check"></i> Mark Correct'}
+                            </button>
+                            <button class="action-btn btn-danger" onclick="deleteQuestionOption('${option.id}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            optionsList.innerHTML = html;
+        }
+
+        function closeQuestionOptionsModal() {
+            document.getElementById('question-options-modal').classList.remove('active');
+            currentQuestionId = null;
+            currentQuestionOptions = [];
+            document.getElementById('new-option-form').style.display = 'none';
+        }
+
+        function addNewOption() {
+            document.getElementById('new-option-form').style.display = 'block';
+            document.getElementById('new-option-text').value = '';
+            document.getElementById('new-option-correct').checked = false;
+            document.getElementById('new-option-image').value = '';
+            document.getElementById('new-option-text').focus();
+        }
+
+        function cancelNewOption() {
+            document.getElementById('new-option-form').style.display = 'none';
+        }
+
+        async function saveNewOption() {
+            const optionText = document.getElementById('new-option-text').value;
+            const isCorrect = document.getElementById('new-option-correct').checked;
+            const imageUrl = document.getElementById('new-option-image').value;
+            
+            if (!optionText.trim()) {
+                showMessage('Option text is required!', 'error');
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('question_options')
+                    .insert([{
+                        question_id: currentQuestionId,
+                        option_text: optionText,
+                        is_correct: isCorrect,
+                        image_url: imageUrl || null
+                    }]);
+                
+                if (error) throw error;
+                
+                showMessage('Option added successfully!', 'success');
+                
+                // Reload options
+                const { data: options, error: optionsError } = await supabase
+                    .from('question_options')
+                    .select('*')
+                    .eq('question_id', currentQuestionId)
+                    .order('created_at', { ascending: true });
+                
+                if (optionsError) throw optionsError;
+                
+                currentQuestionOptions = options || [];
+                renderQuestionOptions(currentQuestionOptions);
+                
+                // Reset form
+                cancelNewOption();
+                
+            } catch (error) {
+                console.error('Error saving option:', error);
+                showMessage(`Error saving option: ${error.message}`, 'error');
+            }
+        }
+
+        async function toggleCorrectOption(optionId) {
+            try {
+                const option = currentQuestionOptions.find(o => o.id === optionId);
+                if (!option) return;
+                
+                const { error } = await supabase
+                    .from('question_options')
+                    .update({ is_correct: !option.is_correct })
+                    .eq('id', optionId);
+                
+                if (error) throw error;
+                
+                showMessage('Option updated successfully!', 'success');
+                
+                // Reload options
+                const { data: options, error: optionsError } = await supabase
+                    .from('question_options')
+                    .select('*')
+                    .eq('question_id', currentQuestionId)
+                    .order('created_at', { ascending: true });
+                
+                if (optionsError) throw optionsError;
+                
+                currentQuestionOptions = options || [];
+                renderQuestionOptions(currentQuestionOptions);
+                
+            } catch (error) {
+                console.error('Error updating option:', error);
+                showMessage(`Error updating option: ${error.message}`, 'error');
+            }
+        }
+
+        async function deleteQuestionOption(optionId) {
+            if (!confirm('Are you sure you want to delete this option?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('question_options')
+                    .delete()
+                    .eq('id', optionId);
+                
+                if (error) throw error;
+                
+                showMessage('Option deleted successfully!', 'success');
+                
+                // Remove from local array
+                currentQuestionOptions = currentQuestionOptions.filter(o => o.id !== optionId);
+                renderQuestionOptions(currentQuestionOptions);
+                
+            } catch (error) {
+                console.error('Error deleting option:', error);
+                showMessage(`Error deleting option: ${error.message}`, 'error');
+            }
+        }
+
+        // ============================================
         // UTILITY FUNCTIONS
         // ============================================
         function showMessage(text, type) {
@@ -1660,6 +2078,13 @@
         window.deleteItem = deleteItem;
         window.closeDeleteModal = closeDeleteModal;
         window.showTable = showTable;
+        window.manageQuestionOptions = manageQuestionOptions;
+        window.closeQuestionOptionsModal = closeQuestionOptionsModal;
+        window.addNewOption = addNewOption;
+        window.cancelNewOption = cancelNewOption;
+        window.saveNewOption = saveNewOption;
+        window.toggleCorrectOption = toggleCorrectOption;
+        window.deleteQuestionOption = deleteQuestionOption;
         
         // Add CSS animation
         const style = document.createElement('style');
