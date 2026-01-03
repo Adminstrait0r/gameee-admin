@@ -3,211 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Admin Panel - Complete Management</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>RPG Database Manager</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
         :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3a0ca3;
-            --success-color: #4cc9f0;
-            --danger-color: #f72585;
-            --warning-color: #f8961e;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-            --gray-color: #6c757d;
-            --border-color: #dee2e6;
-            --sidebar-width: 280px;
-            --header-height: 70px;
+            --bg-main: #f2efe6;
+            --bg-panel: #e8e3d6;
+            --border: #2b2b2b;
+            --accent: #111;
+            --tab-active: #d6c9a8;
+            --tab-inactive: #e8e3d6;
+        }
+        
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, sans-serif;
         }
 
         body {
+            margin: 0;
+            background: #333;
             display: flex;
+            justify-content: center;
+            padding: 16px;
             min-height: 100vh;
-            background-color: #f5f7fb;
-            color: var(--dark-color);
         }
 
-        /* Sidebar Styles */
-        .sidebar {
-            width: var(--sidebar-width);
-            background-color: white;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-            z-index: 100;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
+        .app {
+            width: 100%;
+            max-width: 1200px;
+            background: var(--bg-main);
+            border: 3px solid var(--border);
+            min-height: 600px;
         }
 
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
+        /* Top Bar */
+        .top-bar {
+            display: grid;
+            grid-template-columns: auto 1fr auto auto;
+            gap: 8px;
             align-items: center;
-            gap: 10px;
-            position: sticky;
-            top: 0;
-            background: white;
+            padding: 10px;
+            border-bottom: 3px solid var(--border);
+            background: var(--bg-panel);
         }
 
-        .sidebar-header h2 {
-            color: var(--primary-color);
-            font-size: 1.5rem;
+        .menu {
+            font-size: 20px;
+            cursor: pointer;
         }
 
-        .sidebar-menu {
-            list-style: none;
-            padding: 10px 0;
-            flex-grow: 1;
+        .title {
+            font-weight: 700;
+            letter-spacing: 1px;
         }
 
-        .sidebar-menu li {
-            margin-bottom: 2px;
+        .badge {
+            border: 2px solid var(--border);
+            padding: 4px 8px;
+            font-size: 12px;
+            background: var(--bg-main);
         }
 
-        .sidebar-menu a {
+        /* Tabs */
+        .tabs {
             display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: var(--dark-color);
-            text-decoration: none;
-            transition: all 0.3s;
-            gap: 10px;
-            border-left: 4px solid transparent;
+            border-bottom: 3px solid var(--border);
+            background: var(--bg-panel);
+            flex-wrap: wrap;
         }
 
-        .sidebar-menu a:hover, .sidebar-menu a.active {
-            background-color: rgba(67, 97, 238, 0.1);
-            color: var(--primary-color);
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .table-group {
-            padding-left: 20px;
-            font-size: 0.85rem;
-            color: var(--gray-color);
-            margin-top: 20px;
-            margin-bottom: 5px;
+        .tab {
+            padding: 12px 16px;
+            border-right: 2px solid var(--border);
+            cursor: pointer;
             font-weight: 600;
+            background: var(--tab-inactive);
+            transition: background 0.2s;
         }
 
-        .sidebar-footer {
+        .tab:hover {
+            background: var(--tab-active);
+        }
+
+        .tab.active {
+            background: var(--tab-active);
+            position: relative;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--bg-main);
+        }
+
+        /* Content Area */
+        .content {
             padding: 20px;
-            border-top: 1px solid var(--border-color);
-            font-size: 0.9rem;
-            color: var(--gray-color);
-            position: sticky;
-            bottom: 0;
-            background: white;
+            min-height: 400px;
         }
 
-        /* Main Content Styles */
-        .main-content {
-            flex: 1;
-            margin-left: var(--sidebar-width);
-            padding: 20px;
-            overflow-y: auto;
-            height: 100vh;
+        .table-section {
+            display: none;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
+        .table-section.active {
+            display: block;
         }
 
-        .header h1 {
-            color: var(--dark-color);
-            font-size: 1.8rem;
+        .section-title {
+            margin-top: 0;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background-color: white;
-            padding: 8px 15px;
-            border-radius: 30px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Table Container */
+        /* Table Display */
         .table-container {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 2px solid var(--border);
+            background: var(--bg-panel);
             overflow: hidden;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .table-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px;
-            background-color: #f9fafc;
-            border-bottom: 1px solid var(--border-color);
+            padding: 15px;
+            background: var(--bg-panel);
+            border-bottom: 2px solid var(--border);
         }
 
         .table-header h3 {
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            margin: 0;
+            font-size: 1.1rem;
         }
 
         .btn {
-            padding: 10px 20px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
+            border: 2px solid var(--border);
+            background: var(--bg-main);
+            padding: 8px 16px;
+            text-align: center;
             font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-            font-size: 0.9rem;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+
+        .btn:hover {
+            background: #ddd6c7;
         }
 
         .btn-primary {
-            background-color: var(--primary-color);
+            background: var(--accent);
             color: white;
         }
 
         .btn-primary:hover {
-            background-color: var(--secondary-color);
-        }
-
-        .btn-success {
-            background-color: var(--success-color);
-            color: white;
-        }
-
-        .btn-danger {
-            background-color: var(--danger-color);
-            color: white;
-        }
-
-        .btn-warning {
-            background-color: var(--warning-color);
-            color: white;
+            background: #333;
         }
 
         /* Table Styles */
         .table-content {
             overflow-x: auto;
-            padding: 20px;
         }
 
         table {
@@ -217,109 +178,54 @@
         }
 
         th {
-            background-color: #f8f9fa;
-            padding: 15px;
+            background-color: var(--bg-panel);
+            padding: 12px;
             text-align: left;
             font-weight: 600;
-            color: var(--dark-color);
-            border-bottom: 2px solid var(--border-color);
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
             white-space: nowrap;
         }
 
         td {
-            padding: 15px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
             vertical-align: top;
         }
 
         tr:hover {
-            background-color: #f9fafc;
+            background-color: rgba(0, 0, 0, 0.05);
         }
 
         .actions {
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
         }
 
         .action-btn {
-            padding: 5px 10px;
-            border-radius: 4px;
-            border: none;
+            padding: 6px 12px;
+            border-radius: 0;
+            border: 2px solid var(--border);
             cursor: pointer;
             font-size: 0.8rem;
             display: inline-flex;
             align-items: center;
             gap: 5px;
             white-space: nowrap;
-        }
-
-        .badge {
-            background-color: #e9ecef;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            display: inline-block;
-            margin: 2px;
-        }
-
-        .badge-success {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-
-        .badge-warning {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        .badge-danger {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* Form Styles */
-        .form-container {
-            padding: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
+            background: var(--bg-main);
             font-weight: 600;
-            color: var(--dark-color);
         }
 
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            font-size: 1rem;
-            transition: border 0.3s;
+        .action-btn:hover {
+            background: #ddd6c7;
         }
 
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
+        .action-btn.edit {
+            background: #d6e4ff;
         }
 
-        textarea.form-control {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 20px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
+        .action-btn.delete {
+            background: #ffe6e6;
         }
 
         /* Modal Styles */
@@ -330,7 +236,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.7);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -342,25 +248,27 @@
         }
 
         .modal-content {
-            background-color: white;
-            border-radius: 10px;
+            background-color: var(--bg-main);
+            border-radius: 0;
             width: 90%;
-            max-width: 800px;
+            max-width: 600px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 3px solid var(--border);
         }
 
         .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 15px;
+            border-bottom: 3px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: var(--bg-panel);
         }
 
         .modal-header h3 {
-            color: var(--primary-color);
+            margin: 0;
+            font-size: 1.2rem;
         }
 
         .modal-body {
@@ -372,19 +280,39 @@
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-            color: var(--gray-color);
+            color: var(--border);
+            font-weight: bold;
         }
 
-        /* Loading and Message Styles */
-        .loading {
-            text-align: center;
-            padding: 30px;
-            color: var(--gray-color);
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
         }
 
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border);
+            background: var(--bg-main);
+            font-size: 0.9rem;
+        }
+
+        textarea.form-control {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        /* Message Styles */
         .message {
-            padding: 15px;
-            border-radius: 5px;
+            padding: 12px;
+            border: 2px solid var(--border);
+            background: var(--bg-panel);
             margin-bottom: 20px;
             display: flex;
             align-items: center;
@@ -392,62 +320,94 @@
         }
 
         .message-success {
-            background-color: rgba(76, 201, 240, 0.2);
-            color: #0c5460;
-            border-left: 4px solid var(--success-color);
+            border-left: 4px solid #4CAF50;
         }
 
         .message-error {
-            background-color: rgba(247, 37, 133, 0.2);
-            color: #721c24;
-            border-left: 4px solid var(--danger-color);
+            border-left: 4px solid #f44336;
         }
 
+        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 40px 20px;
-            color: var(--gray-color);
+            color: #666;
+            font-style: italic;
+            border: 2px dashed var(--border);
+            margin: 20px;
+            background: var(--bg-panel);
         }
 
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: var(--border-color);
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #666;
         }
 
-        /* Connection Status */
-        #supabase-status {
-            margin-top: 5px;
-            padding: 5px 10px;
-            border-radius: 5px;
-            background: #dcfce7;
-            color: #16a34a;
-            font-size: 0.8rem;
-        }
-
-        /* Question Options Section */
-        .question-options-section {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
+        /* Dashboard */
+        .dashboard-tables {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
             margin-top: 20px;
-            border: 1px solid var(--border-color);
         }
 
-        .options-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
+        .dashboard-card {
+            border: 2px solid var(--border);
+            background: var(--bg-panel);
+            padding: 20px;
+        }
+
+        .dashboard-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--border);
             padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-color);
+        }
+
+        .dashboard-card .count {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .dashboard-card .last-checked {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        /* Image Preview */
+        .image-preview {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--border);
+            background: var(--bg-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Question Options */
+        .question-options {
+            margin-top: 20px;
+            border: 2px solid var(--border);
+            background: var(--bg-panel);
+            padding: 15px;
         }
 
         .option-item {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 15px;
+            border: 2px solid var(--border);
+            background: var(--bg-main);
+            padding: 10px;
             margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
@@ -455,536 +415,281 @@
         }
 
         .option-item.correct {
-            border-left: 4px solid var(--success-color);
-            background: #f0f9ff;
+            border-left: 4px solid #4CAF50;
+            background: #f0fff0;
         }
 
-        .option-content {
-            flex: 1;
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-main);
+            font-size: 0.8rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
         }
 
-        .option-actions {
-            display: flex;
-            gap: 10px;
+        .badge-success {
+            background: #d4edda;
+            border-color: #c3e6cb;
         }
 
-        /* Timer Display */
-        .timer-display {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: #e9ecef;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 600;
+        .badge-warning {
+            background: #fff3cd;
+            border-color: #ffeaa7;
         }
 
-        .timer-display .fas {
-            color: var(--danger-color);
+        .badge-danger {
+            background: #f8d7da;
+            border-color: #f5c6cb;
         }
 
         /* Responsive */
-        @media (max-width: 1200px) {
-            .sidebar {
-                width: 70px;
-            }
-            
-            .sidebar-header h2, .sidebar-menu span, .table-group, .sidebar-footer p {
-                display: none;
-            }
-            
-            .main-content {
-                margin-left: 70px;
-            }
-            
-            .sidebar-menu a {
-                justify-content: center;
-                padding: 15px;
-            }
-            
-            .sidebar-menu a:hover, .sidebar-menu a.active {
-                border-left: none;
-                border-right: 4px solid var(--primary-color);
-            }
-            
-            .sidebar-footer #supabase-status {
-                display: block;
-                font-size: 0.7rem;
-                padding: 3px 5px;
-                text-align: center;
-            }
-        }
-
         @media (max-width: 768px) {
-            .form-row {
+            .tabs {
                 flex-direction: column;
-                gap: 0;
             }
             
-            .header {
+            .tab {
+                border-right: none;
+                border-bottom: 2px solid var(--border);
+            }
+            
+            .table-header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 15px;
-            }
-            
-            .modal-content {
-                width: 95%;
-            }
-            
-            .option-item {
-                flex-direction: column;
                 gap: 10px;
-                align-items: flex-start;
             }
             
-            .option-actions {
-                align-self: flex-end;
+            .dashboard-tables {
+                grid-template-columns: 1fr;
             }
-        }
-
-        /* Boolean display */
-        .bool-true {
-            color: #16a34a;
-            font-weight: bold;
-        }
-        
-        .bool-false {
-            color: #dc2626;
-            font-weight: bold;
-        }
-        
-        /* UUID display */
-        .uuid-short {
-            font-family: monospace;
-            background: #f3f4f6;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-        }
-        
-        /* Stat display */
-        .stat-positive {
-            color: #16a34a;
-            font-weight: bold;
-        }
-        
-        .stat-neutral {
-            color: #6b7280;
-        }
-        
-        /* Category badge */
-        .category-badge {
-            background: #e0e7ff;
-            color: #3730a3;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-        
-        /* Difficulty badge */
-        .difficulty-easy {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        
-        .difficulty-medium {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        
-        .difficulty-hard {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        
-        /* Quick Actions */
-        .quick-actions {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .quick-action-btn {
-            padding: 8px 16px;
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-        
-        .quick-action-btn:hover {
-            background: #f8f9fa;
-            border-color: var(--primary-color);
-        }
-        
-        /* Linked Records */
-        .linked-records {
-            margin-top: 30px;
-        }
-        
-        .linked-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .linked-table {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <i class="fas fa-gamepad" style="color: var(--primary-color); font-size: 1.5rem;"></i>
-            <h2>Game Admin Panel</h2>
-        </div>
-        
-        <ul class="sidebar-menu">
-            <li><a href="#" class="active" id="nav-dashboard">
-                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
-            </a></li>
-            
-            <div class="table-group">GAME DATA</div>
-            
-            <li><a href="#" data-table="equipment">
-                <i class="fas fa-shield-alt"></i> <span>Equipment</span>
-            </a></li>
-            
-            <li><a href="#" data-table="monsters">
-                <i class="fas fa-dragon"></i> <span>Monsters</span>
-            </a></li>
-            
-            <li><a href="#" data-table="questions">
-                <i class="fas fa-question-circle"></i> <span>Questions</span>
-            </a></li>
-            
-            <li><a href="#" data-table="question_options">
-                <i class="fas fa-list-ul"></i> <span>Question Options</span>
-            </a></li>
-            
-            <div class="table-group">GACHA SYSTEM</div>
-            
-            <li><a href="#" data-table="gacha_banners">
-                <i class="fas fa-gem"></i> <span>Gacha Banners</span>
-            </a></li>
-            
-            <li><a href="#" data-table="gacha_rates">
-                <i class="fas fa-chart-pie"></i> <span>Gacha Rates</span>
-            </a></li>
-            
-            <div class="table-group">PLAYER DATA</div>
-            
-            <li><a href="#" data-table="users">
-                <i class="fas fa-users"></i> <span>Users</span>
-            </a></li>
-            
-            <li><a href="#" data-table="player_stats">
-                <i class="fas fa-chart-line"></i> <span>Player Stats</span>
-            </a></li>
-            
-            <li><a href="#" data-table="player_equipment">
-                <i class="fas fa-vest"></i> <span>Player Equipment</span>
-            </a></li>
-            
-            <div class="table-group">GAME PROGRESSION</div>
-            
-            <li><a href="#" data-table="runs">
-                <i class="fas fa-running"></i> <span>Game Runs</span>
-            </a></li>
-            
-            <li><a href="#" data-table="leaderboard">
-                <i class="fas fa-trophy"></i> <span>Leaderboard</span>
-            </a></li>
-        </ul>
-        
-        <div class="sidebar-footer">
-            <p>Game Admin v1.0</p>
-            <div id="supabase-status">Connecting to Supabase...</div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Dashboard -->
-        <div id="dashboard-section" class="table-section active">
-            <div class="header">
-                <h1>Game Admin Dashboard</h1>
-                <div class="user-info">
-                    <i class="fas fa-user-circle" style="font-size: 1.5rem;"></i>
-                    <span>Administrator</span>
-                </div>
-            </div>
-
-            <div class="message" id="connection-status">
-                <i class="fas fa-spinner fa-spin"></i>
-                <span>Connecting to your Supabase database...</span>
-            </div>
-
-            <div class="table-container">
-                <div class="table-header">
-                    <h3><i class="fas fa-database"></i> All Database Tables</h3>
-                </div>
-                <div class="table-content">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Table</th>
-                                <th>Description</th>
-                                <th>Records</th>
-                                <th>Last Checked</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-overview">
-                            <!-- Will be populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div class="app">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="menu">☰</div>
+            <div class="title">RPG DATABASE MANAGER</div>
+            <div class="badge">CONNECTED</div>
+            <div class="badge">ADMIN</div>
         </div>
 
-        <!-- Equipment Section -->
-        <div id="equipment-section" class="table-section">
-            <div class="header">
-                <h1><i class="fas fa-shield-alt"></i> Equipment Management</h1>
-                <div>
-                    <button class="btn" onclick="refreshCurrentTable()">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
-                    <button class="btn btn-primary" onclick="openModal('equipment')">
-                        <i class="fas fa-plus"></i> Add Equipment
-                    </button>
-                </div>
-            </div>
-            <div id="equipment-content" class="table-content">
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Loading equipment data...
-                </div>
-            </div>
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <div class="tab active" data-tab="dashboard">DASHBOARD</div>
+            <div class="tab" data-tab="equipment">EQUIPMENT</div>
+            <div class="tab" data-tab="monsters">MONSTERS</div>
+            <div class="tab" data-tab="questions">QUESTIONS</div>
+            <div class="tab" data-tab="question_options">OPTIONS</div>
+            <div class="tab" data-tab="gacha_banners">BANNERS</div>
+            <div class="tab" data-tab="gacha_rates">RATES</div>
+            <div class="tab" data-tab="users">USERS</div>
+            <div class="tab" data-tab="player_stats">PLAYER STATS</div>
+            <div class="tab" data-tab="player_equipment">PLAYER GEAR</div>
+            <div class="tab" data-tab="runs">GAME RUNS</div>
+            <div class="tab" data-tab="leaderboard">LEADERBOARD</div>
         </div>
 
-        <!-- Monsters Section -->
-        <div id="monsters-section" class="table-section">
-            <div class="header">
-                <h1><i class="fas fa-dragon"></i> Monsters Management</h1>
-                <div>
-                    <button class="btn" onclick="refreshCurrentTable()">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
-                    <button class="btn btn-primary" onclick="openModal('monsters')">
-                        <i class="fas fa-plus"></i> Add Monster
-                    </button>
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Dashboard -->
+            <div id="dashboard-section" class="table-section active">
+                <h2 class="section-title">DATABASE OVERVIEW</h2>
+                <div class="message" id="connection-status">
+                    <span>Connecting to database...</span>
+                </div>
+                <div class="dashboard-tables" id="table-overview">
+                    <!-- Will be populated by JavaScript -->
                 </div>
             </div>
-            <div id="monsters-content" class="table-content">
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Loading monsters data...
-                </div>
-            </div>
-        </div>
 
-        <!-- Questions Section -->
-        <div id="questions-section" class="table-section">
-            <div class="header">
-                <h1><i class="fas fa-question-circle"></i> Questions Management</h1>
-                <div>
-                    <button class="btn" onclick="refreshCurrentTable()">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
-                    <button class="btn btn-primary" onclick="openModal('questions')">
-                        <i class="fas fa-plus"></i> Add Question
-                    </button>
+            <!-- Equipment Section -->
+            <div id="equipment-section" class="table-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>EQUIPMENT</h3>
+                        <div>
+                            <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
+                            <button class="btn btn-primary" onclick="openModal('equipment')">ADD EQUIPMENT</button>
+                        </div>
+                    </div>
+                    <div class="table-content" id="equipment-content">
+                        <div class="loading">Loading equipment data...</div>
+                    </div>
                 </div>
             </div>
-            <div id="questions-content" class="table-content">
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Loading questions data...
-                </div>
-            </div>
-        </div>
 
-        <!-- Question Options Section -->
-        <div id="question_options-section" class="table-section">
-            <div class="header">
-                <h1><i class="fas fa-list-ul"></i> Question Options Management</h1>
-                <div>
-                    <button class="btn" onclick="refreshCurrentTable()">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
-                    <button class="btn btn-primary" onclick="openModal('question_options')">
-                        <i class="fas fa-plus"></i> Add Option
-                    </button>
+            <!-- Monsters Section -->
+            <div id="monsters-section" class="table-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>MONSTERS</h3>
+                        <div>
+                            <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
+                            <button class="btn btn-primary" onclick="openModal('monsters')">ADD MONSTER</button>
+                        </div>
+                    </div>
+                    <div class="table-content" id="monsters-content">
+                        <div class="loading">Loading monsters data...</div>
+                    </div>
                 </div>
             </div>
-            <div id="question_options-content" class="table-content">
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Loading options data...
-                </div>
-            </div>
-        </div>
 
-        <!-- Gacha Banners Section -->
-        <div id="gacha_banners-section" class="table-section">
-            <div class="header">
-                <h1><i class="fas fa-gem"></i> Gacha Banners Management</h1>
-                <div>
-                    <button class="btn" onclick="refreshCurrentTable()">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
-                    <button class="btn btn-primary" onclick="openModal('gacha_banners')">
-                        <i class="fas fa-plus"></i> Add Banner
-                    </button>
+            <!-- Questions Section -->
+            <div id="questions-section" class="table-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>QUESTIONS</h3>
+                        <div>
+                            <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
+                            <button class="btn btn-primary" onclick="openModal('questions')">ADD QUESTION</button>
+                        </div>
+                    </div>
+                    <div class="table-content" id="questions-content">
+                        <div class="loading">Loading questions data...</div>
+                    </div>
                 </div>
             </div>
-            <div id="gacha_banners-content" class="table-content">
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Loading banners data...
-                </div>
-            </div>
-        </div>
 
-        <!-- Gacha Rates Section -->
-        <div id="gacha_rates-section" class="table-section">
-            <div class="header">
-                <h1><i class="fas fa-chart-pie"></i> Gacha Rates Management</h1>
-                <div>
-                    <button class="btn" onclick="refreshCurrentTable()">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
-                    <button class="btn btn-primary" onclick="openModal('gacha_rates')">
-                        <i class="fas fa-plus"></i> Add Rate
-                    </button>
+            <!-- Question Options Section -->
+            <div id="question_options-section" class="table-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>QUESTION OPTIONS</h3>
+                        <div>
+                            <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
+                            <button class="btn btn-primary" onclick="openModal('question_options')">ADD OPTION</button>
+                        </div>
+                    </div>
+                    <div class="table-content" id="question_options-content">
+                        <div class="loading">Loading options data...</div>
+                    </div>
                 </div>
             </div>
-            <div id="gacha_rates-content" class="table-content">
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Loading rates data...
+
+            <!-- Gacha Banners Section -->
+            <div id="gacha_banners-section" class="table-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>GACHA BANNERS</h3>
+                        <div>
+                            <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
+                            <button class="btn btn-primary" onclick="openModal('gacha_banners')">ADD BANNER</button>
+                        </div>
+                    </div>
+                    <div class="table-content" id="gacha_banners-content">
+                        <div class="loading">Loading banners data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gacha Rates Section -->
+            <div id="gacha_rates-section" class="table-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>GACHA RATES</h3>
+                        <div>
+                            <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
+                            <button class="btn btn-primary" onclick="openModal('gacha_rates')">ADD RATE</button>
+                        </div>
+                    </div>
+                    <div class="table-content" id="gacha_rates-content">
+                        <div class="loading">Loading rates data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div id="users-section" class="table-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>USERS</h3>
+                        <div>
+                            <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
+                            <button class="btn btn-primary" onclick="openModal('users')">ADD USER</button>
+                        </div>
+                    </div>
+                    <div class="table-content" id="users-content">
+                        <div class="loading">Loading users data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Player Stats Section -->
+            <div id="player_stats-section" class="table-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>PLAYER STATS</h3>
+                        <div>
+                            <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
+                            <button class="btn btn-primary" onclick="openModal('player_stats')">ADD STATS</button>
+                        </div>
+                    </div>
+                    <div class="table-content" id="player_stats-content">
+                        <div class="loading">Loading player stats data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Player Equipment Section -->
+            <div id="player_equipment-section" class="table-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>PLAYER EQUIPMENT</h3>
+                        <div>
+                            <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
+                            <button class="btn btn-primary" onclick="openModal('player_equipment')">ADD GEAR</button>
+                        </div>
+                    </div>
+                    <div class="table-content" id="player_equipment-content">
+                        <div class="loading">Loading player equipment data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Runs Section -->
+            <div id="runs-section" class="table-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>GAME RUNS</h3>
+                        <div>
+                            <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
+                            <button class="btn btn-primary" onclick="openModal('runs')">ADD RUN</button>
+                        </div>
+                    </div>
+                    <div class="table-content" id="runs-content">
+                        <div class="loading">Loading runs data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard Section -->
+            <div id="leaderboard-section" class="table-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>LEADERBOARD</h3>
+                        <div>
+                            <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
+                            <button class="btn btn-primary" onclick="openModal('leaderboard')">ADD ENTRY</button>
+                        </div>
+                    </div>
+                    <div class="table-content" id="leaderboard-content">
+                        <div class="loading">Loading leaderboard data...</div>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Users Section -->
-        <div id="users-section" class="table-section">
-            <div class="header">
-                <h1><i class="fas fa-users"></i> Users Management</h1>
-                <div>
-                    <button class="btn" onclick="refreshCurrentTable()">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
-                    <button class="btn btn-primary" onclick="openModal('users')">
-                        <i class="fas fa-plus"></i> Add User
-                    </button>
-                </div>
-            </div>
-            <div id="users-content" class="table-content">
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Loading users data...
-                </div>
-            </div>
-        </div>
-
-        <!-- Player Stats Section -->
-        <div id="player_stats-section" class="table-section">
-            <div class="header">
-                <h1><i class="fas fa-chart-line"></i> Player Stats Management</h1>
-                <div>
-                    <button class="btn" onclick="refreshCurrentTable()">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
-                    <button class="btn btn-primary" onclick="openModal('player_stats')">
-                        <i class="fas fa-plus"></i> Add Player Stats
-                    </button>
-                </div>
-            </div>
-            <div id="player_stats-content" class="table-content">
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Loading player stats data...
-                </div>
-            </div>
-        </div>
-
-        <!-- Player Equipment Section -->
-        <div id="player_equipment-section" class="table-section">
-            <div class="header">
-                <h1><i class="fas fa-vest"></i> Player Equipment Management</h1>
-                <div>
-                    <button class="btn" onclick="refreshCurrentTable()">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
-                    <button class="btn btn-primary" onclick="openModal('player_equipment')">
-                        <i class="fas fa-plus"></i> Add Player Equipment
-                    </button>
-                </div>
-            </div>
-            <div id="player_equipment-content" class="table-content">
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Loading player equipment data...
-                </div>
-            </div>
-        </div>
-
-        <!-- Runs Section -->
-        <div id="runs-section" class="table-section">
-            <div class="header">
-                <h1><i class="fas fa-running"></i> Game Runs Management</h1>
-                <div>
-                    <button class="btn" onclick="refreshCurrentTable()">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
-                    <button class="btn btn-primary" onclick="openModal('runs')">
-                        <i class="fas fa-plus"></i> Add Game Run
-                    </button>
-                </div>
-            </div>
-            <div id="runs-content" class="table-content">
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Loading runs data...
-                </div>
-            </div>
-        </div>
-
-        <!-- Leaderboard Section -->
-        <div id="leaderboard-section" class="table-section">
-            <div class="header">
-                <h1><i class="fas fa-trophy"></i> Leaderboard Management</h1>
-                <div>
-                    <button class="btn" onclick="refreshCurrentTable()">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
-                    <button class="btn btn-primary" onclick="openModal('leaderboard')">
-                        <i class="fas fa-plus"></i> Add Leaderboard Entry
-                    </button>
-                </div>
-            </div>
-            <div id="leaderboard-content" class="table-content">
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Loading leaderboard data...
-                </div>
-            </div>
-        </div>
-
-        <!-- Message Container -->
-        <div id="message-container" style="position: fixed; top: 20px; right: 20px; width: 300px; z-index: 1000;"></div>
-    </main>
-
-    <!-- Modal for All Tables -->
+    <!-- Modal for CRUD operations -->
     <div class="modal" id="crud-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modal-title">Add New Item</h3>
+                <h3 id="modal-title">Add Item</h3>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -997,14 +702,14 @@
     <div class="modal" id="delete-modal">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
-                <h3><i class="fas fa-exclamation-triangle" style="color: var(--danger-color);"></i> Confirm Delete</h3>
+                <h3>Confirm Delete</h3>
                 <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to delete this item? This action cannot be undone.</p>
-                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px;">
-                    <button type="button" class="btn" onclick="closeDeleteModal()" style="background-color: #e9ecef;">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete Item</button>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn" onclick="closeDeleteModal()">CANCEL</button>
+                    <button type="button" class="btn btn-primary" id="confirm-delete-btn">DELETE</button>
                 </div>
             </div>
         </div>
@@ -1012,33 +717,33 @@
 
     <!-- Question Options Modal -->
     <div class="modal" id="question-options-modal">
-        <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">
                 <h3 id="options-modal-title">Manage Question Options</h3>
                 <button class="close-btn" onclick="closeQuestionOptionsModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <div id="question-info" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                <div id="question-info" style="margin-bottom: 20px; padding: 15px; background: var(--bg-panel); border: 2px solid var(--border);">
                     <h4 id="question-text"></h4>
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <span id="question-category"></span>
-                        <span id="question-difficulty"></span>
-                        <span id="question-timer"></span>
+                    <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                        <span class="badge" id="question-category"></span>
+                        <span class="badge" id="question-difficulty"></span>
+                        <span class="badge" id="question-timer"></span>
                     </div>
                 </div>
                 
-                <div class="options-header">
-                    <h4>Options for this Question</h4>
-                    <button class="btn btn-success" onclick="addNewOption()">
-                        <i class="fas fa-plus"></i> Add Option
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h4 style="margin: 0;">Options</h4>
+                    <button class="btn btn-primary" onclick="addNewOption()">
+                        ADD OPTION
                     </button>
                 </div>
                 
-                <div id="options-list" class="question-options-section">
+                <div id="options-list" class="question-options">
                     <!-- Options will be loaded here -->
                 </div>
                 
-                <div id="new-option-form" style="display: none; margin-top: 20px; padding: 20px; background: white; border: 2px dashed var(--border-color); border-radius: 8px;">
+                <div id="new-option-form" style="display: none; margin-top: 20px; padding: 20px; background: var(--bg-panel); border: 2px solid var(--border);">
                     <h4>Add New Option</h4>
                     <div class="form-group">
                         <label>Option Text *</label>
@@ -1053,26 +758,21 @@
                         <input type="text" id="new-option-image" class="form-control" placeholder="https://example.com/image.jpg">
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button class="btn" onclick="cancelNewOption()">Cancel</button>
-                        <button class="btn btn-primary" onclick="saveNewOption()">Save Option</button>
+                        <button class="btn" onclick="cancelNewOption()">CANCEL</button>
+                        <button class="btn btn-primary" onclick="saveNewOption()">SAVE OPTION</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Import your existing supabase.js DIRECTLY -->
     <script type="module">
-        // ============================================
-        // DIRECT SUPABASE IMPORT - USING YOUR EXISTING FILE
-        // ============================================
+        // Import Supabase client
         import { supabase } from './supabase.js';
         
-        console.log('Supabase client loaded:', supabase ? 'YES' : 'NO');
+        console.log('Supabase client loaded');
 
-        // ============================================
-        // GLOBAL VARIABLES
-        // ============================================
+        // Global variables
         let currentTable = null;
         let currentRecordId = null;
         let isEditMode = false;
@@ -1080,18 +780,15 @@
         let currentQuestionId = null;
         let currentQuestionOptions = [];
 
-        // ============================================
-        // TABLE SCHEMA DEFINITIONS - COMPLETELY BLANK
-        // NO PRE-INSTALLED DATA - JUST TEXT FIELDS
-        // ============================================
+        // Table schemas
         const tableSchemas = {
             equipment: {
                 displayName: 'Equipment',
-                icon: 'fa-shield-alt',
+                icon: '⚔️',
                 columns: [
                     { name: 'name', type: 'text', label: 'Name', required: true },
-                    { name: 'slot', type: 'text', label: 'Slot (weapon, armor, helmet, etc.)', required: true },
-                    { name: 'rarity', type: 'text', label: 'Rarity (common, uncommon, rare, etc.)', required: true },
+                    { name: 'slot', type: 'text', label: 'Slot', required: true },
+                    { name: 'rarity', type: 'text', label: 'Rarity', required: true },
                     { name: 'damage', type: 'number', label: 'Damage', required: false, defaultValue: 0 },
                     { name: 'defense', type: 'number', label: 'Defense', required: false, defaultValue: 0 },
                     { name: 'crit_bonus', type: 'number', label: 'Crit Bonus', step: '0.01', required: false, defaultValue: 0 },
@@ -1101,10 +798,10 @@
             },
             monsters: {
                 displayName: 'Monsters',
-                icon: 'fa-dragon',
+                icon: '🐉',
                 columns: [
                     { name: 'name', type: 'text', label: 'Name', required: true },
-                    { name: 'stage', type: 'number', label: 'Stage (1-10)', required: true, defaultValue: 1 },
+                    { name: 'stage', type: 'number', label: 'Stage', required: true, defaultValue: 1 },
                     { name: 'hp', type: 'number', label: 'HP', required: true, defaultValue: 100 },
                     { name: 'damage', type: 'number', label: 'Damage', required: true, defaultValue: 10 },
                     { name: 'defense', type: 'number', label: 'Defense', required: true, defaultValue: 5 },
@@ -1115,10 +812,10 @@
             },
             questions: {
                 displayName: 'Questions',
-                icon: 'fa-question-circle',
+                icon: '❓',
                 columns: [
                     { name: 'category', type: 'text', label: 'Category', required: true },
-                    { name: 'difficulty', type: 'text', label: 'Difficulty (easy, medium, hard)', required: true },
+                    { name: 'difficulty', type: 'text', label: 'Difficulty', required: true },
                     { name: 'question_text', type: 'textarea', label: 'Question Text', required: true },
                     { name: 'timer_seconds', type: 'number', label: 'Timer (seconds)', required: true, defaultValue: 30 },
                     { name: 'image_url', type: 'text', label: 'Image URL', required: false }
@@ -1126,9 +823,9 @@
             },
             question_options: {
                 displayName: 'Question Options',
-                icon: 'fa-list-ul',
+                icon: '📋',
                 columns: [
-                    { name: 'question_id', type: 'text', label: 'Question ID (UUID)', required: true },
+                    { name: 'question_id', type: 'text', label: 'Question ID', required: true },
                     { name: 'option_text', type: 'text', label: 'Option Text', required: true },
                     { name: 'is_correct', type: 'checkbox', label: 'Is Correct Answer', required: false, defaultValue: false },
                     { name: 'image_url', type: 'text', label: 'Image URL', required: false }
@@ -1136,25 +833,25 @@
             },
             gacha_banners: {
                 displayName: 'Gacha Banners',
-                icon: 'fa-gem',
+                icon: '🎰',
                 columns: [
                     { name: 'name', type: 'text', label: 'Banner Name', required: true },
-                    { name: 'cost', type: 'number', label: 'Cost (gold)', required: true, defaultValue: 100 },
+                    { name: 'cost', type: 'number', label: 'Cost', required: true, defaultValue: 100 },
                     { name: 'is_active', type: 'checkbox', label: 'Is Active', required: false, defaultValue: true }
                 ]
             },
             gacha_rates: {
                 displayName: 'Gacha Rates',
-                icon: 'fa-chart-pie',
+                icon: '📊',
                 columns: [
-                    { name: 'banner_id', type: 'text', label: 'Banner ID (UUID)', required: true },
+                    { name: 'banner_id', type: 'text', label: 'Banner ID', required: true },
                     { name: 'rarity', type: 'text', label: 'Rarity', required: true },
                     { name: 'chance', type: 'number', label: 'Chance (%)', step: '0.01', required: true, defaultValue: 1.0 }
                 ]
             },
             users: {
                 displayName: 'Users',
-                icon: 'fa-users',
+                icon: '👤',
                 columns: [
                     { name: 'username', type: 'text', label: 'Username', required: true },
                     { name: 'highest_stage', type: 'number', label: 'Highest Stage', required: false, defaultValue: 1 },
@@ -1163,9 +860,9 @@
             },
             player_stats: {
                 displayName: 'Player Stats',
-                icon: 'fa-chart-line',
+                icon: '📈',
                 columns: [
-                    { name: 'user_id', type: 'text', label: 'User ID (UUID)', required: true },
+                    { name: 'user_id', type: 'text', label: 'User ID', required: true },
                     { name: 'base_hp', type: 'number', label: 'Base HP', required: true, defaultValue: 100 },
                     { name: 'base_damage', type: 'number', label: 'Base Damage', required: true, defaultValue: 10 },
                     { name: 'base_defense', type: 'number', label: 'Base Defense', required: true, defaultValue: 5 },
@@ -1174,20 +871,20 @@
             },
             player_equipment: {
                 displayName: 'Player Equipment',
-                icon: 'fa-vest',
+                icon: '🛡️',
                 columns: [
-                    { name: 'user_id', type: 'text', label: 'User ID (UUID)', required: true },
-                    { name: 'equipment_id', type: 'text', label: 'Equipment ID (UUID)', required: true },
+                    { name: 'user_id', type: 'text', label: 'User ID', required: true },
+                    { name: 'equipment_id', type: 'text', label: 'Equipment ID', required: true },
                     { name: 'is_equipped', type: 'checkbox', label: 'Is Equipped', required: false, defaultValue: false }
                 ]
             },
             runs: {
                 displayName: 'Game Runs',
-                icon: 'fa-running',
+                icon: '🏃',
                 columns: [
-                    { name: 'user_id', type: 'text', label: 'User ID (UUID)', required: true },
+                    { name: 'user_id', type: 'text', label: 'User ID', required: true },
                     { name: 'current_stage', type: 'number', label: 'Current Stage', required: true, defaultValue: 1 },
-                    { name: 'current_monster', type: 'text', label: 'Current Monster ID (UUID)', required: false },
+                    { name: 'current_monster', type: 'text', label: 'Current Monster ID', required: false },
                     { name: 'player_hp', type: 'number', label: 'Player HP', required: true, defaultValue: 100 },
                     { name: 'monster_hp', type: 'number', label: 'Monster HP', required: true, defaultValue: 100 },
                     { name: 'streak', type: 'number', label: 'Streak', required: true, defaultValue: 0 }
@@ -1195,9 +892,9 @@
             },
             leaderboard: {
                 displayName: 'Leaderboard',
-                icon: 'fa-trophy',
+                icon: '🏆',
                 columns: [
-                    { name: 'user_id', type: 'text', label: 'User ID (UUID)', required: true },
+                    { name: 'user_id', type: 'text', label: 'User ID', required: true },
                     { name: 'highest_stage', type: 'number', label: 'Highest Stage', required: true, defaultValue: 1 },
                     { name: 'monsters_defeated', type: 'number', label: 'Monsters Defeated', required: true, defaultValue: 0 },
                     { name: 'correct_answers', type: 'number', label: 'Correct Answers', required: true, defaultValue: 0 }
@@ -1205,75 +902,40 @@
             }
         };
 
-        // ============================================
-        // INITIALIZATION
-        // ============================================
+        // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('DOM loaded, initializing...');
+            console.log('Initializing RPG Database Manager...');
             
-            // Set up event listeners FIRST
+            // Set up event listeners
             setupEventListeners();
             
-            // Initialize dashboard table
+            // Initialize dashboard
             initializeDashboardTable();
             
-            // Connect to Supabase automatically
+            // Connect to Supabase
             await connectToSupabase();
             
-            // Load all table counts
+            // Load table counts
             await loadAllTableCounts();
             
             // Show dashboard by default
             showSection('dashboard');
         });
 
-        // ============================================
-        // DASHBOARD TABLE INITIALIZATION
-        // ============================================
-        function initializeDashboardTable() {
-            const tableBody = document.getElementById('table-overview');
-            const tables = Object.keys(tableSchemas);
-            
-            let html = '';
-            tables.forEach(tableName => {
-                const schema = tableSchemas[tableName];
-                html += `
-                    <tr>
-                        <td><strong>${tableName}</strong></td>
-                        <td>${schema.displayName}</td>
-                        <td id="count-${tableName}">-</td>
-                        <td id="time-${tableName}">-</td>
-                        <td><button class="action-btn btn-primary" onclick="showTable('${tableName}')">Manage</button></td>
-                    </tr>
-                `;
-            });
-            
-            tableBody.innerHTML = html;
-        }
-
-        // ============================================
-        // EVENT LISTENERS - FIXED SIDEBAR
-        // ============================================
+        // Set up event listeners
         function setupEventListeners() {
-            console.log('Setting up event listeners...');
-            
-            // Navigation - FIXED: Using event delegation
-            document.querySelector('.sidebar-menu').addEventListener('click', function(e) {
-                const link = e.target.closest('a');
-                if (!link) return;
-                
-                e.preventDefault();
-                
-                // Update active state
-                document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-                link.classList.add('active');
-                
-                // Show correct section
-                if (link.id === 'nav-dashboard') {
-                    showSection('dashboard');
-                } else if (link.dataset.table) {
-                    showSection(link.dataset.table);
-                }
+            // Tab navigation
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tableName = this.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show section
+                    showSection(tableName);
+                });
             });
 
             // Form submission
@@ -1282,97 +944,61 @@
             // Delete confirmation
             document.getElementById('confirm-delete-btn').addEventListener('click', confirmDelete);
             
-            // Make sure buttons work
-            window.refreshCurrentTable = function() {
-                if (currentTable) {
-                    loadTableData(currentTable);
-                }
-            };
+            // Menu button
+            document.querySelector('.menu').addEventListener('click', () => {
+                alert('Menu options:\n- Database Status\n- Export Data\n- Settings\n- Logout');
+            });
         }
 
-        // ============================================
-        // SUPABASE CONNECTION
-        // ============================================
+        // Connect to Supabase
         async function connectToSupabase() {
-            console.log('Attempting to connect to Supabase...');
-            
             try {
-                // Test connection by making a simple query
                 const { data, error } = await supabase
                     .from('equipment')
                     .select('id', { count: 'exact', head: true })
                     .limit(1);
                 
-                if (error) {
-                    throw new Error(`Supabase connection failed: ${error.message}`);
-                }
+                if (error) throw error;
                 
-                // Update UI to show connected
-                document.getElementById('supabase-status').textContent = '🟢 Connected to Supabase';
-                document.getElementById('connection-status').innerHTML = '<i class="fas fa-check-circle"></i> <span>Successfully connected to your Supabase database!</span>';
+                document.getElementById('connection-status').innerHTML = '<span>✅ Connected to database successfully</span>';
                 document.getElementById('connection-status').className = 'message message-success';
                 
-                console.log('Supabase connected successfully!');
+                console.log('Supabase connected successfully');
                 return true;
                 
             } catch (error) {
                 console.error('Supabase connection error:', error);
                 
-                document.getElementById('supabase-status').textContent = '🔴 Connection Failed';
-                document.getElementById('supabase-status').style.backgroundColor = '#fee2e2';
-                document.getElementById('supabase-status').style.color = '#dc2626';
-                
-                document.getElementById('connection-status').innerHTML = `<i class="fas fa-exclamation-circle"></i> <span>Connection failed: ${error.message}</span>`;
+                document.getElementById('connection-status').innerHTML = `<span>❌ Connection failed: ${error.message}</span>`;
                 document.getElementById('connection-status').className = 'message message-error';
                 
                 return false;
             }
         }
 
-        // ============================================
-        // SECTION MANAGEMENT - FIXED
-        // ============================================
-        function showSection(tableName) {
-            console.log('Showing section:', tableName);
+        // Initialize dashboard table
+        function initializeDashboardTable() {
+            const tableBody = document.getElementById('table-overview');
+            const tables = Object.keys(tableSchemas);
             
-            // Hide all sections
-            document.querySelectorAll('.table-section').forEach(section => {
-                section.classList.remove('active');
+            let html = '';
+            tables.forEach(tableName => {
+                const schema = tableSchemas[tableName];
+                html += `
+                    <div class="dashboard-card">
+                        <h3>${schema.icon} ${schema.displayName}</h3>
+                        <div class="count" id="count-${tableName}">-</div>
+                        <div class="last-checked" id="time-${tableName}">Last checked: -</div>
+                        <button class="btn btn-primary" onclick="showTable('${tableName}')">MANAGE</button>
+                    </div>
+                `;
             });
             
-            // Show selected section
-            const sectionId = tableName === 'dashboard' ? 'dashboard-section' : `${tableName}-section`;
-            const sectionElement = document.getElementById(sectionId);
-            
-            if (sectionElement) {
-                sectionElement.classList.add('active');
-                
-                // Load data if not dashboard
-                if (tableName !== 'dashboard') {
-                    currentTable = tableName;
-                    loadTableData(tableName);
-                }
-            }
+            tableBody.innerHTML = html;
         }
 
-        // Shortcut function for buttons
-        window.showTable = function(tableName) {
-            // Update sidebar active state
-            document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-            const sidebarLink = document.querySelector(`.sidebar-menu a[data-table="${tableName}"]`);
-            if (sidebarLink) {
-                sidebarLink.classList.add('active');
-            }
-            
-            showSection(tableName);
-        };
-
-        // ============================================
-        // DATA LOADING
-        // ============================================
+        // Load all table counts
         async function loadAllTableCounts() {
-            console.log('Loading all table counts...');
-            
             const tables = Object.keys(tableSchemas);
             
             for (const tableName of tables) {
@@ -1386,15 +1012,8 @@
                     
                     if (!error && countElement && timeElement) {
                         countElement.textContent = count || 0;
-                        timeElement.textContent = new Date().toLocaleTimeString();
-                    } else if (error) {
-                        console.error(`Error loading count for ${tableName}:`, error);
-                        if (countElement) countElement.textContent = 'Error';
-                        if (timeElement) timeElement.textContent = 'Error';
+                        timeElement.textContent = `Last checked: ${new Date().toLocaleTimeString()}`;
                     }
-                    
-                    // Small delay to avoid rate limiting
-                    await new Promise(resolve => setTimeout(resolve, 100));
                     
                 } catch (error) {
                     console.error(`Error loading count for ${tableName}:`, error);
@@ -1402,14 +1021,46 @@
             }
         }
 
-        async function loadTableData(tableName) {
-            console.log(`Loading data for table: ${tableName}`);
+        // Show section
+        function showSection(tableName) {
+            // Hide all sections
+            document.querySelectorAll('.table-section').forEach(section => {
+                section.classList.remove('active');
+            });
             
+            // Show selected section
+            const sectionId = `${tableName}-section`;
+            const sectionElement = document.getElementById(sectionId);
+            
+            if (sectionElement) {
+                sectionElement.classList.add('active');
+                
+                // Load data if not dashboard
+                if (tableName !== 'dashboard') {
+                    currentTable = tableName;
+                    loadTableData(tableName);
+                }
+            }
+        }
+
+        // Show table (for dashboard buttons)
+        window.showTable = function(tableName) {
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            const tabElement = document.querySelector(`.tab[data-tab="${tableName}"]`);
+            if (tabElement) {
+                tabElement.classList.add('active');
+            }
+            
+            showSection(tableName);
+        };
+
+        // Load table data
+        async function loadTableData(tableName) {
             const contentDiv = document.getElementById(`${tableName}-content`);
             if (!contentDiv) return;
             
-            // Show loading state
-            contentDiv.innerHTML = `<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading ${tableName} data...</div>`;
+            contentDiv.innerHTML = `<div class="loading">Loading ${tableName} data...</div>`;
             
             try {
                 const { data, error } = await supabase
@@ -1418,41 +1069,30 @@
                     .order('created_at', { ascending: false })
                     .limit(100);
                 
-                if (error) {
-                    throw new Error(`Supabase error: ${error.message}`);
-                }
+                if (error) throw error;
                 
-                console.log(`Loaded ${data?.length || 0} records from ${tableName}`);
-                
-                // Store data globally
                 allData[tableName] = data || [];
-                
-                // Render the table
                 renderTable(tableName, data);
                 
             } catch (error) {
                 console.error(`Error loading ${tableName}:`, error);
                 contentDiv.innerHTML = `
                     <div class="message message-error">
-                        <i class="fas fa-exclamation-circle"></i>
                         <span>Error loading data: ${error.message}</span>
                     </div>
                 `;
             }
         }
 
-        // ============================================
-        // RENDER FUNCTIONS
-        // ============================================
+        // Render table
         function renderTable(tableName, data) {
             const contentDiv = document.getElementById(`${tableName}-content`);
             
             if (!data || data.length === 0) {
                 contentDiv.innerHTML = `
                     <div class="empty-state">
-                        <i class="fas fa-database"></i>
                         <h3>No ${tableName} Found</h3>
-                        <p>Add your first item using the "Add New" button.</p>
+                        <p>Add your first item using the "ADD NEW" button.</p>
                     </div>
                 `;
                 return;
@@ -1461,14 +1101,7 @@
             const schema = tableSchemas[tableName];
             const columns = schema.columns;
             
-            // Create table
-            let html = `
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-            `;
+            let html = `<table><thead><tr><th>ID</th>`;
             
             // Add column headers
             columns.forEach(col => {
@@ -1481,20 +1114,14 @@
             }
             
             // Add actions header
-            html += `
-                <th>Created At</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            `;
+            html += `<th>Created</th><th>Actions</th></tr></thead><tbody>`;
             
             // Add rows
             data.forEach(item => {
                 html += `<tr>`;
                 
-                // ID cell (shortened UUID)
-                html += `<td><span class="uuid-short" title="${item.id}">${item.id.substring(0, 8)}...</span></td>`;
+                // ID cell
+                html += `<td><span title="${item.id}">${item.id.substring(0, 8)}...</span></td>`;
                 
                 // Add data cells
                 columns.forEach(col => {
@@ -1502,26 +1129,15 @@
                     html += `<td>`;
                     
                     if (col.type === 'checkbox') {
-                        html += value ? 
-                            `<span class="bool-true">✓</span>` : 
-                            `<span class="bool-false">✗</span>`;
+                        html += value ? `✓` : `✗`;
                     } else if (col.name.includes('_id') && typeof value === 'string' && value.length > 10) {
-                        // Shorten UUIDs
-                        html += `<span class="uuid-short" title="${value}">${value.substring(0, 8)}...</span>`;
-                    } else if (col.name === 'timer_seconds') {
-                        // Timer display
-                        html += `<span class="timer-display"><i class="fas fa-clock"></i> ${value}s</span>`;
-                    } else if (typeof value === 'string' && value.length > 50) {
-                        html += `${value.substring(0, 50)}...`;
+                        html += `<span title="${value}">${value.substring(0, 8)}...</span>`;
+                    } else if (col.name === 'image_url' && value) {
+                        html += `<div class="image-preview"><img src="${value}" alt="Preview" onerror="this.style.display='none'"></div>`;
+                    } else if (typeof value === 'string' && value.length > 30) {
+                        html += `${value.substring(0, 30)}...`;
                     } else if (value === null || value === undefined) {
-                        html += `<span style="color: #9ca3af; font-style: italic;">null</span>`;
-                    } else if ((col.name === 'damage' || col.name === 'defense' || col.name === 'health_bonus' || 
-                               col.name === 'crit_bonus' || col.name === 'chance' || col.name === 'crit_chance') && 
-                               value !== 0) {
-                        // Highlight non-zero stats
-                        html += `<span class="stat-positive">${value}</span>`;
-                    } else if (col.name === 'damage' || col.name === 'defense' || col.name === 'health_bonus') {
-                        html += `<span class="stat-neutral">${value}</span>`;
+                        html += `-`;
                     } else {
                         html += value;
                     }
@@ -1532,27 +1148,26 @@
                 // Add options column for questions
                 if (tableName === 'questions') {
                     html += `<td>
-                        <button class="action-btn btn-success" onclick="manageQuestionOptions('${item.id}')">
-                            <i class="fas fa-list"></i> Manage Options
+                        <button class="action-btn" onclick="manageQuestionOptions('${item.id}')">
+                            MANAGE OPTIONS
                         </button>
                     </td>`;
                 }
                 
                 // Add created at
                 const createdDate = item.created_at ? 
-                    new Date(item.created_at).toLocaleDateString() + ' ' + 
-                    new Date(item.created_at).toLocaleTimeString() : 'N/A';
+                    new Date(item.created_at).toLocaleDateString() : 'N/A';
                 html += `<td>${createdDate}</td>`;
                 
                 // Add action buttons
                 html += `
                     <td>
                         <div class="actions">
-                            <button class="action-btn btn-primary" onclick="editItem('${tableName}', '${item.id}')">
-                                <i class="fas fa-edit"></i> Edit
+                            <button class="action-btn edit" onclick="editItem('${tableName}', '${item.id}')">
+                                EDIT
                             </button>
-                            <button class="action-btn btn-danger" onclick="deleteItem('${tableName}', '${item.id}')">
-                                <i class="fas fa-trash"></i> Delete
+                            <button class="action-btn delete" onclick="deleteItem('${tableName}', '${item.id}')">
+                                DELETE
                             </button>
                         </div>
                     </td>
@@ -1561,16 +1176,12 @@
                 html += `</tr>`;
             });
             
-            html += `</tbody></table></div>`;
+            html += `</tbody></table>`;
             contentDiv.innerHTML = html;
         }
 
-        // ============================================
-        // CRUD OPERATIONS
-        // ============================================
+        // Open modal for CRUD operations
         function openModal(tableName, itemId = null) {
-            console.log(`Opening modal for ${tableName}, edit mode: ${!!itemId}`);
-            
             currentTable = tableName;
             currentRecordId = itemId;
             isEditMode = !!itemId;
@@ -1587,7 +1198,7 @@
                 form.innerHTML = `<input type="hidden" id="record-id" value="${itemId}">`;
             }
             
-            // Add form fields based on schema - ALL TEXT FIELDS, NO DROPDOWNS
+            // Add form fields based on schema
             schema.columns.forEach(col => {
                 const fieldId = `field-${col.name}`;
                 let fieldHtml = '';
@@ -1623,9 +1234,9 @@
             
             // Add submit button
             form.innerHTML += `
-                <div class="form-group" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px;">
-                    <button type="button" class="btn" onclick="closeModal()" style="background-color: #e9ecef;">Cancel</button>
-                    <button type="submit" class="btn btn-primary">${isEditMode ? 'Update' : 'Save'}</button>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn" onclick="closeModal()">CANCEL</button>
+                    <button type="submit" class="btn btn-primary">${isEditMode ? 'UPDATE' : 'SAVE'}</button>
                 </div>
             `;
             
@@ -1650,6 +1261,7 @@
             document.getElementById('crud-modal').classList.add('active');
         }
 
+        // Close modal
         function closeModal() {
             document.getElementById('crud-modal').classList.remove('active');
             currentTable = null;
@@ -1657,6 +1269,7 @@
             isEditMode = false;
         }
 
+        // Handle form submission
         async function handleFormSubmit(e) {
             e.preventDefault();
             
@@ -1678,8 +1291,6 @@
                     }
                 }
             });
-            
-            console.log(`Saving ${currentTable}:`, formData);
             
             try {
                 if (isEditMode) {
@@ -1712,18 +1323,26 @@
             }
         }
 
+        // Edit item
+        function editItem(tableName, itemId) {
+            openModal(tableName, itemId);
+        }
+
+        // Delete item
         function deleteItem(tableName, itemId) {
             currentTable = tableName;
             currentRecordId = itemId;
             document.getElementById('delete-modal').classList.add('active');
         }
 
+        // Close delete modal
         function closeDeleteModal() {
             document.getElementById('delete-modal').classList.remove('active');
             currentTable = null;
             currentRecordId = null;
         }
 
+        // Confirm delete
         async function confirmDelete() {
             if (!currentTable || !currentRecordId) return;
             
@@ -1748,13 +1367,15 @@
             }
         }
 
-        function editItem(tableName, itemId) {
-            openModal(tableName, itemId);
-        }
+        // Refresh current table
+        window.refreshCurrentTable = function() {
+            if (currentTable) {
+                loadTableData(currentTable);
+                showMessage('Table refreshed!', 'success');
+            }
+        };
 
-        // ============================================
-        // QUESTION OPTIONS MANAGEMENT
-        // ============================================
+        // Question options management
         async function manageQuestionOptions(questionId) {
             currentQuestionId = questionId;
             
@@ -1780,13 +1401,13 @@
                 currentQuestionOptions = options || [];
                 
                 // Update modal title
-                document.getElementById('options-modal-title').textContent = `Options for: ${question.question_text.substring(0, 50)}${question.question_text.length > 50 ? '...' : ''}`;
+                document.getElementById('options-modal-title').textContent = `Options for Question`;
                 
                 // Update question info
                 document.getElementById('question-text').textContent = question.question_text;
                 document.getElementById('question-category').textContent = `Category: ${question.category}`;
                 document.getElementById('question-difficulty').textContent = `Difficulty: ${question.difficulty}`;
-                document.getElementById('question-timer').innerHTML = `<span class="timer-display"><i class="fas fa-clock"></i> ${question.timer_seconds}s</span>`;
+                document.getElementById('question-timer').textContent = `Timer: ${question.timer_seconds}s`;
                 
                 // Render options
                 renderQuestionOptions(currentQuestionOptions);
@@ -1800,15 +1421,15 @@
             }
         }
 
+        // Render question options
         function renderQuestionOptions(options) {
             const optionsList = document.getElementById('options-list');
             
             if (!options || options.length === 0) {
                 optionsList.innerHTML = `
                     <div class="empty-state">
-                        <i class="fas fa-list-ul"></i>
                         <h3>No Options Yet</h3>
-                        <p>Add options for this question using the "Add Option" button.</p>
+                        <p>Add options for this question.</p>
                     </div>
                 `;
                 return;
@@ -1820,15 +1441,15 @@
                     <div class="option-item ${option.is_correct ? 'correct' : ''}" data-id="${option.id}">
                         <div class="option-content">
                             <strong>${option.option_text}</strong>
-                            ${option.image_url ? `<div style="margin-top: 5px; font-size: 0.85rem; color: #6c757d;"><i class="fas fa-image"></i> Has image</div>` : ''}
-                            ${option.is_correct ? `<div style="margin-top: 5px; color: var(--success-color); font-weight: bold;"><i class="fas fa-check-circle"></i> Correct Answer</div>` : ''}
+                            ${option.image_url ? `<div style="margin-top: 5px;"><small>Has image</small></div>` : ''}
+                            ${option.is_correct ? `<div style="margin-top: 5px; color: green;"><strong>✓ Correct Answer</strong></div>` : ''}
                         </div>
                         <div class="option-actions">
-                            <button class="action-btn btn-warning" onclick="toggleCorrectOption('${option.id}')">
-                                ${option.is_correct ? '<i class="fas fa-times"></i> Mark Incorrect' : '<i class="fas fa-check"></i> Mark Correct'}
+                            <button class="action-btn" onclick="toggleCorrectOption('${option.id}')">
+                                ${option.is_correct ? 'MARK INCORRECT' : 'MARK CORRECT'}
                             </button>
-                            <button class="action-btn btn-danger" onclick="deleteQuestionOption('${option.id}')">
-                                <i class="fas fa-trash"></i> Delete
+                            <button class="action-btn delete" onclick="deleteQuestionOption('${option.id}')">
+                                DELETE
                             </button>
                         </div>
                     </div>
@@ -1838,6 +1459,7 @@
             optionsList.innerHTML = html;
         }
 
+        // Close question options modal
         function closeQuestionOptionsModal() {
             document.getElementById('question-options-modal').classList.remove('active');
             currentQuestionId = null;
@@ -1845,6 +1467,7 @@
             document.getElementById('new-option-form').style.display = 'none';
         }
 
+        // Add new option
         function addNewOption() {
             document.getElementById('new-option-form').style.display = 'block';
             document.getElementById('new-option-text').value = '';
@@ -1853,10 +1476,12 @@
             document.getElementById('new-option-text').focus();
         }
 
+        // Cancel new option
         function cancelNewOption() {
             document.getElementById('new-option-form').style.display = 'none';
         }
 
+        // Save new option
         async function saveNewOption() {
             const optionText = document.getElementById('new-option-text').value;
             const isCorrect = document.getElementById('new-option-correct').checked;
@@ -1902,6 +1527,7 @@
             }
         }
 
+        // Toggle correct option
         async function toggleCorrectOption(optionId) {
             try {
                 const option = currentQuestionOptions.find(o => o.id === optionId);
@@ -1914,7 +1540,7 @@
                 
                 if (error) throw error;
                 
-                showMessage('Option updated successfully!', 'success');
+                showMessage('Option updated!', 'success');
                 
                 // Reload options
                 const { data: options, error: optionsError } = await supabase
@@ -1934,6 +1560,7 @@
             }
         }
 
+        // Delete question option
         async function deleteQuestionOption(optionId) {
             if (!confirm('Are you sure you want to delete this option?')) return;
             
@@ -1945,7 +1572,7 @@
                 
                 if (error) throw error;
                 
-                showMessage('Option deleted successfully!', 'success');
+                showMessage('Option deleted!', 'success');
                 
                 // Remove from local array
                 currentQuestionOptions = currentQuestionOptions.filter(o => o.id !== optionId);
@@ -1957,19 +1584,22 @@
             }
         }
 
-        // ============================================
-        // UTILITY FUNCTIONS
-        // ============================================
+        // Show message
         function showMessage(text, type) {
-            const container = document.getElementById('message-container');
+            // Create message element
             const message = document.createElement('div');
             message.className = `message message-${type}`;
-            message.style.marginBottom = '10px';
-            message.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> <span>${text}</span>`;
+            message.innerHTML = `<span>${text}</span>`;
+            message.style.position = 'fixed';
+            message.style.top = '20px';
+            message.style.right = '20px';
+            message.style.zIndex = '1000';
+            message.style.minWidth = '300px';
+            message.style.maxWidth = '400px';
             
-            container.appendChild(message);
+            document.body.appendChild(message);
             
-            // Auto-remove after 5 seconds
+            // Remove after 5 seconds
             setTimeout(() => {
                 message.style.opacity = '0';
                 setTimeout(() => message.remove(), 300);
@@ -1990,11 +1620,7 @@
         window.saveNewOption = saveNewOption;
         window.toggleCorrectOption = toggleCorrectOption;
         window.deleteQuestionOption = deleteQuestionOption;
-        window.refreshCurrentTable = function() {
-            if (currentTable) {
-                loadTableData(currentTable);
-            }
-        };
+        window.refreshCurrentTable = refreshCurrentTable;
     </script>
 </body>
 </html>
