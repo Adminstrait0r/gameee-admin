@@ -1,0 +1,162 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RPG UI Template</title>
+  <style>
+    :root {
+      --bg-main: #f2efe6;
+      --bg-panel: #e8e3d6;
+      --border: #2b2b2b;
+      --accent: #111;
+    }* {
+  box-sizing: border-box;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #333;
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.app {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-main);
+  border: 3px solid var(--border);
+}
+
+/* Top Bar */
+.top-bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 3px solid var(--border);
+  background: var(--bg-panel);
+}
+
+.menu {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.title {
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.badge {
+  border: 2px solid var(--border);
+  padding: 4px 8px;
+  font-size: 12px;
+  background: var(--bg-main);
+}
+
+/* Feed */
+.feed {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.card {
+  border: 2px solid var(--border);
+  background: var(--bg-panel);
+  padding: 10px;
+  font-size: 14px;
+}
+
+/* Actions */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 10px;
+  border-top: 3px solid var(--border);
+}
+
+.action {
+  border: 2px solid var(--border);
+  background: var(--bg-main);
+  padding: 14px 8px;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.action:hover {
+  background: #ddd6c7;
+}
+
+/* Input Bar */
+.input-bar {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 6px;
+  padding: 10px;
+  border-top: 3px solid var(--border);
+  background: var(--bg-panel);
+}
+
+.input-bar input {
+  padding: 8px;
+  border: 2px solid var(--border);
+  background: var(--bg-main);
+}
+
+.btn {
+  border: 2px solid var(--border);
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.btn.secondary {
+  background: var(--bg-main);
+  color: #000;
+}
+
+  </style>
+</head>
+<body>
+  <div class="app"><div class="top-bar">
+  <div class="menu">☰</div>
+  <div class="title">RPG INTERFACE</div>
+  <div class="badge">ATK +0</div>
+  <div class="badge">STATUS</div>
+</div>
+
+<div class="feed">
+  <div class="card">System message or story output appears here.</div>
+  <div class="card">Another event log entry.</div>
+</div>
+
+<div class="actions">
+  <div class="action">Action A</div>
+  <div class="action">Action B</div>
+  <div class="action">Action C</div>
+  <div class="action">Action D</div>
+  <div class="action">Action E</div>
+  <div class="action">Action F</div>
+  <div class="action">Action G</div>
+  <div class="action">Action H</div>
+</div>
+
+<div class="input-bar">
+  <input type="text" placeholder="Enter command..." />
+  <button class="btn secondary">?</button>
+  <button class="btn">SEND</button>
+</div>
+
+  </div>
+</body>
+</html>
