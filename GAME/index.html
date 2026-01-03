@@ -1,787 +1,940 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Admin Panel</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Content Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  color: #e6e6e6;
-  min-height: 100vh;
-  padding: 20px;
-}
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --warning-color: #f8961e;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --gray-color: #6c757d;
+            --border-color: #dee2e6;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+        }
 
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-}
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f5f7fb;
+            color: var(--dark-color);
+        }
 
-header {
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 25px;
-  border-radius: 15px;
-  margin-bottom: 30px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
-}
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            position: fixed;
+            height: 100vh;
+        }
 
-header h1 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 15px;
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-  background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-header p {
-  color: #90e0ef;
-  font-size: 1.1rem;
-}
+        .sidebar-header h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
 
-.connection-status {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 15px;
-  padding: 10px;
-  background: rgba(0, 180, 216, 0.1);
-  border-radius: 8px;
-  border: 1px solid rgba(0, 180, 216, 0.3);
-}
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+            flex-grow: 1;
+        }
 
-.status-indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #4cc9f0;
-  animation: pulse 2s infinite;
-}
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
 
-@keyframes pulse {
-  0% { opacity: 0.7; }
-  50% { opacity: 1; }
-  100% { opacity: 0.7; }
-}
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--dark-color);
+            text-decoration: none;
+            transition: all 0.3s;
+            gap: 10px;
+        }
 
-.main-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 25px;
-  margin-bottom: 40px;
-}
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary-color);
+            border-left: 4px solid var(--primary-color);
+        }
 
-.section {
-  background: rgba(25, 25, 35, 0.8);
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
 
-.section:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-  border-color: rgba(0, 180, 216, 0.3);
-}
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+        }
 
-.section h2 {
-  background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
-  color: white;
-  padding: 15px;
-  margin: -25px -25px 20px -25px;
-  border-radius: 15px 15px 0 0;
-  font-size: 1.4rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
 
-.input-group {
-  margin-bottom: 20px;
-}
+        .header h1 {
+            color: var(--dark-color);
+            font-size: 1.8rem;
+        }
 
-.input-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #90e0ef;
-  font-size: 0.95rem;
-}
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: white;
+            padding: 8px 15px;
+            border-radius: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
 
-.input-group input,
-.input-group select,
-.input-group textarea {
-  width: 100%;
-  padding: 12px 15px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  color: white;
-  font-size: 15px;
-  transition: all 0.3s;
-}
+        .content-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
 
-.input-group input:focus,
-.input-group select:focus,
-.input-group textarea:focus {
-  outline: none;
-  border-color: #00b4d8;
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
-}
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f9fafc;
+            border-bottom: 1px solid var(--border-color);
+        }
 
-.input-group textarea {
-  min-height: 100px;
-  resize: vertical;
-}
+        .content-header h3 {
+            color: var(--primary-color);
+        }
 
-button {
-  background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
-  color: white;
-  border: none;
-  padding: 14px 24px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  width: 100%;
-  transition: all 0.3s ease;
-  margin-top: 10px;
-  letter-spacing: 0.5px;
-}
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
 
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 180, 216, 0.4);
-}
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
 
-button:active {
-  transform: translateY(0);
-}
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
 
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none !important;
-}
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
 
-.horizontal-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-}
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
 
-.status-message {
-  padding: 12px 15px;
-  border-radius: 8px;
-  margin-top: 15px;
-  text-align: center;
-  font-weight: 500;
-  display: none;
-  animation: slideIn 0.3s ease;
-}
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            padding: 20px;
+        }
 
-.success {
-  background: rgba(46, 204, 113, 0.15);
-  color: #2ecc71;
-  border: 1px solid rgba(46, 204, 113, 0.3);
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-.error {
-  background: rgba(231, 76, 60, 0.15);
-  color: #e74c3c;
-  border: 1px solid rgba(231, 76, 60, 0.3);
-}
+        th {
+            background-color: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--border-color);
+        }
 
-.loading {
-  background: rgba(52, 152, 219, 0.15);
-  color: #3498db;
-  border: 1px solid rgba(52, 152, 219, 0.3);
-}
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
 
-footer {
-  text-align: center;
-  color: rgba(255, 255, 255, 0.5);
-  margin-top: 40px;
-  padding: 20px;
-  font-size: 0.9rem;
-}
+        tr:hover {
+            background-color: #f9fafc;
+        }
 
-.section-id {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9rem;
-  color: #4cc9f0;
-}
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
 
-@media (max-width: 768px) {
-  .main-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .horizontal-group {
-    grid-template-columns: 1fr;
-  }
-  
-  header h1 {
-    font-size: 2rem;
-  }
-}
+        .action-btn {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 10px;
-}
+        /* Form Styles */
+        .form-container {
+            padding: 20px;
+        }
 
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
-  border-radius: 5px;
-}
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
 
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #0093b6 0%, #005a8c 100%);
-}
-</style>
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: var(--primary-color);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-color);
+        }
+
+        /* Loading and Message Styles */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: var(--gray-color);
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .message-success {
+            background-color: rgba(76, 201, 240, 0.2);
+            color: #0c5460;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .message-error {
+            background-color: rgba(247, 37, 133, 0.2);
+            color: #721c24;
+            border-left: 4px solid var(--danger-color);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray-color);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--border-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar-header h2, .sidebar-menu span, .sidebar-footer {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+            
+            .sidebar-menu a {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .sidebar-menu a:hover, .sidebar-menu a.active {
+                border-left: none;
+                border-right: 4px solid var(--primary-color);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <h1>🎮 Game Admin Dashboard</h1>
-    <p>Secure management interface for game content</p>
-    <div class="connection-status">
-      <div class="status-indicator"></div>
-      <span id="connection-text">Connected to Supabase</span>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-cogs" style="color: var(--primary-color); font-size: 1.5rem;"></i>
+            <h2>Admin Panel</h2>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li><a href="#" class="active" id="nav-content"><i class="fas fa-box"></i> <span>Content</span></a></li>
+            <li><a href="#" id="nav-users"><i class="fas fa-users"></i> <span>Users</span></a></li>
+            <li><a href="#" id="nav-settings"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+            <li><a href="#" id="nav-analytics"><i class="fas fa-chart-bar"></i> <span>Analytics</span></a></li>
+        </ul>
+        
+        <div class="sidebar-footer">
+            <p>Admin Panel v1.0</p>
+            <p>Connected to Supabase</p>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="header">
+            <h1>Content Management</h1>
+            <div class="user-info">
+                <i class="fas fa-user-circle" style="font-size: 1.5rem;"></i>
+                <span>Admin User</span>
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div id="message-container"></div>
+
+        <!-- Content Management Section -->
+        <div class="content-container">
+            <div class="content-header">
+                <h3><i class="fas fa-box"></i> All Content Items</h3>
+                <button class="btn btn-primary" id="add-content-btn">
+                    <i class="fas fa-plus"></i> Add New Content
+                </button>
+            </div>
+            
+            <div class="table-container">
+                <div id="loading" class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading content...
+                </div>
+                
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <i class="fas fa-box-open"></i>
+                    <h3>No Content Found</h3>
+                    <p>Add your first content item by clicking the "Add New Content" button.</p>
+                </div>
+                
+                <table id="content-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="content-table-body">
+                        <!-- Content will be loaded here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Content Modal -->
+    <div class="modal" id="content-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Add New Content</h3>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="content-form">
+                    <input type="hidden" id="content-id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="content-title">Title *</label>
+                            <input type="text" id="content-title" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="content-category">Category</label>
+                            <select id="content-category" class="form-control">
+                                <option value="general">General</option>
+                                <option value="news">News</option>
+                                <option value="tutorial">Tutorial</option>
+                                <option value="product">Product</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="content-description">Description *</label>
+                        <textarea id="content-description" class="form-control" required></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="content-status">Status</label>
+                            <select id="content-status" class="form-control">
+                                <option value="published">Published</option>
+                                <option value="draft">Draft</option>
+                                <option value="archived">Archived</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="content-image">Image URL</label>
+                            <input type="text" id="content-image" class="form-control" placeholder="https://example.com/image.jpg">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px;">
+                        <button type="button" class="btn" id="cancel-btn" style="background-color: #e9ecef;">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">Save Content</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-  </header>
 
-  <div class="main-grid">
-    <!-- Monsters Section -->
-    <section class="section">
-      <h2>👹 Monsters</h2>
-      <div class="input-group">
-        <label for="m_name">Monster Name *</label>
-        <input id="m_name" placeholder="Fire Dragon, Ice Golem...">
-      </div>
-      <div class="horizontal-group">
-        <div class="input-group">
-          <label for="m_stage">Stage *</label>
-          <input id="m_stage" type="number" min="1" max="100" placeholder="1">
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="delete-modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle" style="color: var(--danger-color);"></i> Confirm Delete</h3>
+                <button class="close-btn" id="close-delete-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this content item? This action cannot be undone.</p>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px;">
+                    <button type="button" class="btn" id="cancel-delete-btn" style="background-color: #e9ecef;">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete Content</button>
+                </div>
+            </div>
         </div>
-        <div class="input-group">
-          <label for="m_hp">HP *</label>
-          <input id="m_hp" type="number" min="1" placeholder="100">
-        </div>
-      </div>
-      <div class="horizontal-group">
-        <div class="input-group">
-          <label for="m_damage">Damage *</label>
-          <input id="m_damage" type="number" min="0" placeholder="25">
-        </div>
-        <div class="input-group">
-          <label for="m_defense">Defense *</label>
-          <input id="m_defense" type="number" min="0" placeholder="10">
-        </div>
-      </div>
-      <div class="horizontal-group">
-        <div class="input-group">
-          <label for="m_timer">Timer (seconds) *</label>
-          <input id="m_timer" type="number" min="1" placeholder="60">
-        </div>
-        <div class="input-group">
-          <label for="m_category">Category</label>
-          <input id="m_category" placeholder="Boss, Elite, Common">
-        </div>
-      </div>
-      <div class="input-group">
-        <label for="m_image">Image URL</label>
-        <input id="m_image" placeholder="https://example.com/monster.png" type="url">
-      </div>
-      <button onclick="addMonster()" id="monster-btn">Add Monster</button>
-      <div id="monster-status" class="status-message"></div>
-    </section>
+    </div>
 
-    <!-- Equipment Section -->
-    <section class="section">
-      <h2>⚔️ Equipment</h2>
-      <div class="input-group">
-        <label for="e_name">Equipment Name *</label>
-        <input id="e_name" placeholder="Dragon Slayer Sword, Titan Shield...">
-      </div>
-      <div class="horizontal-group">
-        <div class="input-group">
-          <label for="e_slot">Slot *</label>
-          <select id="e_slot">
-            <option value="helmet">Helmet</option>
-            <option value="chestplate">Chestplate</option>
-            <option value="leggings">Leggings</option>
-            <option value="boots">Boots</option>
-            <option value="weapon">Weapon</option>
-            <option value="shield">Shield</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label for="e_rarity">Rarity *</label>
-          <select id="e_rarity">
-            <option value="common">Common</option>
-            <option value="uncommon">Uncommon</option>
-            <option value="rare">Rare</option>
-            <option value="epic">Epic</option>
-            <option value="legendary">Legendary</option>
-          </select>
-        </div>
-      </div>
-      <div class="horizontal-group">
-        <div class="input-group">
-          <label for="e_damage">Damage *</label>
-          <input id="e_damage" type="number" min="0" placeholder="15">
-        </div>
-        <div class="input-group">
-          <label for="e_defense">Defense *</label>
-          <input id="e_defense" type="number" min="0" placeholder="8">
-        </div>
-      </div>
-      <div class="input-group">
-        <label for="e_crit">Crit Bonus % *</label>
-        <input id="e_crit" type="number" min="0" max="100" step="0.1" placeholder="5.0">
-      </div>
-      <div class="input-group">
-        <label for="e_image">Image URL</label>
-        <input id="e_image" placeholder="https://example.com/equipment.png" type="url">
-      </div>
-      <button onclick="addEquipment()" id="equipment-btn">Add Equipment</button>
-      <div id="equipment-status" class="status-message"></div>
-    </section>
+    <script>
+        // Import your existing Supabase client
+        // Assuming you have a supabase.js file that exports the supabase client
+        // This code assumes supabase is available globally or you can import it
+        // For this example, we'll simulate the Supabase functionality with localStorage
+        // Replace this with your actual Supabase integration
+        
+        // Mock data for demonstration
+        let contentItems = [
+            { id: 1, title: "Welcome to Our Platform", description: "Introduction to our services and features", category: "general", status: "published", created_at: "2023-10-15", image_url: "" },
+            { id: 2, title: "Getting Started Guide", description: "Step-by-step guide for new users", category: "tutorial", status: "published", created_at: "2023-10-10", image_url: "" },
+            { id: 3, title: "Product Update v2.0", description: "Details about our latest product release", category: "product", status: "published", created_at: "2023-10-05", image_url: "" },
+            { id: 4, title: "Upcoming Features", description: "Preview of features in development", category: "news", status: "draft", created_at: "2023-10-01", image_url: "" },
+            { id: 5, title: "Customer Success Story", description: "How our platform helped XYZ Corp", category: "general", status: "published", created_at: "2023-09-28", image_url: "" }
+        ];
 
-    <!-- Questions Section -->
-    <section class="section">
-      <h2>❓ Questions</h2>
-      <div class="horizontal-group">
-        <div class="input-group">
-          <label for="q_category">Category *</label>
-          <input id="q_category" placeholder="Mathematics, Science, History...">
-        </div>
-        <div class="input-group">
-          <label for="q_difficulty">Difficulty *</label>
-          <select id="q_difficulty">
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
-        </div>
-      </div>
-      <div class="input-group">
-        <label for="q_text">Question Text *</label>
-        <textarea id="q_text" placeholder="What is the capital of France?"></textarea>
-      </div>
-      <div class="input-group">
-        <label for="q_image">Image URL (optional)</label>
-        <input id="q_image" placeholder="https://example.com/question.png" type="url">
-      </div>
-      <button onclick="addQuestion()" id="question-btn">Add Question</button>
-      <div id="question-status" class="status-message"></div>
-    </section>
+        // DOM Elements
+        const contentTable = document.getElementById('content-table');
+        const contentTableBody = document.getElementById('content-table-body');
+        const loadingElement = document.getElementById('loading');
+        const emptyStateElement = document.getElementById('empty-state');
+        const addContentBtn = document.getElementById('add-content-btn');
+        const contentModal = document.getElementById('content-modal');
+        const deleteModal = document.getElementById('delete-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const closeDeleteModalBtn = document.getElementById('close-delete-modal');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const contentForm = document.getElementById('content-form');
+        const modalTitle = document.getElementById('modal-title');
+        const messageContainer = document.getElementById('message-container');
+        
+        // Variables for state management
+        let currentContentId = null;
+        let deleteContentId = null;
+        let isEditMode = false;
 
-    <!-- Question Options Section -->
-    <section class="section">
-      <h2>🅰️ Question Options</h2>
-      <div class="input-group">
-        <label for="o_question_id">Question ID *</label>
-        <div class="section-id">Get ID from Questions table</div>
-        <input id="o_question_id" type="number" min="1" placeholder="Enter question ID">
-      </div>
-      <div class="input-group">
-        <label for="o_text">Option Text *</label>
-        <textarea id="o_text" rows="2" placeholder="Enter option text"></textarea>
-      </div>
-      <div class="input-group">
-        <label for="o_image">Image URL (optional)</label>
-        <input id="o_image" placeholder="https://example.com/option.png" type="url">
-      </div>
-      <div class="input-group">
-        <label for="o_correct">Is Correct Answer? *</label>
-        <select id="o_correct">
-          <option value="false">False</option>
-          <option value="true">True</option>
-        </select>
-      </div>
-      <button onclick="addOption()" id="option-btn">Add Option</button>
-      <div id="option-status" class="status-message"></div>
-    </section>
+        // Initialize the admin panel
+        document.addEventListener('DOMContentLoaded', function() {
+            loadContent();
+            setupEventListeners();
+        });
 
-    <!-- Gacha Banners Section -->
-    <section class="section">
-      <h2>🎲 Gacha Banner</h2>
-      <div class="input-group">
-        <label for="g_name">Banner Name *</label>
-        <input id="g_name" placeholder="Summer Festival, Legendary Summon...">
-      </div>
-      <div class="input-group">
-        <label for="g_cost">Cost (currency) *</label>
-        <input id="g_cost" type="number" min="1" placeholder="100">
-      </div>
-      <button onclick="addBanner()" id="banner-btn">Add Banner</button>
-      <div id="banner-status" class="status-message"></div>
-    </section>
+        // Setup event listeners
+        function setupEventListeners() {
+            // Add content button
+            addContentBtn.addEventListener('click', () => openContentModal());
+            
+            // Close modal buttons
+            closeModalBtn.addEventListener('click', () => closeContentModal());
+            cancelBtn.addEventListener('click', () => closeContentModal());
+            closeDeleteModalBtn.addEventListener('click', () => closeDeleteModal());
+            cancelDeleteBtn.addEventListener('click', () => closeDeleteModal());
+            
+            // Form submission
+            contentForm.addEventListener('submit', handleFormSubmit);
+            
+            // Confirm delete button
+            document.getElementById('confirm-delete-btn').addEventListener('click', confirmDelete);
+            
+            // Navigation
+            document.querySelectorAll('.sidebar-menu a').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelectorAll('.sidebar-menu a').forEach(link => link.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // In a real app, you would load different content based on navigation
+                    showMessage(`Navigated to ${this.querySelector('span').textContent} section`, 'success');
+                });
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === contentModal) closeContentModal();
+                if (e.target === deleteModal) closeDeleteModal();
+            });
+        }
 
-    <!-- Gacha Rates Section -->
-    <section class="section">
-      <h2>📊 Gacha Rates</h2>
-      <div class="input-group">
-        <label for="gr_banner">Banner ID *</label>
-        <div class="section-id">Get ID from Gacha Banner table</div>
-        <input id="gr_banner" type="number" min="1" placeholder="Enter banner ID">
-      </div>
-      <div class="horizontal-group">
-        <div class="input-group">
-          <label for="gr_rarity">Rarity *</label>
-          <select id="gr_rarity">
-            <option value="common">Common</option>
-            <option value="uncommon">Uncommon</option>
-            <option value="rare">Rare</option>
-            <option value="epic">Epic</option>
-            <option value="legendary">Legendary</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label for="gr_chance">Chance % *</label>
-          <input id="gr_chance" type="number" min="0" max="100" step="0.01" placeholder="50.0">
-        </div>
-      </div>
-      <button onclick="addRate()" id="rate-btn">Add Rate</button>
-      <div id="rate-status" class="status-message"></div>
-    </section>
-  </div>
+        // Load content from "Supabase" (simulated)
+        function loadContent() {
+            // Simulate API call delay
+            setTimeout(() => {
+                // In a real app, you would use:
+                // const { data, error } = await supabase.from('contents').select('*');
+                
+                if (contentItems.length === 0) {
+                    loadingElement.style.display = 'none';
+                    emptyStateElement.style.display = 'block';
+                    return;
+                }
+                
+                renderContentTable(contentItems);
+                loadingElement.style.display = 'none';
+                contentTable.style.display = 'table';
+            }, 800);
+        }
 
-  <footer>
-    <p>© 2024 Game Admin Panel | Connected to: ncdvjkdhczfegwxcdhhz.supabase.co</p>
-  </footer>
-</div>
+        // Render content table
+        function renderContentTable(items) {
+            contentTableBody.innerHTML = '';
+            
+            items.forEach(item => {
+                const row = document.createElement('tr');
+                
+                // Format date
+                const formattedDate = new Date(item.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                // Status badge
+                let statusClass = '';
+                switch(item.status) {
+                    case 'published': statusClass = 'btn-success'; break;
+                    case 'draft': statusClass = 'btn-warning'; break;
+                    case 'archived': statusClass = ''; break;
+                }
+                
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td><strong>${item.title}</strong></td>
+                    <td>${item.description.substring(0, 60)}${item.description.length > 60 ? '...' : ''}</td>
+                    <td><span style="background-color: #e9ecef; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem;">${item.category}</span></td>
+                    <td><span class="action-btn ${statusClass}" style="cursor: default;">${item.status}</span></td>
+                    <td>${formattedDate}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="action-btn btn-primary edit-btn" data-id="${item.id}">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="action-btn btn-danger delete-btn" data-id="${item.id}">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                contentTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to edit and delete buttons
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = parseInt(e.currentTarget.getAttribute('data-id'));
+                    editContent(id);
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = parseInt(e.currentTarget.getAttribute('data-id'));
+                    openDeleteModal(id);
+                });
+            });
+        }
 
-<script>
-// Initialize Supabase with your credentials
-const supabaseUrl = "https://ncdvjkdhczfegwxcdhhz.supabase.co";
-const supabaseKey = "sb_publishable_M5ocjopAxTiGQYjeRIEBDg_8fWEi4Ww";
+        // Open content modal (for add or edit)
+        function openContentModal(content = null) {
+            isEditMode = content !== null;
+            
+            if (isEditMode) {
+                modalTitle.textContent = 'Edit Content';
+                document.getElementById('content-id').value = content.id;
+                document.getElementById('content-title').value = content.title;
+                document.getElementById('content-description').value = content.description;
+                document.getElementById('content-category').value = content.category;
+                document.getElementById('content-status').value = content.status;
+                document.getElementById('content-image').value = content.image_url || '';
+                currentContentId = content.id;
+            } else {
+                modalTitle.textContent = 'Add New Content';
+                contentForm.reset();
+                currentContentId = null;
+            }
+            
+            contentModal.classList.add('active');
+        }
 
-// Create Supabase client
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        // Close content modal
+        function closeContentModal() {
+            contentModal.classList.remove('active');
+            contentForm.reset();
+            currentContentId = null;
+            isEditMode = false;
+        }
 
-// Test connection on load
-async function testConnection() {
-  try {
-    const { data, error } = await supabase.from('monsters').select('count', { count: 'exact', head: true });
-    
-    if (error) throw error;
-    
-    console.log('✅ Connected to Supabase successfully');
-    document.getElementById('connection-text').textContent = `Connected to Supabase | ${data.count || 0} records`;
-  } catch (error) {
-    console.error('❌ Connection error:', error);
-    document.getElementById('connection-text').textContent = 'Connection Error - Check Console';
-    document.getElementById('connection-text').style.color = '#e74c3c';
-  }
-}
+        // Open delete confirmation modal
+        function openDeleteModal(id) {
+            deleteContentId = id;
+            deleteModal.classList.add('active');
+        }
 
-// Call test connection on page load
-window.addEventListener('DOMContentLoaded', testConnection);
+        // Close delete confirmation modal
+        function closeDeleteModal() {
+            deleteModal.classList.remove('active');
+            deleteContentId = null;
+        }
 
-// Helper functions
-function showStatus(elementId, message, type = 'success') {
-  const element = document.getElementById(elementId);
-  element.textContent = message;
-  element.className = `status-message ${type}`;
-  element.style.display = 'block';
-  
-  // Auto-hide after 5 seconds for success messages
-  if (type === 'success') {
-    setTimeout(() => {
-      element.style.display = 'none';
-    }, 5000);
-  }
-}
+        // Handle form submission (add or update)
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const contentData = {
+                title: document.getElementById('content-title').value,
+                description: document.getElementById('content-description').value,
+                category: document.getElementById('content-category').value,
+                status: document.getElementById('content-status').value,
+                image_url: document.getElementById('content-image').value || '',
+                created_at: new Date().toISOString().split('T')[0]
+            };
+            
+            // In a real app, you would use:
+            // if (isEditMode) {
+            //     const { data, error } = await supabase
+            //         .from('contents')
+            //         .update(contentData)
+            //         .eq('id', currentContentId);
+            // } else {
+            //     const { data, error } = await supabase
+            //         .from('contents')
+            //         .insert([contentData]);
+            // }
+            
+            // Simulate API call
+            setTimeout(() => {
+                if (isEditMode) {
+                    // Update existing item
+                    const index = contentItems.findIndex(item => item.id === currentContentId);
+                    if (index !== -1) {
+                        contentItems[index] = { ...contentItems[index], ...contentData };
+                    }
+                    showMessage('Content updated successfully!', 'success');
+                } else {
+                    // Add new item
+                    const newId = contentItems.length > 0 ? Math.max(...contentItems.map(item => item.id)) + 1 : 1;
+                    contentData.id = newId;
+                    contentItems.unshift(contentData);
+                    showMessage('Content added successfully!', 'success');
+                }
+                
+                renderContentTable(contentItems);
+                closeContentModal();
+            }, 600);
+        }
 
-function setLoading(buttonId, isLoading) {
-  const button = document.getElementById(buttonId);
-  if (isLoading) {
-    button.innerHTML = '<span>⏳ Processing...</span>';
-    button.disabled = true;
-  } else {
-    button.innerHTML = button.innerHTML.replace('⏳ Processing...', getOriginalButtonText(buttonId));
-    button.disabled = false;
-  }
-}
+        // Edit content
+        function editContent(id) {
+            const content = contentItems.find(item => item.id === id);
+            if (content) {
+                openContentModal(content);
+            }
+        }
 
-function getOriginalButtonText(buttonId) {
-  const texts = {
-    'monster-btn': 'Add Monster',
-    'equipment-btn': 'Add Equipment',
-    'question-btn': 'Add Question',
-    'option-btn': 'Add Option',
-    'banner-btn': 'Add Banner',
-    'rate-btn': 'Add Rate'
-  };
-  return texts[buttonId] || 'Submit';
-}
+        // Confirm delete
+        function confirmDelete() {
+            if (!deleteContentId) return;
+            
+            // In a real app, you would use:
+            // const { data, error } = await supabase
+            //     .from('contents')
+            //     .delete()
+            //     .eq('id', deleteContentId);
+            
+            // Simulate API call
+            setTimeout(() => {
+                contentItems = contentItems.filter(item => item.id !== deleteContentId);
+                
+                if (contentItems.length === 0) {
+                    contentTable.style.display = 'none';
+                    emptyStateElement.style.display = 'block';
+                } else {
+                    renderContentTable(contentItems);
+                }
+                
+                showMessage('Content deleted successfully!', 'success');
+                closeDeleteModal();
+            }, 600);
+        }
 
-function clearFields(fieldIds) {
-  fieldIds.forEach(id => {
-    const element = document.getElementById(id);
-    if (element) {
-      if (element.tagName === 'SELECT') {
-        element.selectedIndex = 0;
-      } else if (element.type === 'number') {
-        element.value = '';
-      } else {
-        element.value = '';
-      }
-    }
-  });
-}
+        // Show message
+        function showMessage(text, type) {
+            // Remove existing messages
+            const existingMessages = document.querySelectorAll('.message');
+            existingMessages.forEach(msg => {
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 300);
+            });
+            
+            // Create new message
+            const message = document.createElement('div');
+            message.className = `message message-${type}`;
+            
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            message.innerHTML = `<i class="fas ${icon}"></i> <span>${text}</span>`;
+            
+            messageContainer.appendChild(message);
+            
+            // Remove message after 5 seconds
+            setTimeout(() => {
+                message.style.opacity = '0';
+                setTimeout(() => message.remove(), 300);
+            }, 5000);
+        }
 
-function validateRequired(fieldIds) {
-  let isValid = true;
-  fieldIds.forEach(id => {
-    const element = document.getElementById(id);
-    if (element && !element.value.trim()) {
-      element.style.borderColor = '#e74c3c';
-      element.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
-      setTimeout(() => {
-        element.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-        element.style.boxShadow = 'none';
-      }, 3000);
-      isValid = false;
-    }
-  });
-  return isValid;
-}
-
-// CRUD Operations
-async function addMonster() {
-  const required = ['m_name', 'm_stage', 'm_hp', 'm_damage', 'm_defense', 'm_timer'];
-  if (!validateRequired(required)) {
-    showStatus('monster-status', '❌ Please fill all required fields', 'error');
-    return;
-  }
-
-  setLoading('monster-btn', true);
-
-  try {
-    const { data, error } = await supabase.from("monsters").insert([{
-      name: document.getElementById('m_name').value.trim(),
-      stage: parseInt(document.getElementById('m_stage').value),
-      hp: parseInt(document.getElementById('m_hp').value),
-      damage: parseInt(document.getElementById('m_damage').value),
-      defense: parseInt(document.getElementById('m_defense').value),
-      timer_seconds: parseInt(document.getElementById('m_timer').value),
-      category: document.getElementById('m_category').value.trim() || null,
-      image_url: document.getElementById('m_image').value.trim() || null,
-      created_at: new Date().toISOString()
-    }]).select();
-
-    if (error) throw error;
-    
-    showStatus('monster-status', `✅ Monster "${data[0].name}" added successfully! ID: ${data[0].id}`);
-    clearFields(['m_name', 'm_stage', 'm_hp', 'm_damage', 'm_defense', 'm_timer', 'm_category', 'm_image']);
-  } catch (error) {
-    console.error('Error adding monster:', error);
-    showStatus('monster-status', `❌ Error: ${error.message}`, 'error');
-  } finally {
-    setLoading('monster-btn', false);
-  }
-}
-
-async function addEquipment() {
-  const required = ['e_name', 'e_damage', 'e_defense', 'e_crit'];
-  if (!validateRequired(required)) {
-    showStatus('equipment-status', '❌ Please fill all required fields', 'error');
-    return;
-  }
-
-  setLoading('equipment-btn', true);
-
-  try {
-    const { data, error } = await supabase.from("equipment").insert([{
-      name: document.getElementById('e_name').value.trim(),
-      slot: document.getElementById('e_slot').value,
-      rarity: document.getElementById('e_rarity').value,
-      damage: parseInt(document.getElementById('e_damage').value) || 0,
-      defense: parseInt(document.getElementById('e_defense').value) || 0,
-      crit_bonus: parseFloat(document.getElementById('e_crit').value) || 0,
-      image_url: document.getElementById('e_image').value.trim() || null,
-      created_at: new Date().toISOString()
-    }]).select();
-
-    if (error) throw error;
-    
-    showStatus('equipment-status', `✅ Equipment "${data[0].name}" added successfully! ID: ${data[0].id}`);
-    clearFields(['e_name', 'e_damage', 'e_defense', 'e_crit', 'e_image']);
-  } catch (error) {
-    console.error('Error adding equipment:', error);
-    showStatus('equipment-status', `❌ Error: ${error.message}`, 'error');
-  } finally {
-    setLoading('equipment-btn', false);
-  }
-}
-
-async function addQuestion() {
-  const required = ['q_category', 'q_text'];
-  if (!validateRequired(required)) {
-    showStatus('question-status', '❌ Please fill all required fields', 'error');
-    return;
-  }
-
-  setLoading('question-btn', true);
-
-  try {
-    const { data, error } = await supabase.from("questions").insert([{
-      category: document.getElementById('q_category').value.trim(),
-      difficulty: document.getElementById('q_difficulty').value,
-      question_text: document.getElementById('q_text').value.trim(),
-      image_url: document.getElementById('q_image').value.trim() || null,
-      created_at: new Date().toISOString()
-    }]).select();
-
-    if (error) throw error;
-    
-    showStatus('question-status', `✅ Question added successfully! ID: ${data[0].id} - Use this ID for options`);
-    clearFields(['q_category', 'q_text', 'q_image']);
-  } catch (error) {
-    console.error('Error adding question:', error);
-    showStatus('question-status', `❌ Error: ${error.message}`, 'error');
-  } finally {
-    setLoading('question-btn', false);
-  }
-}
-
-async function addOption() {
-  const required = ['o_question_id', 'o_text'];
-  if (!validateRequired(required)) {
-    showStatus('option-status', '❌ Please fill all required fields', 'error');
-    return;
-  }
-
-  setLoading('option-btn', true);
-
-  try {
-    const { data, error } = await supabase.from("question_options").insert([{
-      question_id: parseInt(document.getElementById('o_question_id').value),
-      option_text: document.getElementById('o_text').value.trim(),
-      image_url: document.getElementById('o_image').value.trim() || null,
-      is_correct: document.getElementById('o_correct').value === "true",
-      created_at: new Date().toISOString()
-    }]).select();
-
-    if (error) throw error;
-    
-    const correctness = data[0].is_correct ? 'Correct' : 'Incorrect';
-    showStatus('option-status', `✅ ${correctness} option added successfully!`);
-    clearFields(['o_question_id', 'o_text', 'o_image']);
-    document.getElementById('o_correct').selectedIndex = 0;
-  } catch (error) {
-    console.error('Error adding option:', error);
-    showStatus('option-status', `❌ Error: ${error.message}`, 'error');
-  } finally {
-    setLoading('option-btn', false);
-  }
-}
-
-async function addBanner() {
-  const required = ['g_name', 'g_cost'];
-  if (!validateRequired(required)) {
-    showStatus('banner-status', '❌ Please fill all required fields', 'error');
-    return;
-  }
-
-  setLoading('banner-btn', true);
-
-  try {
-    const { data, error } = await supabase.from("gacha_banners").insert([{
-      name: document.getElementById('g_name').value.trim(),
-      cost: parseInt(document.getElementById('g_cost').value),
-      created_at: new Date().toISOString()
-    }]).select();
-
-    if (error) throw error;
-    
-    showStatus('banner-status', `✅ Banner "${data[0].name}" added successfully! ID: ${data[0].id}`);
-    clearFields(['g_name', 'g_cost']);
-  } catch (error) {
-    console.error('Error adding banner:', error);
-    showStatus('banner-status', `❌ Error: ${error.message}`, 'error');
-  } finally {
-    setLoading('banner-btn', false);
-  }
-}
-
-async function addRate() {
-  const required = ['gr_banner', 'gr_chance'];
-  if (!validateRequired(required)) {
-    showStatus('rate-status', '❌ Please fill all required fields', 'error');
-    return;
-  }
-
-  setLoading('rate-btn', true);
-
-  try {
-    const { data, error } = await supabase.from("gacha_rates").insert([{
-      banner_id: parseInt(document.getElementById('gr_banner').value),
-      rarity: document.getElementById('gr_rarity').value,
-      chance: parseFloat(document.getElementById('gr_chance').value),
-      created_at: new Date().toISOString()
-    }]).select();
-
-    if (error) throw error;
-    
-    showStatus('rate-status', `✅ ${data[0].rarity} rate added: ${data[0].chance}%`);
-    clearFields(['gr_banner', 'gr_chance']);
-    document.getElementById('gr_rarity').selectedIndex = 0;
-  } catch (error) {
-    console.error('Error adding rate:', error);
-    showStatus('rate-status', `❌ Error: ${error.message}`, 'error');
-  } finally {
-    setLoading('rate-btn', false);
-  }
-}
-
-// Keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-    const activeElement = document.activeElement;
-    const section = activeElement.closest('.section');
-    if (section) {
-      const button = section.querySelector('button');
-      if (button && !button.disabled) button.click();
-    }
-  }
-});
-</script>
+        // Simulate Supabase integration (replace with your actual Supabase code)
+        // In your actual implementation, you would import supabase from your supabase.js file
+        // and use it to perform CRUD operations
+        
+        // Example of what your actual Supabase code might look like:
+        /*
+        // Import your supabase client
+        import { supabase } from './supabase.js';
+        
+        // Load content from Supabase
+        async function loadContent() {
+            loadingElement.style.display = 'block';
+            
+            const { data, error } = await supabase
+                .from('contents')
+                .select('*')
+                .order('created_at', { ascending: false });
+            
+            if (error) {
+                showMessage('Error loading content: ' + error.message, 'error');
+                loadingElement.style.display = 'none';
+                return;
+            }
+            
+            if (data.length === 0) {
+                loadingElement.style.display = 'none';
+                emptyStateElement.style.display = 'block';
+                return;
+            }
+            
+            contentItems = data;
+            renderContentTable(contentItems);
+            loadingElement.style.display = 'none';
+            contentTable.style.display = 'table';
+        }
+        
+        // Add new content
+        async function addContent(contentData) {
+            const { data, error } = await supabase
+                .from('contents')
+                .insert([contentData]);
+            
+            if (error) {
+                showMessage('Error adding content: ' + error.message, 'error');
+                return false;
+            }
+            
+            return data;
+        }
+        
+        // Update content
+        async function updateContent(id, contentData) {
+            const { data, error } = await supabase
+                .from('contents')
+                .update(contentData)
+                .eq('id', id);
+            
+            if (error) {
+                showMessage('Error updating content: ' + error.message, 'error');
+                return false;
+            }
+            
+            return data;
+        }
+        
+        // Delete content
+        async function deleteContent(id) {
+            const { data, error } = await supabase
+                .from('contents')
+                .delete()
+                .eq('id', id);
+            
+            if (error) {
+                showMessage('Error deleting content: ' + error.message, 'error');
+                return false;
+            }
+            
+            return data;
+        }
+        */
+    </script>
 </body>
 </html>
