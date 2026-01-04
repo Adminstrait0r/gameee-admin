@@ -1190,7 +1190,7 @@ async function withLoading(fn) {
     }
 }
 
-// Load player data from database - CORRECTED TABLE NAMES
+// Load player data from database
 async function loadPlayerData() {
     if (!supabase) {
         showNotification('Database not configured', 'error');
@@ -1198,15 +1198,15 @@ async function loadPlayerData() {
     }
     
     try {
-        // Get current user - TABLE IS 'user' NOT 'users'
+        // Get current user
         const { data: users, error: usersError } = await supabase
-            .from('user')  // CHANGED FROM 'users' TO 'user'
+            .from('users')
             .select('*')
             .order('created_at', { ascending: true })
             .limit(1);
         
         if (usersError) {
-            console.error('Error loading user:', usersError);
+            console.error('Error loading users:', usersError);
             showError('Database Error', 'Could not load user data. Please check database connection.');
             return;
         }
@@ -1224,7 +1224,7 @@ async function loadPlayerData() {
         document.getElementById('player-highscore').textContent = currentUser.highest_stage || '-';
         document.getElementById('gold-amount').textContent = currentUser.gold || '-';
         
-        // Get player stats - TABLE IS 'player_stats' (correct)
+        // Get player stats
         const { data: stats, error: statsError } = await supabase
             .from('player_stats')
             .select('*')
@@ -1244,7 +1244,7 @@ async function loadPlayerData() {
             return;
         }
         
-        // Get player equipment - TABLES ARE CORRECT
+        // Get player equipment
         const { data: equipment, error: equipmentError } = await supabase
             .from('player_equipment')
             .select(`
@@ -1275,7 +1275,7 @@ async function loadPlayerData() {
                 player_equipment_id: item.id,
                 is_equipped: item.is_equipped,
                 player_equipment_data: item
-            })).filter(item => item.id);
+            })).filter(item => item.id); // Filter out null items
         }
         
         console.log('Player data loaded successfully');
@@ -1300,13 +1300,13 @@ function updatePlayerAvatar() {
     pfp.innerHTML = `<span style="font-size: 20px; font-weight: bold;">${initials}</span>`;
 }
 
-// Load current active run - CORRECTED TABLE NAMES
+// Load current active run
 async function loadCurrentRun() {
     try {
         if (!currentUser) return;
         
         const { data: runs, error } = await supabase
-            .from('run')  // CHANGED FROM 'runs' TO 'run'
+            .from('runs')
             .select(`
                 *,
                 monster:current_monster (*)
@@ -1316,7 +1316,7 @@ async function loadCurrentRun() {
             .limit(1);
         
         if (error) {
-            console.error('Error loading run:', error);
+            console.error('Error loading runs:', error);
             return;
         }
         
@@ -1344,20 +1344,20 @@ async function loadCurrentRun() {
     }
 }
 
-// Load gacha banners - CORRECTED TABLE NAMES
+// Load gacha banners
 async function loadGachaBanners() {
     try {
         const { data: banners, error } = await supabase
-            .from('gacha_banner')  // CHANGED FROM 'gacha_banners' TO 'gacha_banner'
+            .from('gacha_banners')
             .select(`
                 *,
-                gacha_rate (*)  // CHANGED FROM 'gacha_rates' TO 'gacha_rate'
+                gacha_rates (*)
             `)
             .eq('is_active', true)
             .order('created_at', { ascending: false });
         
         if (error) {
-            console.error('Error loading gacha banner:', error);
+            console.error('Error loading gacha banners:', error);
             return;
         }
         
@@ -1377,19 +1377,20 @@ async function loadGachaBanners() {
     } catch (error) {
         console.error('Error loading gacha banners:', error);
         document.getElementById('active-banner').innerHTML = `
-            <div class="loading">-</div>
+            <div class="loading">-
+            </div>
         `;
     }
 }
 
-// Load leaderboard - CORRECTED TABLE NAMES
+// Load leaderboard
 async function loadLeaderboard() {
     try {
         const { data: leaderboard, error } = await supabase
-            .from('leaderboard')  // THIS TABLE IS CORRECT
+            .from('leaderboard')
             .select(`
                 *,
-                user:user_id (username)
+                user:users (username)
             `)
             .order('highest_stage', { ascending: false })
             .order('monsters_defeated', { ascending: false })
@@ -1572,7 +1573,7 @@ function updateBannerDisplay() {
     const bannerDiv = document.getElementById('active-banner');
     
     // Get featured items from rates (simplified)
-    const featuredRates = banner.gacha_rate?.filter(rate => 
+    const featuredRates = banner.gacha_rates?.filter(rate => 
         ['epic', 'legendary'].includes(rate.rarity?.toLowerCase())
     ) || [];
     
@@ -1828,7 +1829,7 @@ async function openGachaModal() {
     } else {
         let bannersHTML = '';
         gachaBanners.forEach(banner => {
-            const rates = banner.gacha_rate || [];
+            const rates = banner.gacha_rates || [];
             let ratesHTML = '';
             
             if (rates.length > 0) {
@@ -2011,7 +2012,7 @@ function equipSlot(slot) {
     }
 }
 
-// Start new run - CORRECTED TABLE NAMES
+// Start new run
 async function startNewRun() {
     try {
         if (!currentUser) return;
@@ -2019,7 +2020,7 @@ async function startNewRun() {
         await withLoading(async () => {
             // Get first monster for stage 1
             const { data: monsters, error: monstersError } = await supabase
-                .from('monster')  // CHANGED FROM 'monsters' TO 'monster'
+                .from('monsters')
                 .select('*')
                 .eq('stage', 1)
                 .limit(1);
@@ -2044,7 +2045,7 @@ async function startNewRun() {
             
             // Create new run
             const { data: run, error: runError } = await supabase
-                .from('run')  // CHANGED FROM 'runs' TO 'run'
+                .from('runs')
                 .insert([{
                     user_id: currentUser.id,
                     current_stage: 1,
@@ -2103,14 +2104,14 @@ function continueRun() {
     }, 1000);
 }
 
-// Abandon run - CORRECTED TABLE NAME
+// Abandon run
 async function abandonRun() {
     if (!currentRun || !confirm('Are you sure you want to abandon this run? You will lose all progress.')) return;
     
     try {
         await withLoading(async () => {
             const { error } = await supabase
-                .from('run')  // CHANGED FROM 'runs' TO 'run'
+                .from('runs')
                 .delete()
                 .eq('id', currentRun.id);
             
@@ -2127,7 +2128,7 @@ async function abandonRun() {
     }
 }
 
-// Pull gacha - CORRECTED TABLE NAMES
+// Pull gacha
 async function pullGacha(bannerId, multi = false) {
     try {
         if (!currentUser) return;
@@ -2150,7 +2151,7 @@ async function pullGacha(bannerId, multi = false) {
             // Deduct gold
             const newGold = currentUser.gold - cost;
             const { error: goldError } = await supabase
-                .from('user')  // CHANGED FROM 'users' TO 'user'
+                .from('users')
                 .update({ gold: newGold })
                 .eq('id', currentUser.id);
             
@@ -2161,7 +2162,7 @@ async function pullGacha(bannerId, multi = false) {
             
             // Get gacha rates for this banner
             const { data: rates, error: ratesError } = await supabase
-                .from('gacha_rate')  // CHANGED FROM 'gacha_rates' TO 'gacha_rate'
+                .from('gacha_rates')
                 .select('*')
                 .eq('banner_id', bannerId);
             
@@ -2192,7 +2193,7 @@ async function pullGacha(bannerId, multi = false) {
                 
                 // Get random equipment of selected rarity
                 const { data: equipment, error: equipmentError } = await supabase
-                    .from('equipment')  // THIS TABLE IS CORRECT
+                    .from('equipment')
                     .select('*')
                     .eq('rarity', selectedRarity)
                     .limit(1);
@@ -2203,7 +2204,7 @@ async function pullGacha(bannerId, multi = false) {
                     
                     // Add to player inventory
                     const { error: inventoryError } = await supabase
-                        .from('player_equipment')  // THIS TABLE IS CORRECT
+                        .from('player_equipment')
                         .insert([{
                             user_id: currentUser.id,
                             equipment_id: item.id,
