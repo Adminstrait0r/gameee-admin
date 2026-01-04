@@ -942,14 +942,21 @@ let gameState = {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Initializing RPG Battle...');
     
-    // Setup event listeners
-    setupEventListeners();
-    
-    // Load game data
-    await loadGameData();
-    
-    // Initialize flasks
-    document.getElementById('flask-count').textContent = gameState.healthFlasks;
+    try {
+        // Setup event listeners
+        setupEventListeners();
+        
+        // Load game data
+        await loadGameData();
+        
+        // Initialize flasks
+        document.getElementById('flask-count').textContent = gameState.healthFlasks;
+        
+        console.log('Game initialization complete');
+    } catch (error) {
+        console.error('Failed to initialize game:', error);
+        showError('Initialization Error', 'Failed to initialize game. Please check console for details.');
+    }
 });
 
 // Setup event listeners
@@ -963,15 +970,177 @@ function setupEventListeners() {
             selectAnswer(index);
         });
     });
+}
+
+// Test database connection
+async function testDatabaseConnection() {
+    try {
+        console.log('Testing database connection...');
+        
+        // Try to query a simple table
+        const { data, error } = await supabase
+            .from('users')
+            .select('count', { count: 'exact', head: true })
+            .limit(1);
+        
+        if (error) {
+            console.error('Database connection test failed:', error);
+            return false;
+        }
+        
+        console.log('Database connection successful');
+        return true;
+        
+    } catch (error) {
+        console.error('Database connection test failed:', error);
+        return false;
+    }
+}
+
+// Create default data if needed
+async function createDefaultData() {
+    console.log('Checking for default data...');
     
-    // Flask click
-    document.getElementById('health-flask').addEventListener('click', useHealthFlask);
+    try {
+        // Check if users exist
+        const { data: users, error: usersError } = await supabase
+            .from('users')
+            .select('id')
+            .limit(1);
+        
+        if (usersError) throw usersError;
+        
+        // If no users, create a default user
+        if (!users || users.length === 0) {
+            console.log('Creating default user...');
+            const { data: newUser, error: createUserError } = await supabase
+                .from('users')
+                .insert([
+                    {
+                        username: 'Player1',
+                        highest_stage: 1,
+                        gold: 100
+                    }
+                ])
+                .select()
+                .single();
+            
+            if (createUserError) throw createUserError;
+            console.log('Default user created:', newUser.username);
+        }
+        
+        // Check if monsters exist
+        const { data: monsters, error: monstersError } = await supabase
+            .from('monsters')
+            .select('id')
+            .limit(1);
+        
+        if (monstersError) throw monstersError;
+        
+        // If no monsters, create a default monster
+        if (!monsters || monsters.length === 0) {
+            console.log('Creating default monster...');
+            const { data: newMonster, error: createMonsterError } = await supabase
+                .from('monsters')
+                .insert([
+                    {
+                        name: 'Goblin',
+                        stage: 1,
+                        hp: 50,
+                        damage: 8,
+                        defense: 2,
+                        timer_seconds: 30,
+                        category: 'Creature',
+                        gold_reward: 10
+                    }
+                ])
+                .select()
+                .single();
+            
+            if (createMonsterError) throw createMonsterError;
+            console.log('Default monster created:', newMonster.name);
+        }
+        
+        // Check if questions exist
+        const { data: questions, error: questionsError } = await supabase
+            .from('questions')
+            .select('id')
+            .limit(1);
+        
+        if (questionsError) throw questionsError;
+        
+        // If no questions, create a default question
+        if (!questions || questions.length === 0) {
+            console.log('Creating default question...');
+            const { data: newQuestion, error: createQuestionError } = await supabase
+                .from('questions')
+                .insert([
+                    {
+                        category: 'Math',
+                        difficulty: 'Easy',
+                        question_text: 'What is 2 + 2?',
+                        timer_seconds: 30
+                    }
+                ])
+                .select()
+                .single();
+            
+            if (createQuestionError) throw createQuestionError;
+            
+            // Create default options for the question
+            console.log('Creating default question options...');
+            const { error: optionsError } = await supabase
+                .from('question_options')
+                .insert([
+                    {
+                        question_id: newQuestion.id,
+                        option_text: '4',
+                        is_correct: true
+                    },
+                    {
+                        question_id: newQuestion.id,
+                        option_text: '5',
+                        is_correct: false
+                    },
+                    {
+                        question_id: newQuestion.id,
+                        option_text: '3',
+                        is_correct: false
+                    },
+                    {
+                        question_id: newQuestion.id,
+                        option_text: '6',
+                        is_correct: false
+                    }
+                ]);
+            
+            if (optionsError) throw optionsError;
+            console.log('Default question and options created');
+        }
+        
+        console.log('Default data check complete');
+        return true;
+        
+    } catch (error) {
+        console.error('Error creating default data:', error);
+        return false;
+    }
 }
 
 // Load game data from Supabase
 async function loadGameData() {
     try {
         console.log('Loading game data...');
+        
+        // First test database connection
+        const isConnected = await testDatabaseConnection();
+        if (!isConnected) {
+            showError('Database Connection Failed', 'Cannot connect to database. Please check your Supabase configuration.');
+            return;
+        }
+        
+        // Create default data if needed
+        await createDefaultData();
         
         // Get current user
         const { data: users, error: usersError } = await supabase
@@ -982,7 +1151,7 @@ async function loadGameData() {
         
         if (usersError) {
             console.error('Error loading users:', usersError);
-            showError('Database Error', 'Could not load user data. Please check database connection.');
+            showError('Database Error', 'Could not load user data: ' + usersError.message);
             return;
         }
         
@@ -999,20 +1168,20 @@ async function loadGameData() {
         document.getElementById('player-highscore').textContent = gameState.currentUser.highest_stage || 1;
         document.getElementById('gold-amount').textContent = gameState.currentUser.gold || 0;
         
-        // Get player stats
+        // Get or create player stats
         await getOrCreatePlayerStats();
         
         // Get current run
         const { data: runs, error: runsError } = await supabase
             .from('runs')
-            .select(`*, monster:current_monster (*)`)
+            .select('*')
             .eq('user_id', gameState.currentUser.id)
             .order('created_at', { ascending: false })
             .limit(1);
         
         if (runsError) {
             console.error('Error loading runs:', runsError);
-            showError('Database Error', 'Could not load game data.');
+            showError('Database Error', 'Could not load game runs: ' + runsError.message);
             return;
         }
         
@@ -1042,7 +1211,7 @@ async function loadGameData() {
         }
         
         if (!gameState.currentMonster) {
-            showError('No Monsters', 'Please add monsters to the database in the admin panel.');
+            showError('No Monsters Found', 'Please add monsters to the database in the admin panel.');
             return;
         }
         
@@ -1055,9 +1224,11 @@ async function loadGameData() {
         // Start the game timer
         startTimer();
         
+        console.log('Game data loaded successfully');
+        
     } catch (error) {
         console.error('Error loading game data:', error);
-        showError('Game Error', 'Failed to load game. Please try again.');
+        showError('Game Error', 'Failed to load game: ' + error.message);
     }
 }
 
@@ -1070,14 +1241,14 @@ async function getOrCreatePlayerStats() {
             .eq('user_id', gameState.currentUser.id)
             .single();
         
-        if (statsError && statsError.code !== 'PGRST116') {
+        if (statsError && statsError.code !== 'PGRST116') { // PGRST116 = no rows returned
             console.error('Error loading player stats:', statsError);
             throw statsError;
         }
         
         if (stats) {
             gameState.playerStats = stats;
-            console.log('Loaded player stats:', stats);
+            console.log('Loaded player stats');
         } else {
             // Create default player stats
             const defaultStats = {
@@ -1094,10 +1265,15 @@ async function getOrCreatePlayerStats() {
                 .select()
                 .single();
             
-            if (createError) throw createError;
-            
-            gameState.playerStats = newStats;
-            console.log('Created default player stats:', newStats);
+            if (createError) {
+                console.error('Error creating player stats:', createError);
+                // Use in-memory stats if database insert fails
+                gameState.playerStats = defaultStats;
+                console.log('Using in-memory player stats');
+            } else {
+                gameState.playerStats = newStats;
+                console.log('Created default player stats');
+            }
         }
         
     } catch (error) {
@@ -1138,11 +1314,22 @@ async function createNewRun() {
             if (anyError) throw anyError;
             
             if (!anyMonsters || anyMonsters.length === 0) {
-                showError('No Monsters', 'Please add monsters to the database in the admin panel.');
-                return;
+                // Create emergency monster
+                monsters = [{
+                    id: 'emergency-monster',
+                    name: 'Training Dummy',
+                    stage: 1,
+                    hp: 30,
+                    damage: 5,
+                    defense: 0,
+                    timer_seconds: 30,
+                    category: 'Training',
+                    gold_reward: 5
+                }];
+                console.log('Using emergency monster');
+            } else {
+                monsters = anyMonsters;
             }
-            
-            monsters = anyMonsters;
         }
         
         const monster = monsters[0];
@@ -1150,37 +1337,86 @@ async function createNewRun() {
         
         console.log('Creating run with monster:', monster.name);
         
-        // Create run
-        const { data: run, error: runError } = await supabase
-            .from('runs')
-            .insert([{
+        // Create run (if monster has an id, use it, otherwise skip database insert)
+        if (monster.id && monster.id !== 'emergency-monster') {
+            const { data: run, error: runError } = await supabase
+                .from('runs')
+                .insert([{
+                    user_id: gameState.currentUser.id,
+                    current_stage: 1,
+                    current_monster: monster.id,
+                    player_hp: playerHP,
+                    monster_hp: monster.hp,
+                    streak: 0,
+                    started_at: new Date().toISOString()
+                }])
+                .select()
+                .single();
+            
+            if (runError) throw runError;
+            
+            gameState.currentRun = run;
+        } else {
+            // Create in-memory run for emergency monster
+            gameState.currentRun = {
+                id: 'emergency-run',
                 user_id: gameState.currentUser.id,
                 current_stage: 1,
-                current_monster: monster.id,
+                current_monster: null,
                 player_hp: playerHP,
                 monster_hp: monster.hp,
                 streak: 0,
                 started_at: new Date().toISOString()
-            }])
-            .select()
-            .single();
+            };
+            console.log('Created in-memory emergency run');
+        }
         
-        if (runError) throw runError;
-        
-        gameState.currentRun = run;
-        await loadMonster(monster.id);
+        gameState.currentMonster = monster;
         updateRunDisplay();
+        updateMonsterDisplay();
         
         addToCombatLog('New run started!', 'info');
         
     } catch (error) {
         console.error('Error creating new run:', error);
-        showError('Run Creation Failed', 'Could not start new game. Please try again.');
+        // Create emergency run
+        gameState.currentRun = {
+            id: 'emergency-run-fallback',
+            user_id: gameState.currentUser?.id || 'unknown',
+            current_stage: 1,
+            current_monster: null,
+            player_hp: 100,
+            monster_hp: 30,
+            streak: 0,
+            started_at: new Date().toISOString()
+        };
+        
+        gameState.currentMonster = {
+            id: 'emergency-monster-fallback',
+            name: 'Training Dummy',
+            stage: 1,
+            hp: 30,
+            damage: 5,
+            defense: 0,
+            timer_seconds: 30,
+            category: 'Training',
+            gold_reward: 5
+        };
+        
+        updateRunDisplay();
+        updateMonsterDisplay();
+        addToCombatLog('Emergency run started (database error)', 'info');
     }
 }
 
 // Load monster data
 async function loadMonster(monsterId) {
+    if (!monsterId) {
+        console.log('No monster ID provided');
+        gameState.currentMonster = null;
+        return;
+    }
+    
     try {
         console.log('Loading monster with ID:', monsterId);
         const { data: monster, error } = await supabase
@@ -1189,13 +1425,17 @@ async function loadMonster(monsterId) {
             .eq('id', monsterId)
             .single();
         
-        if (error) throw error;
+        if (error) {
+            console.error('Error loading monster:', error);
+            gameState.currentMonster = null;
+            return;
+        }
         
         gameState.currentMonster = monster;
         updateMonsterDisplay();
         
     } catch (error) {
-        console.error('Error loading monster:', error);
+        console.error('Error in loadMonster:', error);
         gameState.currentMonster = null;
     }
 }
@@ -1209,7 +1449,10 @@ async function loadAnyMonster() {
             .order('stage', { ascending: true })
             .limit(1);
         
-        if (error) throw error;
+        if (error) {
+            console.error('Error loading any monster:', error);
+            return false;
+        }
         
         if (monsters && monsters.length > 0) {
             gameState.currentMonster = monsters[0];
@@ -1219,7 +1462,7 @@ async function loadAnyMonster() {
         }
         return false;
     } catch (error) {
-        console.error('Error loading any monster:', error);
+        console.error('Error in loadAnyMonster:', error);
         return false;
     }
 }
@@ -1228,6 +1471,7 @@ async function loadAnyMonster() {
 async function loadMonsterQuestions(monsterId) {
     try {
         console.log('Loading questions for monster:', monsterId);
+        
         // Get all questions assigned to this monster
         const { data: monsterQuestions, error } = await supabase
             .from('monster_questions')
@@ -1269,15 +1513,22 @@ async function loadMonsterForStage(stage) {
             .eq('stage', stage)
             .limit(1);
         
-        if (error) throw error;
+        if (error) {
+            console.error('Error loading monster for stage:', error);
+            return;
+        }
         
         if (monsters && monsters.length > 0) {
             gameState.currentMonster = monsters[0];
             updateMonsterDisplay();
+        } else {
+            console.log(`No monster found for stage ${stage}`);
+            gameState.currentMonster = null;
         }
         
     } catch (error) {
-        console.error('Error loading monster for stage:', error);
+        console.error('Error in loadMonsterForStage:', error);
+        gameState.currentMonster = null;
     }
 }
 
@@ -1317,42 +1568,27 @@ async function loadQuestion() {
             // Fallback: Get random question
             console.log('Using fallback: random question');
             
-            // Get random question, optionally filtered by monster category
-            let query = supabase.from('questions').select('*');
-            
-            // Filter by monster category if available
-            if (gameState.currentMonster?.category) {
-                query = query.eq('category', gameState.currentMonster.category);
-            }
-            
-            const { data: questions, error: questionsError } = await query;
+            // Get random question
+            const { data: questions, error: questionsError } = await supabase
+                .from('questions')
+                .select('*');
             
             if (questionsError) throw questionsError;
             
             if (!questions || questions.length === 0) {
-                // Fallback to any question
-                const { data: allQuestions, error: allError } = await supabase
-                    .from('questions')
-                    .select('*');
-                
-                if (allError) throw allError;
-                
-                if (!allQuestions || allQuestions.length === 0) {
-                    // Create dummy question
-                    question = {
-                        id: 'dummy',
-                        question_text: 'What is 2 + 2?',
-                        category: 'Math',
-                        difficulty: 'Easy',
-                        timer_seconds: 30
-                    };
-                } else {
-                    const randomIndex = Math.floor(Math.random() * allQuestions.length);
-                    question = allQuestions[randomIndex];
-                }
+                // Create dummy question
+                question = {
+                    id: 'dummy',
+                    question_text: 'What is 2 + 2?',
+                    category: 'Math',
+                    difficulty: 'Easy',
+                    timer_seconds: 30
+                };
+                console.log('Using dummy question');
             } else {
                 const randomIndex = Math.floor(Math.random() * questions.length);
                 question = questions[randomIndex];
+                console.log('Loaded random question:', question.category);
             }
         }
         
@@ -1381,6 +1617,7 @@ async function loadQuestion() {
                     { id: 'dummy3', option_text: '3', is_correct: false, image_url: null },
                     { id: 'dummy4', option_text: '6', is_correct: false, image_url: null }
                 ];
+                console.log('Using dummy options');
             } else {
                 options = optionsData || [];
                 
@@ -1678,17 +1915,19 @@ async function processCombat(isCorrect) {
             // Increase streak
             gameState.streak++;
             
-            // Update run in database
-            const { error: updateError } = await supabase
-                .from('runs')
-                .update({
-                    monster_hp: newMonsterHP,
-                    player_hp: newPlayerHP,
-                    streak: gameState.streak
-                })
-                .eq('id', gameState.currentRun.id);
-            
-            if (updateError) throw updateError;
+            // Update run in database if it's not an emergency run
+            if (gameState.currentRun.id && !gameState.currentRun.id.includes('emergency')) {
+                const { error: updateError } = await supabase
+                    .from('runs')
+                    .update({
+                        monster_hp: newMonsterHP,
+                        player_hp: newPlayerHP,
+                        streak: gameState.streak
+                    })
+                    .eq('id', gameState.currentRun.id);
+                
+                if (updateError) throw updateError;
+            }
             
             // Update local state
             gameState.currentRun.monster_hp = newMonsterHP;
@@ -1721,16 +1960,18 @@ async function processCombat(isCorrect) {
             // Update player HP
             let newPlayerHP = gameState.currentRun.player_hp - damageToPlayer;
             
-            // Update run in database
-            const { error: updateError } = await supabase
-                .from('runs')
-                .update({
-                    player_hp: newPlayerHP,
-                    streak: 0
-                })
-                .eq('id', gameState.currentRun.id);
-            
-            if (updateError) throw updateError;
+            // Update run in database if it's not an emergency run
+            if (gameState.currentRun.id && !gameState.currentRun.id.includes('emergency')) {
+                const { error: updateError } = await supabase
+                    .from('runs')
+                    .update({
+                        player_hp: newPlayerHP,
+                        streak: 0
+                    })
+                    .eq('id', gameState.currentRun.id);
+                
+                if (updateError) throw updateError;
+            }
             
             // Update local state
             gameState.currentRun.player_hp = newPlayerHP;
@@ -1875,22 +2116,26 @@ function closeStageClearModal() {
 // Show game over
 async function showGameOver() {
     try {
-        // Update user gold
-        const newGold = (gameState.currentUser.gold || 0) + gameState.goldEarned;
-        
-        await supabase
-            .from('users')
-            .update({ 
-                gold: newGold,
-                highest_stage: Math.max(gameState.currentUser.highest_stage || 0, gameState.currentRun.current_stage)
-            })
-            .eq('id', gameState.currentUser.id);
-        
-        // Delete the run
-        await supabase
-            .from('runs')
-            .delete()
-            .eq('id', gameState.currentRun.id);
+        // Update user gold if not emergency
+        if (gameState.currentUser && gameState.currentUser.id && !gameState.currentUser.id.includes('emergency')) {
+            const newGold = (gameState.currentUser.gold || 0) + gameState.goldEarned;
+            
+            await supabase
+                .from('users')
+                .update({ 
+                    gold: newGold,
+                    highest_stage: Math.max(gameState.currentUser.highest_stage || 0, gameState.currentRun.current_stage)
+                })
+                .eq('id', gameState.currentUser.id);
+            
+            // Delete the run if it exists in database
+            if (gameState.currentRun.id && !gameState.currentRun.id.includes('emergency')) {
+                await supabase
+                    .from('runs')
+                    .delete()
+                    .eq('id', gameState.currentRun.id);
+            }
+        }
         
         const modal = document.getElementById('gameover-modal');
         
@@ -1903,6 +2148,13 @@ async function showGameOver() {
         
     } catch (error) {
         console.error('Error in game over:', error);
+        // Still show game over modal even if database update fails
+        const modal = document.getElementById('gameover-modal');
+        document.getElementById('gameover-details').textContent = 
+            `Stage reached: ${gameState.currentRun.current_stage}`;
+        document.getElementById('gameover-gold').textContent = 
+            `Gold earned: ${gameState.goldEarned}`;
+        modal.classList.add('active');
     }
 }
 
@@ -1946,22 +2198,26 @@ async function nextStage() {
             // No more stages - victory!
             addToCombatLog('No more monsters! You win!', 'info');
             
-            // Update user with final gold
-            const newGold = (gameState.currentUser.gold || 0) + gameState.goldEarned;
-            
-            await supabase
-                .from('users')
-                .update({ 
-                    gold: newGold,
-                    highest_stage: Math.max(gameState.currentUser.highest_stage || 0, gameState.currentRun.current_stage)
-                })
-                .eq('id', gameState.currentUser.id);
-            
-            // Delete run
-            await supabase
-                .from('runs')
-                .delete()
-                .eq('id', gameState.currentRun.id);
+            // Update user with final gold if not emergency
+            if (gameState.currentUser && gameState.currentUser.id && !gameState.currentUser.id.includes('emergency')) {
+                const newGold = (gameState.currentUser.gold || 0) + gameState.goldEarned;
+                
+                await supabase
+                    .from('users')
+                    .update({ 
+                        gold: newGold,
+                        highest_stage: Math.max(gameState.currentUser.highest_stage || 0, gameState.currentRun.current_stage)
+                    })
+                    .eq('id', gameState.currentUser.id);
+                
+                // Delete run
+                if (gameState.currentRun.id && !gameState.currentRun.id.includes('emergency')) {
+                    await supabase
+                        .from('runs')
+                        .delete()
+                        .eq('id', gameState.currentRun.id);
+                }
+            }
             
             alert('Congratulations! You have completed all stages!');
             window.location.reload();
@@ -1970,33 +2226,38 @@ async function nextStage() {
         
         const monster = monsters[0];
         
-        // Update run to next stage
-        const { error: updateError } = await supabase
-            .from('runs')
-            .update({
-                current_stage: nextStage,
-                current_monster: monster.id,
-                monster_hp: monster.hp
-            })
-            .eq('id', gameState.currentRun.id);
-        
-        if (updateError) throw updateError;
+        // Update run to next stage if not emergency
+        if (gameState.currentRun.id && !gameState.currentRun.id.includes('emergency')) {
+            const { error: updateError } = await supabase
+                .from('runs')
+                .update({
+                    current_stage: nextStage,
+                    current_monster: monster.id,
+                    monster_hp: monster.hp
+                })
+                .eq('id', gameState.currentRun.id);
+            
+            if (updateError) throw updateError;
+        }
         
         // Update local state
         gameState.currentRun.current_stage = nextStage;
         gameState.currentRun.current_monster = monster.id;
         gameState.currentRun.monster_hp = monster.hp;
         
-        // Update gold in user
-        const newGold = (gameState.currentUser.gold || 0) + gameState.goldEarned;
+        // Update gold in user if not emergency
+        if (gameState.currentUser && gameState.currentUser.id && !gameState.currentUser.id.includes('emergency')) {
+            const newGold = (gameState.currentUser.gold || 0) + gameState.goldEarned;
+            
+            await supabase
+                .from('users')
+                .update({ gold: newGold })
+                .eq('id', gameState.currentUser.id);
+            
+            document.getElementById('gold-amount').textContent = newGold;
+            gameState.currentUser.gold = newGold;
+        }
         
-        await supabase
-            .from('users')
-            .update({ gold: newGold })
-            .eq('id', gameState.currentUser.id);
-        
-        document.getElementById('gold-amount').textContent = newGold;
-        gameState.currentUser.gold = newGold;
         gameState.goldEarned = 0;
         
         // Reset question cycling
@@ -2025,8 +2286,8 @@ function returnToLobby() {
 // Restart run
 async function restartRun() {
     try {
-        // Delete current run
-        if (gameState.currentRun && gameState.currentRun.id) {
+        // Delete current run if it exists in database
+        if (gameState.currentRun && gameState.currentRun.id && !gameState.currentRun.id.includes('emergency')) {
             await supabase
                 .from('runs')
                 .delete()
@@ -2057,26 +2318,45 @@ function useHealthFlask() {
     const healAmount = Math.floor(maxHP * 0.5);
     const newHP = Math.min(maxHP, gameState.currentRun.player_hp + healAmount);
     
-    // Update run
-    supabase
-        .from('runs')
-        .update({ player_hp: newHP })
-        .eq('id', gameState.currentRun.id)
-        .then(() => {
-            gameState.currentRun.player_hp = newHP;
-            updateRunDisplay();
-            addToCombatLog(`Used health flask! Healed ${healAmount} HP`, 'heal');
-            
-            // Update flask count
-            document.getElementById('flask-count').textContent = gameState.healthFlasks;
-            
-            if (gameState.healthFlasks <= 0) {
-                document.getElementById('health-flask').classList.add('disabled');
-            }
-        })
-        .catch(error => {
-            console.error('Error using health flask:', error);
-        });
+    // Update run if not emergency
+    if (gameState.currentRun.id && !gameState.currentRun.id.includes('emergency')) {
+        supabase
+            .from('runs')
+            .update({ player_hp: newHP })
+            .eq('id', gameState.currentRun.id)
+            .then(() => {
+                gameState.currentRun.player_hp = newHP;
+                updateRunDisplay();
+                addToCombatLog(`Used health flask! Healed ${healAmount} HP`, 'heal');
+                
+                // Update flask count
+                document.getElementById('flask-count').textContent = gameState.healthFlasks;
+                
+                if (gameState.healthFlasks <= 0) {
+                    document.getElementById('health-flask').classList.add('disabled');
+                }
+            })
+            .catch(error => {
+                console.error('Error using health flask:', error);
+                // Still update local state
+                gameState.currentRun.player_hp = newHP;
+                updateRunDisplay();
+                addToCombatLog(`Used health flask! Healed ${healAmount} HP`, 'heal');
+                document.getElementById('flask-count').textContent = gameState.healthFlasks;
+                if (gameState.healthFlasks <= 0) {
+                    document.getElementById('health-flask').classList.add('disabled');
+                }
+            });
+    } else {
+        // Update local state for emergency runs
+        gameState.currentRun.player_hp = newHP;
+        updateRunDisplay();
+        addToCombatLog(`Used health flask! Healed ${healAmount} HP`, 'heal');
+        document.getElementById('flask-count').textContent = gameState.healthFlasks;
+        if (gameState.healthFlasks <= 0) {
+            document.getElementById('health-flask').classList.add('disabled');
+        }
+    }
 }
 
 // Toggle combat log
