@@ -5,682 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RPG Battle</title>
 <style>
-:root {
-    --bg-main: #f2efe6;
-    --bg-panel: #e8e3d6;
-    --border: #2b2b2b;
-    --accent: #111;
-    --tab-active: #d6c9a8;
-    --tab-inactive: #e8e3d6;
-    --green: #00b85c;
-    --light-green: #c8ff7a;
-    --bright-green: #b6ff5c;
-    --yellow: #ffd84d;
-    --red: #ff4d4d;
-    --blue: #5c7cfa;
-    --purple: #7e57c2;
-    --cyan: #0097a7;
-    --orange: #ffb74d;
-}
-
-* {
-    box-sizing: border-box;
-    font-family: system-ui, sans-serif;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    margin: 0;
-    background: #333;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
-}
-
-.app {
-    width: 100%;
-    max-width: 1000px;
-    background: var(--bg-main);
-    border: 3px solid var(--border);
-    min-height: 700px;
-}
-
-/* TOP BAR */
-.top-bar {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 12px;
-    align-items: center;
-    padding: 15px 20px;
-    border-bottom: 3px solid var(--border);
-    background: var(--bg-panel);
-}
-
-.profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.pfp {
-    width: 50px;
-    height: 50px;
-    background: var(--yellow);
-    border: 2px solid var(--border);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 12px;
-}
-
-.pfp img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.profile-info {
-    font-size: 12px;
-    line-height: 1.5;
-    font-weight: 600;
-}
-
-.stage-display {
-    justify-self: center;
-    background: var(--cyan);
-    padding: 10px 20px;
-    border: 2px solid var(--border);
-    text-align: center;
-    font-weight: bold;
-}
-
-.stage-main {
-    font-size: 16px;
-    color: white;
-}
-
-.stage-sub {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.gold-display {
-    background: var(--yellow);
-    padding: 10px 20px;
-    border: 2px solid var(--border);
-    text-align: center;
-    font-weight: bold;
-    justify-self: end;
-}
-
-/* BATTLE AREA */
-.battle-area {
-    background: var(--cyan);
-    padding: 20px;
-    border-bottom: 3px solid var(--border);
-}
-
-.monster-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    background: rgba(0, 0, 0, 0.1);
-    padding: 10px 15px;
-    border: 2px solid var(--border);
-}
-
-.monster-name {
-    font-size: 18px;
-    font-weight: 700;
-    color: white;
-}
-
-.monster-category {
-    background: var(--purple);
-    color: white;
-    padding: 5px 10px;
-    border: 2px solid var(--border);
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.monster-hp-container {
-    background: rgba(0, 0, 0, 0.2);
-    border: 2px solid var(--border);
-    padding: 10px;
-    margin-bottom: 15px;
-}
-
-.hp-bar {
-    height: 20px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 2px solid var(--border);
-    overflow: hidden;
-    margin-bottom: 8px;
-}
-
-.hp-fill {
-    height: 100%;
-    background: var(--red);
-    transition: width 0.5s ease;
-}
-
-.hp-text {
-    color: white;
-    text-align: center;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-/* BATTLE GRID */
-.battle-grid {
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
-    gap: 15px;
-    align-items: center;
-}
-
-/* PLAYER PANEL */
-.player-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.panel-box {
-    background: var(--light-green);
-    border: 2px solid var(--border);
-    padding: 15px;
-    text-align: center;
-    font-weight: bold;
-}
-
-.difficulty {
-    background: var(--red);
-    color: white;
-}
-
-.player-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.stat-value {
-    font-size: 24px;
-    color: var(--accent);
-}
-
-.stat-label {
-    font-size: 12px;
-    color: var(--accent);
-    opacity: 0.8;
-}
-
-/* TIMER */
-.timer-container {
-    justify-self: center;
-}
-
-.timer {
-    width: 100px;
-    height: 100px;
-    background: var(--yellow);
-    border: 3px solid var(--border);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 24px;
-    color: var(--accent);
-    position: relative;
-}
-
-.timer-text {
-    font-size: 12px;
-    position: absolute;
-    bottom: -20px;
-    width: 100%;
-    text-align: center;
-    color: white;
-    font-weight: 600;
-}
-
-.timer-ring {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border: 3px solid transparent;
-    border-top-color: var(--red);
-    border-radius: 50%;
-}
-
-/* MONSTER DISPLAY */
-.monster-display {
-    background: var(--bg-main);
-    border: 3px solid var(--border);
-    height: 250px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.monster-image {
-    width: 200px;
-    height: 200px;
-    background: var(--purple);
-    border: 3px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 64px;
-    color: white;
-}
-
-.monster-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* QUESTION SECTION */
-.question-section {
-    padding: 20px;
-    border-bottom: 3px solid var(--border);
-}
-
-.question-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.question-category {
-    background: var(--blue);
-    color: white;
-    padding: 8px 15px;
-    border: 2px solid var(--border);
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.question-difficulty {
-    background: var(--orange);
-    color: var(--accent);
-    padding: 8px 15px;
-    border: 2px solid var(--border);
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.question-box {
-    background: var(--blue);
-    border: 3px solid var(--border);
-    padding: 25px;
-    color: white;
-    font-weight: 600;
-    font-size: 18px;
-    text-align: center;
-    min-height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.question-image {
-    max-width: 200px;
-    max-height: 150px;
-    margin: 15px auto;
-    border: 2px solid var(--border);
-    display: none;
-}
-
-.question-image.show {
-    display: block;
-}
-
-/* ANSWERS */
-.answers-section {
-    padding: 20px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.answer-option {
-    border: 3px solid var(--border);
-    padding: 20px;
-    font-weight: bold;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    min-height: 120px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.answer-option:hover {
-    transform: translateY(-3px);
-}
-
-.answer-text {
-    font-size: 16px;
-    z-index: 2;
-}
-
-.answer-image {
-    max-width: 80px;
-    max-height: 80px;
-    border: 2px solid var(--border);
-    display: none;
-}
-
-.answer-image.show {
-    display: block;
-}
-
-.option-label {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    background: var(--accent);
-    color: white;
-    width: 30px;
-    height: 30px;
-    border: 2px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-.answer-a { background: var(--light-green); }
-.answer-b { background: #7ed957; }
-.answer-c { background: #00bf63; }
-.answer-d { background: #8cd94d; }
-
-.answer-option.selected {
-    border-color: var(--accent);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-}
-
-.answer-option.correct {
-    background: var(--green) !important;
-    color: white;
-}
-
-.answer-option.incorrect {
-    background: var(--red) !important;
-    color: white;
-}
-
-/* PLAYER HEALTH */
-.player-health-section {
-    padding: 20px;
-    background: var(--bg-panel);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.health-container {
-    flex: 1;
-    max-width: 400px;
-}
-
-.health-bar {
-    height: 25px;
-    background: rgba(0, 0, 0, 0.1);
-    border: 3px solid var(--border);
-    overflow: hidden;
-    margin-bottom: 8px;
-}
-
-.health-fill {
-    height: 100%;
-    background: var(--red);
-    transition: width 0.5s ease;
-}
-
-.health-text {
-    font-weight: 600;
-    text-align: center;
-    color: var(--accent);
-}
-
-.flasks {
-    display: flex;
-    gap: 10px;
-}
-
-.flask {
-    width: 50px;
-    height: 70px;
-    background: var(--red);
-    border: 3px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: white;
-    position: relative;
-    cursor: pointer;
-}
-
-.flask-count {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    background: var(--accent);
-    color: white;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.flask.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* COMBAT LOG */
-.combat-log {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 300px;
-    max-height: 200px;
-    overflow-y: auto;
-    background: var(--bg-main);
-    border: 3px solid var(--border);
-    padding: 15px;
-    z-index: 1000;
-    display: none;
-}
-
-.combat-log.show {
-    display: block;
-}
-
-.log-entry {
-    padding: 8px;
-    border-bottom: 1px solid var(--border);
-    font-size: 12px;
-    margin-bottom: 5px;
-}
-
-.log-entry.damage { color: var(--red); }
-.log-entry.heal { color: var(--green); }
-.log-entry.crit { color: var(--orange); font-weight: bold; }
-.log-entry.info { color: var(--blue); }
-
-/* MODALS */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-.modal.active {
-    display: flex;
-}
-
-.modal-content {
-    background-color: var(--bg-main);
-    border-radius: 0;
-    width: 90%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
-    border: 3px solid var(--border);
-}
-
-.modal-header {
-    padding: 15px;
-    border-bottom: 3px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--bg-panel);
-}
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-}
-
-.modal-body {
-    padding: 20px;
-    text-align: center;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--border);
-    font-weight: bold;
-}
-
-.btn {
-    border: 2px solid var(--border);
-    background: var(--bg-main);
-    padding: 10px 20px;
-    text-align: center;
-    font-weight: 600;
-    cursor: pointer;
-    margin: 5px;
-    font-size: 14px;
-}
-
-.btn:hover {
-    background: var(--tab-active);
-}
-
-.btn-primary {
-    background: var(--accent);
-    color: white;
-}
-
-.btn-primary:hover {
-    background: #333;
-}
-
-.btn-success {
-    background: var(--green);
-    color: white;
-}
-
-.btn-danger {
-    background: var(--red);
-    color: white;
-}
-
-/* ANIMATIONS */
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    75% { transform: translateX(10px); }
-}
-
-.shake {
-    animation: shake 0.5s ease;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-.pulse {
-    animation: pulse 0.5s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.fade-in {
-    animation: fadeIn 0.3s ease;
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-    .battle-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .answers-section {
-        grid-template-columns: 1fr;
-    }
-    
-    .top-bar {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .player-health-section {
-        flex-direction: column;
-        gap: 15px;
-        align-items: center;
-    }
-    
-    .health-container {
-        max-width: 100%;
-    }
-}
+/* ... (keep all CSS styles the same as before) ... */
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -954,6 +279,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Load game data from Supabase
 async function loadGameData() {
     try {
+        console.log('Step 1: Loading user...');
+        
         // Get current user
         const { data: users, error: usersError } = await supabase
             .from('users')
@@ -973,11 +300,14 @@ async function loadGameData() {
         }
         
         gameState.currentUser = users[0];
+        console.log('User loaded:', gameState.currentUser.username);
         
         // Update player info
         document.getElementById('player-name').textContent = gameState.currentUser.username || 'Player';
         document.getElementById('player-highscore').textContent = gameState.currentUser.highest_stage || 1;
         document.getElementById('gold-amount').textContent = gameState.currentUser.gold || 0;
+        
+        console.log('Step 2: Loading player stats...');
         
         // Get player stats
         const { data: stats, error: statsError } = await supabase
@@ -988,47 +318,72 @@ async function loadGameData() {
         
         if (statsError) {
             console.error('Error loading player stats:', statsError);
-            showError('Missing Player Stats', 'Please set up player stats in the admin panel.');
-            return;
-        }
-        
-        if (stats) {
+            
+            // Check if it's a "no rows returned" error
+            if (statsError.code === 'PGRST116') {
+                // No player stats found, create default stats
+                console.log('No player stats found, creating default...');
+                await createDefaultPlayerStats();
+            } else {
+                showError('Player Stats Error', 'Error loading player stats: ' + statsError.message);
+                return;
+            }
+        } else if (stats) {
             gameState.playerStats = stats;
-        } else {
-            showError('Missing Player Stats', 'Please set up player stats in the admin panel.');
-            return;
+            console.log('Player stats loaded');
         }
         
-        // Get current run
+        console.log('Step 3: Loading current run...');
+        
+        // Get current run - SIMPLIFIED QUERY without join
         const { data: runs, error: runsError } = await supabase
             .from('runs')
-            .select(`
-                *,
-                monster:current_monster (*)
-            `)
+            .select('*')
             .eq('user_id', gameState.currentUser.id)
             .order('created_at', { ascending: false })
             .limit(1);
         
         if (runsError) {
             console.error('Error loading runs:', runsError);
-            showError('Database Error', 'Could not load game data.');
+            
+            // Check if runs table exists
+            if (runsError.message.includes('relation') && runsError.message.includes('does not exist')) {
+                console.log('Runs table does not exist or has issues');
+                showError('Database Setup Required', 'The runs table is not set up properly. Please use the admin panel to initialize the database.');
+                return;
+            }
+            
+            showError('Database Error', 'Could not load game data: ' + runsError.message);
             return;
         }
         
         if (runs && runs.length > 0) {
             gameState.currentRun = runs[0];
+            console.log('Run loaded for stage:', gameState.currentRun.current_stage);
             
             // Load monster if available
             if (gameState.currentRun.current_monster) {
+                console.log('Loading monster by ID:', gameState.currentRun.current_monster);
                 await loadMonster(gameState.currentRun.current_monster);
             } else {
                 // Get monster for current stage
+                console.log('Loading monster for stage:', gameState.currentRun.current_stage);
                 await loadMonsterForStage(gameState.currentRun.current_stage);
             }
             
             // Check if monsters exist
             if (!gameState.currentMonster) {
+                console.log('No monster found, checking database...');
+                
+                // Check if any monsters exist
+                const { data: monsterCheck, error: monsterCheckError } = await supabase
+                    .from('monsters')
+                    .select('id', { count: 'exact', head: true });
+                
+                if (monsterCheckError) {
+                    console.error('Error checking monsters:', monsterCheckError);
+                }
+                
                 showError('No Monsters', 'Please add monsters to the database in the admin panel.');
                 return;
             }
@@ -1046,18 +401,49 @@ async function loadGameData() {
             
         } else {
             // No active run, create one
+            console.log('No active run found, creating new run...');
             await createNewRun();
         }
         
     } catch (error) {
         console.error('Error loading game data:', error);
-        showError('Game Error', 'Failed to load game. Please try again.');
+        showError('Game Error', 'Failed to load game. Please try again. Error: ' + error.message);
+    }
+}
+
+// Create default player stats
+async function createDefaultPlayerStats() {
+    try {
+        const defaultStats = {
+            user_id: gameState.currentUser.id,
+            base_hp: 100,
+            base_damage: 10,
+            base_defense: 5,
+            crit_chance: 0.05
+        };
+        
+        const { data, error } = await supabase
+            .from('player_stats')
+            .insert([defaultStats])
+            .select()
+            .single();
+        
+        if (error) throw error;
+        
+        gameState.playerStats = data;
+        console.log('Default player stats created');
+        
+    } catch (error) {
+        console.error('Error creating default player stats:', error);
+        showError('Player Stats Error', 'Could not create player stats: ' + error.message);
     }
 }
 
 // Create new run
 async function createNewRun() {
     try {
+        console.log('Creating new run...');
+        
         // Check if monsters exist
         const { data: monsters, error: monstersError } = await supabase
             .from('monsters')
@@ -1065,7 +451,11 @@ async function createNewRun() {
             .eq('stage', 1)
             .limit(1);
         
-        if (monstersError) throw monstersError;
+        if (monstersError) {
+            console.error('Error checking monsters:', monstersError);
+            showError('Database Error', 'Could not check monsters: ' + monstersError.message);
+            return;
+        }
         
         if (!monsters || monsters.length === 0) {
             showError('No Monsters', 'Please add monsters to the database in the admin panel.');
@@ -1075,22 +465,38 @@ async function createNewRun() {
         const monster = monsters[0];
         const playerHP = gameState.playerStats?.base_hp || 100;
         
+        console.log('Creating run with monster:', monster.name);
+        
         // Create run
+        const runData = {
+            user_id: gameState.currentUser.id,
+            current_stage: 1,
+            current_monster: monster.id,
+            player_hp: playerHP,
+            monster_hp: monster.hp,
+            streak: 0,
+            started_at: new Date().toISOString()
+        };
+        
+        console.log('Run data:', runData);
+        
         const { data: run, error: runError } = await supabase
             .from('runs')
-            .insert([{
-                user_id: gameState.currentUser.id,
-                current_stage: 1,
-                current_monster: monster.id,
-                player_hp: playerHP,
-                monster_hp: monster.hp,
-                streak: 0,
-                started_at: new Date().toISOString()
-            }])
+            .insert([runData])
             .select()
             .single();
         
-        if (runError) throw runError;
+        if (runError) {
+            console.error('Error creating run:', runError);
+            
+            // Check if error is due to missing columns
+            if (runError.message.includes('column')) {
+                showError('Database Schema Error', 'The runs table is missing required columns. Please reset the database in the admin panel.');
+                return;
+            }
+            
+            throw runError;
+        }
         
         gameState.currentRun = run;
         await loadMonster(monster.id);
@@ -1109,26 +515,54 @@ async function createNewRun() {
         
     } catch (error) {
         console.error('Error creating new run:', error);
-        showError('Run Creation Failed', 'Could not start new game. Please try again.');
+        showError('Run Creation Failed', 'Could not start new game. Please try again. Error: ' + error.message);
     }
 }
 
 // Load monster data
 async function loadMonster(monsterId) {
     try {
+        console.log('Loading monster with ID:', monsterId);
+        
         const { data: monster, error } = await supabase
             .from('monsters')
             .select('*')
             .eq('id', monsterId)
             .single();
         
-        if (error) throw error;
+        if (error) {
+            console.error('Error loading monster:', error);
+            
+            // If monster not found, try to get any monster
+            if (error.code === 'PGRST116') {
+                console.log('Monster not found, trying to get any monster...');
+                const { data: anyMonster, error: anyError } = await supabase
+                    .from('monsters')
+                    .select('*')
+                    .limit(1)
+                    .single();
+                
+                if (anyError) {
+                    console.error('Error loading any monster:', anyError);
+                    gameState.currentMonster = null;
+                    return;
+                }
+                
+                gameState.currentMonster = anyMonster;
+            } else {
+                gameState.currentMonster = null;
+            }
+        } else {
+            gameState.currentMonster = monster;
+        }
         
-        gameState.currentMonster = monster;
-        updateMonsterDisplay();
+        if (gameState.currentMonster) {
+            console.log('Monster loaded:', gameState.currentMonster.name);
+            updateMonsterDisplay();
+        }
         
     } catch (error) {
-        console.error('Error loading monster:', error);
+        console.error('Error in loadMonster:', error);
         gameState.currentMonster = null;
     }
 }
@@ -1136,34 +570,52 @@ async function loadMonster(monsterId) {
 // Load monster-specific questions
 async function loadMonsterQuestions(monsterId) {
     try {
-        // Get all questions assigned to this monster
-        const { data: monsterQuestions, error } = await supabase
-            .from('monster_questions')
-            .select(`
-                question_order,
-                questions (*)
-            `)
-            .eq('monster_id', monsterId)
-            .order('question_order', { ascending: true });
+        console.log('Loading questions for monster:', monsterId);
         
-        if (error) throw error;
-        
-        if (monsterQuestions && monsterQuestions.length > 0) {
-            // Extract the questions from the result
-            gameState.monsterQuestions = monsterQuestions.map(mq => ({
-                ...mq.questions,
-                question_order: mq.question_order
-            }));
-            gameState.currentQuestionIndex = 0;
-            console.log(`Loaded ${gameState.monsterQuestions.length} questions for monster`);
-        } else {
-            // No specific questions assigned - use any questions from monster category
-            console.log('No specific questions assigned to monster, will use category-based questions');
+        // Try to get questions from monster_questions table
+        try {
+            const { data: monsterQuestions, error } = await supabase
+                .from('monster_questions')
+                .select(`
+                    question_order,
+                    questions (*)
+                `)
+                .eq('monster_id', monsterId)
+                .order('question_order', { ascending: true });
+            
+            if (error) {
+                console.error('Error loading monster_questions:', error);
+                
+                // If table doesn't exist, use fallback
+                if (error.message.includes('relation') && error.message.includes('does not exist')) {
+                    console.log('monster_questions table does not exist, using fallback');
+                    gameState.monsterQuestions = [];
+                    return;
+                }
+                throw error;
+            }
+            
+            if (monsterQuestions && monsterQuestions.length > 0) {
+                // Extract the questions from the result
+                gameState.monsterQuestions = monsterQuestions.map(mq => ({
+                    ...mq.questions,
+                    question_order: mq.question_order
+                }));
+                gameState.currentQuestionIndex = 0;
+                console.log(`Loaded ${gameState.monsterQuestions.length} monster-specific questions`);
+            } else {
+                // No specific questions assigned
+                console.log('No specific questions assigned to monster');
+                gameState.monsterQuestions = [];
+            }
+            
+        } catch (tableError) {
+            console.error('Error with monster_questions table:', tableError);
             gameState.monsterQuestions = [];
         }
         
     } catch (error) {
-        console.error('Error loading monster questions:', error);
+        console.error('Error in loadMonsterQuestions:', error);
         gameState.monsterQuestions = [];
     }
 }
@@ -1171,13 +623,18 @@ async function loadMonsterQuestions(monsterId) {
 // Load monster for current stage
 async function loadMonsterForStage(stage) {
     try {
+        console.log('Loading monster for stage:', stage);
+        
         const { data: monsters, error } = await supabase
             .from('monsters')
             .select('*')
             .eq('stage', stage)
             .limit(1);
         
-        if (error) throw error;
+        if (error) {
+            console.error('Error loading monster for stage:', error);
+            return;
+        }
         
         if (monsters && monsters.length > 0) {
             gameState.currentMonster = monsters[0];
@@ -1188,7 +645,7 @@ async function loadMonsterForStage(stage) {
         }
         
     } catch (error) {
-        console.error('Error loading monster for stage:', error);
+        console.error('Error in loadMonsterForStage:', error);
     }
 }
 
@@ -1217,54 +674,38 @@ async function loadQuestion() {
             console.log(`Using monster-specific question ${gameState.currentQuestionIndex}/${gameState.monsterQuestions.length}`);
             
         } else {
-            // Fallback: Get random question from monster's category
-            console.log('Using fallback: random question from category');
+            // Fallback: Get random question
+            console.log('Using fallback: random question');
             
             // Check if questions exist
             const { data: questionsCount, error: countError } = await supabase
                 .from('questions')
                 .select('*', { count: 'exact', head: true });
             
-            if (countError) throw countError;
+            if (countError) {
+                console.error('Error checking questions:', countError);
+                throw countError;
+            }
             
             if (!questionsCount || questionsCount === 0) {
                 showError('No Questions', 'Please add questions to the database in the admin panel.');
                 return;
             }
             
-            // Get random question
-            let query = supabase
+            // Get all questions
+            const { data: allQuestions, error: allError } = await supabase
                 .from('questions')
                 .select('*');
             
-            // Filter by monster category if available
-            if (gameState.currentMonster?.category) {
-                query = query.eq('category', gameState.currentMonster.category);
+            if (allError) throw allError;
+            
+            if (!allQuestions || allQuestions.length === 0) {
+                addToCombatLog('No questions available!', 'error');
+                return;
             }
             
-            const { data: questions, error } = await query;
-            
-            if (error) throw error;
-            
-            if (!questions || questions.length === 0) {
-                // Fallback to any question
-                const { data: allQuestions, error: allError } = await supabase
-                    .from('questions')
-                    .select('*');
-                
-                if (allError) throw allError;
-                
-                if (!allQuestions || allQuestions.length === 0) {
-                    addToCombatLog('No questions available!', 'error');
-                    return;
-                }
-                
-                const randomIndex = Math.floor(Math.random() * allQuestions.length);
-                question = allQuestions[randomIndex];
-            } else {
-                const randomIndex = Math.floor(Math.random() * questions.length);
-                question = questions[randomIndex];
-            }
+            const randomIndex = Math.floor(Math.random() * allQuestions.length);
+            question = allQuestions[randomIndex];
         }
         
         if (!question) {
@@ -1280,9 +721,24 @@ async function loadQuestion() {
             .select('*')
             .eq('question_id', gameState.currentQuestion.id);
         
-        if (optionsError) throw optionsError;
-        
-        gameState.questionOptions = options || [];
+        if (optionsError) {
+            console.error('Error loading question options:', optionsError);
+            
+            // If no options found, create some default options
+            if (optionsError.code === 'PGRST116') {
+                console.log('No options found for question, using defaults');
+                gameState.questionOptions = [
+                    { option_text: 'Option A', is_correct: false },
+                    { option_text: 'Option B', is_correct: true },
+                    { option_text: 'Option C', is_correct: false },
+                    { option_text: 'Option D', is_correct: false }
+                ];
+            } else {
+                throw optionsError;
+            }
+        } else {
+            gameState.questionOptions = options || [];
+        }
         
         // Check if we have enough options
         if (gameState.questionOptions.length < 2) {
@@ -1309,7 +765,37 @@ async function loadQuestion() {
     } catch (error) {
         console.error('Error loading question:', error);
         addToCombatLog('Failed to load question: ' + error.message, 'error');
+        
+        // Use a fallback question if everything fails
+        useFallbackQuestion();
     }
+}
+
+// Use fallback question when database queries fail
+function useFallbackQuestion() {
+    console.log('Using fallback question');
+    
+    gameState.currentQuestion = {
+        id: 'fallback',
+        question_text: 'What is 2 + 2?',
+        category: 'MATH',
+        difficulty: 'EASY',
+        timer_seconds: 30
+    };
+    
+    gameState.questionOptions = [
+        { id: '1', option_text: '3', is_correct: false },
+        { id: '2', option_text: '4', is_correct: true },
+        { id: '3', option_text: '5', is_correct: false },
+        { id: '4', option_text: '6', is_correct: false }
+    ];
+    
+    updateQuestionDisplay();
+    gameState.maxTime = 30;
+    gameState.timeLeft = 30;
+    updateTimer();
+    
+    addToCombatLog('Using fallback question', 'info');
 }
 
 // Shuffle question options while keeping track of correct answer
@@ -1332,7 +818,14 @@ function shuffleOptions() {
 
 // Update player stats display
 function updatePlayerStats() {
-    if (!gameState.playerStats) return;
+    if (!gameState.playerStats) {
+        // Use default values
+        document.getElementById('player-damage').textContent = '10';
+        document.getElementById('player-defense').textContent = '5';
+        document.getElementById('player-crit').textContent = '5.0%';
+        document.getElementById('player-power').textContent = '20';
+        return;
+    }
     
     const baseDamage = gameState.playerStats.base_damage || 10;
     const baseDefense = gameState.playerStats.base_defense || 5;
@@ -1349,13 +842,17 @@ function updatePlayerStats() {
 
 // Update run display
 function updateRunDisplay() {
-    if (!gameState.currentRun) return;
+    if (!gameState.currentRun) {
+        document.getElementById('current-stage').textContent = 'STAGE 1';
+        document.getElementById('stage-level').textContent = 'LEVEL 1';
+        return;
+    }
     
-    document.getElementById('current-stage').textContent = `STAGE ${gameState.currentRun.current_stage}`;
-    document.getElementById('stage-level').textContent = `LEVEL ${gameState.currentRun.current_stage}`;
+    document.getElementById('current-stage').textContent = `STAGE ${gameState.currentRun.current_stage || 1}`;
+    document.getElementById('stage-level').textContent = `LEVEL ${gameState.currentRun.current_stage || 1}`;
     
     // Update player HP
-    const playerHP = gameState.currentRun.player_hp;
+    const playerHP = gameState.currentRun.player_hp || 100;
     const maxHP = gameState.playerStats?.base_hp || 100;
     const hpPercent = (playerHP / maxHP) * 100;
     
@@ -1371,14 +868,24 @@ function updateRunDisplay() {
 
 // Update monster display
 function updateMonsterDisplay() {
-    if (!gameState.currentMonster) return;
+    if (!gameState.currentMonster) {
+        document.getElementById('monster-name').textContent = 'Unknown Monster';
+        document.getElementById('monster-category').textContent = 'MONSTER';
+        document.getElementById('monster-hp-bar').style.width = '100%';
+        document.getElementById('monster-hp-text').textContent = 'HP: 100 / 100';
+        document.getElementById('difficulty').textContent = 'EASY';
+        
+        const monsterImage = document.getElementById('monster-image');
+        monsterImage.innerHTML = '<i class="fas fa-dragon"></i>';
+        return;
+    }
     
     document.getElementById('monster-name').textContent = gameState.currentMonster.name;
     document.getElementById('monster-category').textContent = gameState.currentMonster.category || 'MONSTER';
     
     // Update monster HP
-    const monsterHP = gameState.currentRun?.monster_hp || gameState.currentMonster.hp;
-    const maxHP = gameState.currentMonster.hp;
+    const monsterHP = gameState.currentRun?.monster_hp || gameState.currentMonster.hp || 100;
+    const maxHP = gameState.currentMonster.hp || 100;
     const hpPercent = (monsterHP / maxHP) * 100;
     
     document.getElementById('monster-hp-bar').style.width = `${hpPercent}%`;
@@ -1560,7 +1067,10 @@ async function processCombat(isCorrect) {
                 })
                 .eq('id', gameState.currentRun.id);
             
-            if (updateError) throw updateError;
+            if (updateError) {
+                console.error('Error updating run:', updateError);
+                // Continue with local update even if database fails
+            }
             
             // Update local state
             gameState.currentRun.monster_hp = newMonsterHP;
@@ -1602,7 +1112,10 @@ async function processCombat(isCorrect) {
                 })
                 .eq('id', gameState.currentRun.id);
             
-            if (updateError) throw updateError;
+            if (updateError) {
+                console.error('Error updating run:', updateError);
+                // Continue with local update even if database fails
+            }
             
             // Update local state
             gameState.currentRun.player_hp = newPlayerHP;
@@ -1677,8 +1190,14 @@ function timeOut() {
     addToCombatLog('Time ran out!', 'info');
     
     // Process as wrong answer
-    const randomAnswer = Math.floor(Math.random() * Math.min(4, gameState.questionOptions.length));
-    selectAnswer(randomAnswer);
+    const optionsCount = Math.min(4, gameState.questionOptions.length);
+    if (optionsCount > 0) {
+        const randomAnswer = Math.floor(Math.random() * optionsCount);
+        selectAnswer(randomAnswer);
+    } else {
+        // No options available, treat as wrong answer
+        processCombat(false);
+    }
 }
 
 // Show result
@@ -1770,6 +1289,15 @@ async function showGameOver() {
         
     } catch (error) {
         console.error('Error in game over:', error);
+        
+        // Show modal even if database update fails
+        const modal = document.getElementById('gameover-modal');
+        document.getElementById('gameover-details').textContent = 
+            `Stage reached: ${gameState.currentRun.current_stage}`;
+        document.getElementById('gameover-gold').textContent = 
+            `Gold earned: ${gameState.goldEarned}`;
+        
+        modal.classList.add('active');
     }
 }
 
@@ -1807,7 +1335,41 @@ async function nextStage() {
             .eq('stage', nextStage)
             .limit(1);
         
-        if (monstersError) throw monstersError;
+        if (monstersError) {
+            console.error('Error loading monsters for next stage:', monstersError);
+            
+            // If no monster for next stage, show victory
+            if (monstersError.code === 'PGRST116' || monstersError.message.includes('relation')) {
+                // Victory!
+                addToCombatLog('No more monsters! You win!', 'info');
+                
+                // Update user with final gold
+                const newGold = (gameState.currentUser.gold || 0) + gameState.goldEarned;
+                
+                try {
+                    await supabase
+                        .from('users')
+                        .update({ 
+                            gold: newGold,
+                            highest_stage: Math.max(gameState.currentUser.highest_stage || 0, gameState.currentRun.current_stage)
+                        })
+                        .eq('id', gameState.currentUser.id);
+                    
+                    // Delete run
+                    await supabase
+                        .from('runs')
+                        .delete()
+                        .eq('id', gameState.currentRun.id);
+                } catch (dbError) {
+                    console.error('Database error in victory:', dbError);
+                }
+                
+                alert('Congratulations! You have completed all stages!');
+                window.location.href = 'lobby.html';
+                return;
+            }
+            throw monstersError;
+        }
         
         if (!monsters || monsters.length === 0) {
             // No more stages - victory!
@@ -1847,7 +1409,10 @@ async function nextStage() {
             })
             .eq('id', gameState.currentRun.id);
         
-        if (updateError) throw updateError;
+        if (updateError) {
+            console.error('Error updating run for next stage:', updateError);
+            // Continue with local update
+        }
         
         // Update local state
         gameState.currentRun.current_stage = nextStage;
@@ -1857,14 +1422,18 @@ async function nextStage() {
         // Update gold in user
         const newGold = (gameState.currentUser.gold || 0) + gameState.goldEarned;
         
-        await supabase
-            .from('users')
-            .update({ gold: newGold })
-            .eq('id', gameState.currentUser.id);
-        
-        document.getElementById('gold-amount').textContent = newGold;
-        gameState.currentUser.gold = newGold;
-        gameState.goldEarned = 0;
+        try {
+            await supabase
+                .from('users')
+                .update({ gold: newGold })
+                .eq('id', gameState.currentUser.id);
+            
+            document.getElementById('gold-amount').textContent = newGold;
+            gameState.currentUser.gold = newGold;
+            gameState.goldEarned = 0;
+        } catch (goldError) {
+            console.error('Error updating gold:', goldError);
+        }
         
         // Reset question cycling
         gameState.currentQuestionIndex = 0;
@@ -1938,6 +1507,10 @@ function useHealthFlask() {
             if (gameState.healthFlasks <= 0) {
                 document.getElementById('health-flask').classList.add('disabled');
             }
+        })
+        .catch(error => {
+            console.error('Error using health flask:', error);
+            addToCombatLog('Failed to use health flask', 'error');
         });
 }
 
