@@ -1198,9 +1198,9 @@ async function loadPlayerData() {
     }
     
     try {
-        // Get current user - TABLE IS 'user' NOT 'users'
+        // Get current user - TABLE IS 'users' (plural)
         const { data: users, error: usersError } = await supabase
-            .from('user')
+            .from('users')  // CHANGED FROM 'user' TO 'users'
             .select('*')
             .order('created_at', { ascending: true })
             .limit(1);
@@ -1361,7 +1361,7 @@ async function loadGachaBanners() {
     try {
         // First get banners
         const { data: banners, error } = await supabase
-            .from('gacha_banner')
+            .from('gacha_banners')  // CHANGED FROM 'gacha_banner' TO 'gacha_banners'
             .select('*')
             .eq('is_active', true)
             .order('created_at', { ascending: false });
@@ -1425,7 +1425,7 @@ async function loadLeaderboard() {
         // Get user data for each leaderboard entry
         for (let entry of leaderboardData) {
             const { data: user, error: userError } = await supabase
-                .from('user')
+                .from('users')  // CHANGED FROM 'user' TO 'users'
                 .select('username')
                 .eq('id', entry.user_id)
                 .single();
@@ -2192,7 +2192,7 @@ async function pullGacha(bannerId, multi = false) {
             // Deduct gold
             const newGold = currentUser.gold - cost;
             const { error: goldError } = await supabase
-                .from('user')
+                .from('users')  // CHANGED FROM 'user' TO 'users'
                 .update({ gold: newGold })
                 .eq('id', currentUser.id);
             
