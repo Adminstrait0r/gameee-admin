@@ -1190,7 +1190,7 @@ async function withLoading(fn) {
     }
 }
 
-// Load player data from database - CORRECTED TABLE NAMES
+// Load player data from database
 async function loadPlayerData() {
     if (!supabase) {
         showNotification('Database not configured', 'error');
@@ -1198,7 +1198,7 @@ async function loadPlayerData() {
     }
     
     try {
-        // Get current user - TABLE IS 'users' (plural)
+        // Get current user
         const { data: users, error: usersError } = await supabase
             .from('users')
             .select('*')
@@ -1275,7 +1275,7 @@ async function loadPlayerData() {
                 player_equipment_id: item.id,
                 is_equipped: item.is_equipped,
                 player_equipment_data: item
-            })).filter(item => item.id);
+            })).filter(item => item && item.id);
         }
         
         console.log('Player data loaded successfully');
@@ -1307,7 +1307,7 @@ async function loadCurrentRun() {
         
         // First, get the run without the join
         const { data: runs, error } = await supabase
-            .from('runs')  // CHANGED FROM 'run' TO 'runs'
+            .from('runs')
             .select('*')
             .eq('user_id', currentUser.id)
             .order('created_at', { ascending: false })
@@ -1324,7 +1324,7 @@ async function loadCurrentRun() {
             // Then get the monster separately if it exists
             if (currentRun.current_monster) {
                 const { data: monster, error: monsterError } = await supabase
-                    .from('monsters')  // CHANGED FROM 'monster' TO 'monsters'
+                    .from('monsters')
                     .select('*')
                     .eq('id', currentRun.current_monster)
                     .single();
@@ -1376,7 +1376,7 @@ async function loadGachaBanners() {
         // Then get rates for each banner
         for (let banner of gachaBanners) {
             const { data: rates, error: ratesError } = await supabase
-                .from('gacha_rates')  // CHANGED FROM 'gacha_rate' TO 'gacha_rates'
+                .from('gacha_rates')
                 .select('*')
                 .eq('banner_id', banner.id);
             
@@ -1461,10 +1461,12 @@ function updateUI() {
         let critBonus = 0;
         
         Object.values(equippedItems).forEach(item => {
-            hpBonus += item.health_bonus || 0;
-            damageBonus += item.damage || 0;
-            defenseBonus += item.defense || 0;
-            critBonus += item.crit_bonus || 0;
+            if (item) {
+                hpBonus += item.health_bonus || 0;
+                damageBonus += item.damage || 0;
+                defenseBonus += item.defense || 0;
+                critBonus += item.crit_bonus || 0;
+            }
         });
         
         const totalHP = baseHP + hpBonus;
@@ -1748,14 +1750,14 @@ async function openInventoryModal() {
 
 // Show item tooltip
 function showItemTooltip(event, itemId) {
-    const item = inventoryItems.find(i => i.id === itemId);
+    const item = inventoryItems.find(i => i && i.id === itemId);
     if (!item) return;
     
     const tooltip = document.getElementById('tooltip');
     const equippedItem = equippedItems[item.slot?.toLowerCase()];
     
-    let html = `<strong>${item.name}</strong><br>`;
-    html += `<small>${item.rarity} ${item.slot}</small><br>`;
+    let html = `<strong>${item.name || 'Unknown Item'}</strong><br>`;
+    html += `<small>${item.rarity || 'common'} ${item.slot || 'unknown'}</small><br>`;
     
     if (item.damage) html += `Damage: ${item.damage}<br>`;
     if (item.defense) html += `Defense: ${item.defense}<br>`;
@@ -1764,7 +1766,7 @@ function showItemTooltip(event, itemId) {
     
     if (equippedItem && equippedItem.id !== item.id) {
         html += `<hr><small>Currently Equipped:</small><br>`;
-        html += `<strong>${equippedItem.name}</strong><br>`;
+        html += `<strong>${equippedItem.name || 'Unknown Item'}</strong><br>`;
         if (equippedItem.damage) html += `Damage: ${equippedItem.damage}<br>`;
         if (equippedItem.defense) html += `Defense: ${equippedItem.defense}<br>`;
         
@@ -1818,10 +1820,12 @@ function showStatDetails(stat) {
         let hpBonus = 0, damageBonus = 0, defenseBonus = 0, critBonus = 0;
         
         Object.values(equippedItems).forEach(item => {
-            hpBonus += item.health_bonus || 0;
-            damageBonus += item.damage || 0;
-            defenseBonus += item.defense || 0;
-            critBonus += item.crit_bonus || 0;
+            if (item) {
+                hpBonus += item.health_bonus || 0;
+                damageBonus += item.damage || 0;
+                defenseBonus += item.defense || 0;
+                critBonus += item.crit_bonus || 0;
+            }
         });
         
         message += '\n\nBase Stats:\n';
@@ -1867,10 +1871,11 @@ async function openGachaModal() {
             
             if (rates.length > 0) {
                 rates.forEach(rate => {
+                    if (!rate) return;
                     ratesHTML += `
                         <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.3);">
-                            <span style="text-transform: capitalize;">${rate.rarity}</span>
-                            <span>${rate.chance}%</span>
+                            <span style="text-transform: capitalize;">${rate.rarity || 'common'}</span>
+                            <span>${rate.chance || 0}%</span>
                         </div>
                     `;
                 });
@@ -1881,13 +1886,13 @@ async function openGachaModal() {
             
             bannersHTML += `
                 <div style="border: 2px solid var(--border); padding: 15px; margin-bottom: 15px; background: linear-gradient(135deg, var(--purple), var(--blue)); color: white;">
-                    <h4>${banner.name}</h4>
+                    <h4>${banner.name || 'Unnamed Banner'}</h4>
                     <div style="font-size: 24px; font-weight: 700; color: var(--yellow); margin: 10px 0;">
-                        <i class="fas fa-coins"></i> ${banner.cost} GOLD
+                        <i class="fas fa-coins"></i> ${banner.cost || 0} GOLD
                     </div>
                     <div style="background: rgba(0, 0, 0, 0.2); padding: 10px; margin: 10px 0; border-radius: 5px;">
                         <h5 style="margin-top: 0;">Drop Rates</h5>
-                        ${ratesHTML}
+                        ${ratesHTML || '<div style="text-align: center; padding: 10px;">No rates defined</div>'}
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
                         <button class="btn ${canAfford ? 'btn-warning' : ''}" 
@@ -1953,7 +1958,7 @@ async function equipItem(playerEquipmentId, slot) {
         await withLoading(async () => {
             // First, unequip any item in that slot
             const itemsInSlot = playerEquipment.filter(item => 
-                item.is_equipped && item.equipment?.slot?.toLowerCase() === slot
+                item && item.is_equipped && item.equipment?.slot?.toLowerCase() === slot
             );
             
             for (const item of itemsInSlot) {
@@ -2013,10 +2018,10 @@ async function unequipItem(playerEquipmentId) {
 
 // Select inventory item
 function selectInventoryItem(itemId) {
-    const item = inventoryItems.find(i => i.id === itemId);
+    const item = inventoryItems.find(i => i && i.id === itemId);
     if (!item) return;
     
-    let details = `Item Details:\n\nName: ${item.name}\nSlot: ${item.slot}\nRarity: ${item.rarity}`;
+    let details = `Item Details:\n\nName: ${item.name || 'Unknown'}\nSlot: ${item.slot || 'Unknown'}\nRarity: ${item.rarity || 'common'}`;
     if (item.damage) details += `\nDamage: ${item.damage}`;
     if (item.defense) details += `\nDefense: ${item.defense}`;
     if (item.health_bonus) details += `\nHP Bonus: ${item.health_bonus}`;
@@ -2031,7 +2036,7 @@ function equipSlot(slot) {
     if (equippedItems[slot]) {
         // Show equipped item details
         const item = equippedItems[slot];
-        let details = `Equipped ${slot}:\n\n${item.name}\nRarity: ${item.rarity}`;
+        let details = `Equipped ${slot}:\n\n${item.name || 'Unknown'}\nRarity: ${item.rarity || 'common'}`;
         if (item.damage) details += `\nDamage: ${item.damage}`;
         if (item.defense) details += `\nDefense: ${item.defense}`;
         if (item.health_bonus) details += `\nHP Bonus: ${item.health_bonus}`;
@@ -2053,7 +2058,7 @@ async function startNewRun() {
         await withLoading(async () => {
             // Get first monster for stage 1
             const { data: monsters, error: monstersError } = await supabase
-                .from('monsters')  // CHANGED FROM 'monster' TO 'monsters'
+                .from('monsters')
                 .select('*')
                 .eq('stage', 1)
                 .limit(1);
@@ -2071,14 +2076,16 @@ async function startNewRun() {
             // Calculate HP bonuses from equipped items
             let hpBonus = 0;
             Object.values(equippedItems).forEach(item => {
-                hpBonus += item.health_bonus || 0;
+                if (item) {
+                    hpBonus += item.health_bonus || 0;
+                }
             });
             
             const playerHP = baseHP + hpBonus;
             
             // Create new run
             const { data: run, error: runError } = await supabase
-                .from('runs')  // CHANGED FROM 'run' TO 'runs'
+                .from('runs')
                 .insert([{
                     user_id: currentUser.id,
                     current_stage: 1,
@@ -2095,7 +2102,7 @@ async function startNewRun() {
             
             // Get the monster data for the run
             const { data: monsterData, error: monsterDataError } = await supabase
-                .from('monsters')  // CHANGED FROM 'monster' TO 'monsters'
+                .from('monsters')
                 .select('*')
                 .eq('id', monster.id)
                 .single();
@@ -2152,7 +2159,7 @@ async function abandonRun() {
     try {
         await withLoading(async () => {
             const { error } = await supabase
-                .from('runs')  // CHANGED FROM 'run' TO 'runs'
+                .from('runs')
                 .delete()
                 .eq('id', currentRun.id);
             
@@ -2203,7 +2210,7 @@ async function pullGacha(bannerId, multi = false) {
             
             // Get gacha rates for this banner
             const { data: rates, error: ratesError } = await supabase
-                .from('gacha_rates')  // CHANGED FROM 'gacha_rate' TO 'gacha_rates'
+                .from('gacha_rates')
                 .select('*')
                 .eq('banner_id', bannerId);
             
@@ -2225,9 +2232,10 @@ async function pullGacha(bannerId, multi = false) {
                 let cumulative = 0;
                 
                 for (const rate of rates) {
-                    cumulative += Number(rate.chance);
+                    if (!rate) continue;
+                    cumulative += Number(rate.chance || 0);
                     if (random <= cumulative) {
-                        selectedRarity = rate.rarity;
+                        selectedRarity = rate.rarity || 'common';
                         break;
                     }
                 }
@@ -2256,11 +2264,16 @@ async function pullGacha(bannerId, multi = false) {
                     if (inventoryError) {
                         console.error('Error adding item to inventory:', inventoryError);
                     }
+                } else {
+                    console.warn(`No equipment found for rarity: ${selectedRarity}`);
                 }
             }
             
+            // Filter out any undefined items
+            const validItems = obtainedItems.filter(item => item != null);
+            
             // Show results
-            showGachaResults(obtainedItems, multi);
+            showGachaResults(validItems, multi);
             
             // Refresh inventory and banners
             await loadPlayerData();
@@ -2279,10 +2292,24 @@ function pullGachaMulti(bannerId) {
     pullGacha(bannerId, true);
 }
 
-// Show gacha results
+// Show gacha results - FIXED VERSION
 function showGachaResults(items, multi) {
     const modal = document.getElementById('gacha-modal');
     const contentDiv = document.getElementById('gacha-content');
+    
+    // Check if items is empty
+    if (!items || items.length === 0) {
+        contentDiv.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <h3>No Items Obtained</h3>
+                <p>Try again later!</p>
+                <button class="btn btn-primary" onclick="openGachaModal()">
+                    BACK TO BANNERS
+                </button>
+            </div>
+        `;
+        return;
+    }
     
     let resultsHTML = '';
     
@@ -2297,6 +2324,19 @@ function showGachaResults(items, multi) {
         `;
         
         items.forEach((item, index) => {
+            if (!item) {
+                resultsHTML += `
+                    <div style="border: 2px solid #ccc; padding: 10px; text-align: center; background: var(--bg-panel);">
+                        <div style="font-size: 24px; margin-bottom: 10px; color: #ccc">
+                            <i class="fas fa-question"></i>
+                        </div>
+                        <div style="font-size: 12px; font-weight: 600;">No Item</div>
+                        <div style="font-size: 10px; color: #ccc;">-</div>
+                    </div>
+                `;
+                return;
+            }
+            
             const rarityColor = {
                 common: '#808080',
                 uncommon: '#00b85c',
@@ -2315,8 +2355,8 @@ function showGachaResults(items, multi) {
                                           item.slot === 'legs' ? 'running' : 
                                           item.slot === 'boots' ? 'boot' : 'question'}"></i>
                     </div>
-                    <div style="font-size: 12px; font-weight: 600;">${item.name || '-'}</div>
-                    <div style="font-size: 10px; color: ${rarityColor};">${item.rarity?.toUpperCase() || '-'}</div>
+                    <div style="font-size: 12px; font-weight: 600;">${item.name || 'Unknown Item'}</div>
+                    <div style="font-size: 10px; color: ${rarityColor};">${(item.rarity || 'common').toUpperCase()}</div>
                 </div>
             `;
         });
@@ -2332,46 +2372,66 @@ function showGachaResults(items, multi) {
         `;
     } else {
         const item = items[0];
-        const rarityColor = {
-            common: '#808080',
-            uncommon: '#00b85c',
-            rare: '#5c7cfa',
-            epic: '#9d4edd',
-            legendary: '#ff9e4d'
-        }[item.rarity || 'common'];
-        
-        resultsHTML = `
-            <div style="text-align: center;">
-                <h3>YOU GOT!</h3>
-                <div class="pull-animation" style="color: ${rarityColor}">
-                    <i class="fas fa-${item.slot === 'weapon' ? 'sword' : 
-                                      item.slot === 'shield' ? 'shield-alt' : 
-                                      item.slot === 'helmet' ? 'helmet-battle' : 
-                                      item.slot === 'chest' ? 'vest' : 
-                                      item.slot === 'legs' ? 'running' : 
-                                      item.slot === 'boots' ? 'boot' : 'gift'}" 
-                       style="font-size: 64px;"></i>
-                </div>
-                <div style="margin-top: 20px; padding: 20px; background: var(--bg-panel); border: 2px solid ${rarityColor};">
-                    <h4>${item.name || '-'}</h4>
-                    <div style="color: ${rarityColor}; margin: 10px auto; display: inline-block; padding: 5px 10px; border: 2px solid ${rarityColor}; font-weight: bold;">
-                        ${item.rarity?.toUpperCase() || 'COMMON'}
+        if (!item) {
+            resultsHTML = `
+                <div style="text-align: center;">
+                    <h3>YOU GOT...</h3>
+                    <div class="pull-animation" style="color: #ccc">
+                        <i class="fas fa-question" style="font-size: 64px;"></i>
                     </div>
-                    <div style="margin-top: 10px;">
-                        <div>Slot: ${item.slot || '-'}</div>
-                        ${item.damage ? `<div>Damage: ${item.damage}</div>` : ''}
-                        ${item.defense ? `<div>Defense: ${item.defense}</div>` : ''}
-                        ${item.health_bonus ? `<div>HP Bonus: ${item.health_bonus}</div>` : ''}
-                        ${item.crit_bonus ? `<div>Crit Bonus: ${(item.crit_bonus * 100).toFixed(1)}%</div>` : ''}
+                    <div style="margin-top: 20px; padding: 20px; background: var(--bg-panel); border: 2px solid #ccc;">
+                        <h4>No Item</h4>
+                        <p>No item was obtained. Please try again.</p>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="openGachaModal()">
+                            PULL AGAIN
+                        </button>
                     </div>
                 </div>
-                <div style="margin-top: 20px;">
-                    <button class="btn btn-primary" onclick="openGachaModal()">
-                        PULL AGAIN
-                    </button>
+            `;
+        } else {
+            const rarityColor = {
+                common: '#808080',
+                uncommon: '#00b85c',
+                rare: '#5c7cfa',
+                epic: '#9d4edd',
+                legendary: '#ff9e4d'
+            }[item.rarity || 'common'];
+            
+            resultsHTML = `
+                <div style="text-align: center;">
+                    <h3>YOU GOT!</h3>
+                    <div class="pull-animation" style="color: ${rarityColor}">
+                        <i class="fas fa-${item.slot === 'weapon' ? 'sword' : 
+                                          item.slot === 'shield' ? 'shield-alt' : 
+                                          item.slot === 'helmet' ? 'helmet-battle' : 
+                                          item.slot === 'chest' ? 'vest' : 
+                                          item.slot === 'legs' ? 'running' : 
+                                          item.slot === 'boots' ? 'boot' : 'gift'}" 
+                           style="font-size: 64px;"></i>
+                    </div>
+                    <div style="margin-top: 20px; padding: 20px; background: var(--bg-panel); border: 2px solid ${rarityColor};">
+                        <h4>${item.name || 'Unknown Item'}</h4>
+                        <div style="color: ${rarityColor}; margin: 10px auto; display: inline-block; padding: 5px 10px; border: 2px solid ${rarityColor}; font-weight: bold;">
+                            ${(item.rarity || 'common').toUpperCase()}
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <div>Slot: ${item.slot || '-'}</div>
+                            ${item.damage ? `<div>Damage: ${item.damage}</div>` : ''}
+                            ${item.defense ? `<div>Defense: ${item.defense}</div>` : ''}
+                            ${item.health_bonus ? `<div>HP Bonus: ${item.health_bonus}</div>` : ''}
+                            ${item.crit_bonus ? `<div>Crit Bonus: ${(item.crit_bonus * 100).toFixed(1)}%</div>` : ''}
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="openGachaModal()">
+                            PULL AGAIN
+                        </button>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        }
     }
     
     contentDiv.innerHTML = resultsHTML;
