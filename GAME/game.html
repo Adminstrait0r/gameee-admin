@@ -1,2408 +1,2203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RPG Battle</title>
-<style>
-:root {
-    --bg-main: #f2efe6;
-    --bg-panel: #e8e3d6;
-    --border: #2b2b2b;
-    --accent: #111;
-    --tab-active: #d6c9a8;
-    --tab-inactive: #e8e3d6;
-    --green: #00b85c;
-    --light-green: #c8ff7a;
-    --bright-green: #b6ff5c;
-    --yellow: #ffd84d;
-    --red: #ff4d4d;
-    --blue: #5c7cfa;
-    --purple: #7e57c2;
-    --cyan: #0097a7;
-    --orange: #ffb74d;
-}
-
-* {
-    box-sizing: border-box;
-    font-family: system-ui, sans-serif;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    margin: 0;
-    background: #333;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
-}
-
-.app {
-    width: 100%;
-    max-width: 1000px;
-    background: var(--bg-main);
-    border: 3px solid var(--border);
-    min-height: 700px;
-}
-
-/* TOP BAR */
-.top-bar {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 12px;
-    align-items: center;
-    padding: 15px 20px;
-    border-bottom: 3px solid var(--border);
-    background: var(--bg-panel);
-}
-
-.profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.pfp {
-    width: 50px;
-    height: 50px;
-    background: var(--yellow);
-    border: 2px solid var(--border);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 12px;
-}
-
-.pfp img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.profile-info {
-    font-size: 12px;
-    line-height: 1.5;
-    font-weight: 600;
-}
-
-.stage-display {
-    justify-self: center;
-    background: var(--cyan);
-    padding: 10px 20px;
-    border: 2px solid var(--border);
-    text-align: center;
-    font-weight: bold;
-}
-
-.stage-main {
-    font-size: 16px;
-    color: white;
-}
-
-.stage-sub {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.gold-display {
-    background: var(--yellow);
-    padding: 10px 20px;
-    border: 2px solid var(--border);
-    text-align: center;
-    font-weight: bold;
-    justify-self: end;
-}
-
-/* BATTLE AREA */
-.battle-area {
-    background: var(--cyan);
-    padding: 20px;
-    border-bottom: 3px solid var(--border);
-}
-
-.monster-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    background: rgba(0, 0, 0, 0.1);
-    padding: 10px 15px;
-    border: 2px solid var(--border);
-}
-
-.monster-name {
-    font-size: 18px;
-    font-weight: 700;
-    color: white;
-}
-
-.monster-category {
-    background: var(--purple);
-    color: white;
-    padding: 5px 10px;
-    border: 2px solid var(--border);
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.monster-hp-container {
-    background: rgba(0, 0, 0, 0.2);
-    border: 2px solid var(--border);
-    padding: 10px;
-    margin-bottom: 15px;
-}
-
-.hp-bar {
-    height: 20px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 2px solid var(--border);
-    overflow: hidden;
-    margin-bottom: 8px;
-}
-
-.hp-fill {
-    height: 100%;
-    background: var(--red);
-    transition: width 0.5s ease;
-}
-
-.hp-text {
-    color: white;
-    text-align: center;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-/* BATTLE GRID */
-.battle-grid {
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
-    gap: 15px;
-    align-items: center;
-}
-
-/* PLAYER PANEL */
-.player-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.panel-box {
-    background: var(--light-green);
-    border: 2px solid var(--border);
-    padding: 15px;
-    text-align: center;
-    font-weight: bold;
-}
-
-.difficulty {
-    background: var(--red);
-    color: white;
-}
-
-.player-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.stat-value {
-    font-size: 24px;
-    color: var(--accent);
-}
-
-.stat-label {
-    font-size: 12px;
-    color: var(--accent);
-    opacity: 0.8;
-}
-
-/* TIMER */
-.timer-container {
-    justify-self: center;
-}
-
-.timer {
-    width: 100px;
-    height: 100px;
-    background: var(--yellow);
-    border: 3px solid var(--border);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 24px;
-    color: var(--accent);
-    position: relative;
-}
-
-.timer-text {
-    font-size: 12px;
-    position: absolute;
-    bottom: -20px;
-    width: 100%;
-    text-align: center;
-    color: white;
-    font-weight: 600;
-}
-
-.timer-ring {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border: 3px solid transparent;
-    border-top-color: var(--red);
-    border-radius: 50%;
-}
-
-/* MONSTER DISPLAY */
-.monster-display {
-    background: var(--bg-main);
-    border: 3px solid var(--border);
-    height: 250px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.monster-image {
-    width: 200px;
-    height: 200px;
-    background: var(--purple);
-    border: 3px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 64px;
-    color: white;
-}
-
-.monster-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* QUESTION SECTION */
-.question-section {
-    padding: 20px;
-    border-bottom: 3px solid var(--border);
-}
-
-.question-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.question-category {
-    background: var(--blue);
-    color: white;
-    padding: 8px 15px;
-    border: 2px solid var(--border);
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.question-difficulty {
-    background: var(--orange);
-    color: var(--accent);
-    padding: 8px 15px;
-    border: 2px solid var(--border);
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.question-box {
-    background: var(--blue);
-    border: 3px solid var(--border);
-    padding: 25px;
-    color: white;
-    font-weight: 600;
-    font-size: 18px;
-    text-align: center;
-    min-height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.question-image {
-    max-width: 200px;
-    max-height: 150px;
-    margin: 15px auto;
-    border: 2px solid var(--border);
-    display: none;
-}
-
-.question-image.show {
-    display: block;
-}
-
-/* ANSWERS */
-.answers-section {
-    padding: 20px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.answer-option {
-    border: 3px solid var(--border);
-    padding: 20px;
-    font-weight: bold;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    min-height: 120px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.answer-option:hover {
-    transform: translateY(-3px);
-}
-
-.answer-text {
-    font-size: 16px;
-    z-index: 2;
-}
-
-.answer-image {
-    max-width: 80px;
-    max-height: 80px;
-    border: 2px solid var(--border);
-    display: none;
-}
-
-.answer-image.show {
-    display: block;
-}
-
-.option-label {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    background: var(--accent);
-    color: white;
-    width: 30px;
-    height: 30px;
-    border: 2px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-.answer-a { background: var(--light-green); }
-.answer-b { background: #7ed957; }
-.answer-c { background: #00bf63; }
-.answer-d { background: #8cd94d; }
-
-.answer-option.selected {
-    border-color: var(--accent);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-}
-
-.answer-option.correct {
-    background: var(--green) !important;
-    color: white;
-}
-
-.answer-option.incorrect {
-    background: var(--red) !important;
-    color: white;
-}
-
-/* PLAYER HEALTH */
-.player-health-section {
-    padding: 20px;
-    background: var(--bg-panel);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.health-container {
-    flex: 1;
-    max-width: 400px;
-}
-
-.health-bar {
-    height: 25px;
-    background: rgba(0, 0, 0, 0.1);
-    border: 3px solid var(--border);
-    overflow: hidden;
-    margin-bottom: 8px;
-}
-
-.health-fill {
-    height: 100%;
-    background: var(--red);
-    transition: width 0.5s ease;
-}
-
-.health-text {
-    font-weight: 600;
-    text-align: center;
-    color: var(--accent);
-}
-
-.flasks {
-    display: flex;
-    gap: 10px;
-}
-
-.flask {
-    width: 50px;
-    height: 70px;
-    background: var(--red);
-    border: 3px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: white;
-    position: relative;
-    cursor: pointer;
-}
-
-.flask-count {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    background: var(--accent);
-    color: white;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.flask.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* COMBAT LOG */
-.combat-log {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 300px;
-    max-height: 200px;
-    overflow-y: auto;
-    background: var(--bg-main);
-    border: 3px solid var(--border);
-    padding: 15px;
-    z-index: 1000;
-    display: none;
-}
-
-.combat-log.show {
-    display: block;
-}
-
-.log-entry {
-    padding: 8px;
-    border-bottom: 1px solid var(--border);
-    font-size: 12px;
-    margin-bottom: 5px;
-}
-
-.log-entry.damage { color: var(--red); }
-.log-entry.heal { color: var(--green); }
-.log-entry.crit { color: var(--orange); font-weight: bold; }
-.log-entry.info { color: var(--blue); }
-
-/* MODALS */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-.modal.active {
-    display: flex;
-}
-
-.modal-content {
-    background-color: var(--bg-main);
-    border-radius: 0;
-    width: 90%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
-    border: 3px solid var(--border);
-}
-
-.modal-header {
-    padding: 15px;
-    border-bottom: 3px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--bg-panel);
-}
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-}
-
-.modal-body {
-    padding: 20px;
-    text-align: center;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--border);
-    font-weight: bold;
-}
-
-.btn {
-    border: 2px solid var(--border);
-    background: var(--bg-main);
-    padding: 10px 20px;
-    text-align: center;
-    font-weight: 600;
-    cursor: pointer;
-    margin: 5px;
-    font-size: 14px;
-}
-
-.btn:hover {
-    background: var(--tab-active);
-}
-
-.btn-primary {
-    background: var(--accent);
-    color: white;
-}
-
-.btn-primary:hover {
-    background: #333;
-}
-
-.btn-success {
-    background: var(--green);
-    color: white;
-}
-
-.btn-danger {
-    background: var(--red);
-    color: white;
-}
-
-/* ANIMATIONS */
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    75% { transform: translateX(10px); }
-}
-
-.shake {
-    animation: shake 0.5s ease;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-.pulse {
-    animation: pulse 0.5s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.fade-in {
-    animation: fadeIn 0.3s ease;
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-    .battle-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .answers-section {
-        grid-template-columns: 1fr;
-    }
-    
-    .top-bar {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .player-health-section {
-        flex-direction: column;
-        gap: 15px;
-        align-items: center;
-    }
-    
-    .health-container {
-        max-width: 100%;
-    }
-}
-</style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Battle - Monster Quiz Game</title>
+    <style>
+        :root {
+            --bg-main: #f2efe6;
+            --bg-panel: #e8e3d6;
+            --border: #2b2b2b;
+            --accent: #111;
+            --tab-active: #d6c9a8;
+            --tab-inactive: #e8e3d6;
+            --green: #00b85c;
+            --light-green: #c8ff7a;
+            --yellow: #ffd84d;
+            --red: #ff4d4d;
+            --blue: #5c7cfa;
+            --purple: #7e57c2;
+            --cyan: #0097a7;
+            --orange: #ffb74d;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 1200px;
+            background: var(--bg-main);
+            border: 4px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        /* TOP BAR */
+        .top-bar {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 15px;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 4px solid var(--border);
+            background: linear-gradient(135deg, var(--bg-panel) 0%, #ddd8c9 100%);
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .pfp {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--yellow) 0%, #e6c100 100%);
+            border: 3px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-info {
+            font-size: 13px;
+            line-height: 1.6;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .stage-display {
+            justify-self: center;
+            background: linear-gradient(135deg, var(--cyan) 0%, #007c91 100%);
+            padding: 12px 25px;
+            border: 3px solid var(--border);
+            text-align: center;
+            font-weight: bold;
+            border-radius: 10px;
+            min-width: 200px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .stage-main {
+            font-size: 18px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .stage-sub {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .gold-display {
+            background: linear-gradient(135deg, var(--yellow) 0%, #e6c100 100%);
+            padding: 12px 25px;
+            border: 3px solid var(--border);
+            text-align: center;
+            font-weight: bold;
+            justify-self: end;
+            border-radius: 10px;
+            min-width: 120px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* BATTLE AREA */
+        .battle-area {
+            background: linear-gradient(135deg, var(--cyan) 0%, #006064 100%);
+            padding: 25px;
+            border-bottom: 4px solid var(--border);
+            position: relative;
+        }
+
+        .monster-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 12px 20px;
+            border: 3px solid var(--border);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+        }
+
+        .monster-name {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .monster-category {
+            background: linear-gradient(135deg, var(--purple) 0%, #5e35b1 100%);
+            color: white;
+            padding: 8px 16px;
+            border: 3px solid var(--border);
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 25px;
+            letter-spacing: 1px;
+        }
+
+        .monster-hp-container {
+            background: rgba(0, 0, 0, 0.3);
+            border: 3px solid var(--border);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+        }
+
+        .hp-bar {
+            height: 25px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 3px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .hp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--red) 0%, #ff3333 100%);
+            transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 8px;
+        }
+
+        .hp-text {
+            color: white;
+            text-align: center;
+            font-weight: 700;
+            font-size: 15px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        /* BATTLE GRID */
+        .battle-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        /* PLAYER PANEL */
+        .player-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .panel-box {
+            background: linear-gradient(135deg, var(--light-green) 0%, #b8e994 100%);
+            border: 3px solid var(--border);
+            padding: 20px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .difficulty {
+            background: linear-gradient(135deg, var(--red) 0%, #cc0000 100%);
+            color: white;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .player-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            color: var(--accent);
+            font-weight: 800;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--accent);
+            opacity: 0.9;
+            letter-spacing: 0.5px;
+        }
+
+        /* TIMER */
+        .timer-container {
+            justify-self: center;
+        }
+
+        .timer {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--yellow) 0%, #e6c100 100%);
+            border: 4px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 32px;
+            color: var(--accent);
+            position: relative;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+
+        .timer.warning {
+            animation: pulse 1s infinite;
+        }
+
+        .timer.danger {
+            animation: pulseDanger 0.5s infinite;
+        }
+
+        .timer-text {
+            font-size: 14px;
+            position: absolute;
+            bottom: -25px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .timer-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 4px solid transparent;
+            border-top-color: var(--red);
+            border-radius: 50%;
+            transition: transform 1s linear;
+        }
+
+        /* MONSTER DISPLAY */
+        .monster-display {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border: 4px solid var(--border);
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5),
+                        0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .monster-image {
+            width: 220px;
+            height: 220px;
+            background: linear-gradient(135deg, var(--purple) 0%, #5e35b1 100%);
+            border: 4px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 72px;
+            color: white;
+            transition: transform 0.3s;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        /* QUESTION SECTION */
+        .question-section {
+            padding: 25px;
+            border-bottom: 4px solid var(--border);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .question-category {
+            background: linear-gradient(135deg, var(--blue) 0%, #3d5afe 100%);
+            color: white;
+            padding: 10px 20px;
+            border: 3px solid var(--border);
+            font-weight: 700;
+            font-size: 15px;
+            border-radius: 25px;
+            letter-spacing: 1px;
+        }
+
+        .question-difficulty {
+            background: linear-gradient(135deg, var(--orange) 0%, #f57c00 100%);
+            color: var(--accent);
+            padding: 10px 20px;
+            border: 3px solid var(--border);
+            font-weight: 700;
+            font-size: 15px;
+            border-radius: 25px;
+            letter-spacing: 1px;
+        }
+
+        .question-box {
+            background: linear-gradient(135deg, var(--blue) 0%, #3d5afe 100%);
+            border: 4px solid var(--border);
+            padding: 30px;
+            color: white;
+            font-weight: 700;
+            font-size: 20px;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            line-height: 1.6;
+        }
+
+        /* ANSWERS */
+        .answers-section {
+            padding: 25px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            background: linear-gradient(135deg, #f1f2f6 0%, #dfe4ea 100%);
+        }
+
+        .answer-option {
+            border: 4px solid var(--border);
+            padding: 25px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            border-radius: 16px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .answer-option:hover:not(.selected):not(.correct):not(.incorrect) {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .answer-text {
+            font-size: 18px;
+            z-index: 2;
+            font-weight: 700;
+        }
+
+        .option-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--accent);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border: 3px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 50%;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .answer-a { background: linear-gradient(135deg, var(--light-green) 0%, #a8d46a 100%); }
+        .answer-b { background: linear-gradient(135deg, #7ed957 0%, #5cb850 100%); }
+        .answer-c { background: linear-gradient(135deg, #00bf63 0%, #00994d 100%); }
+        .answer-d { background: linear-gradient(135deg, #8cd94d 0%, #6bc036 100%); }
+
+        .answer-option.selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .answer-option.correct {
+            background: linear-gradient(135deg, var(--green) 0%, #00994d 100%) !important;
+            color: white;
+            animation: correctPulse 0.6s ease;
+        }
+
+        .answer-option.incorrect {
+            background: linear-gradient(135deg, var(--red) 0%, #cc0000 100%) !important;
+            color: white;
+            animation: shake 0.6s ease;
+        }
+
+        /* PLAYER HEALTH */
+        .player-health-section {
+            padding: 25px;
+            background: linear-gradient(135deg, var(--bg-panel) 0%, #ddd8c9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 4px solid var(--border);
+        }
+
+        .health-container {
+            flex: 1;
+            max-width: 450px;
+        }
+
+        .health-bar {
+            height: 30px;
+            background: rgba(0, 0, 0, 0.15);
+            border: 4px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 12px;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--red) 0%, #ff3333 100%);
+            transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 10px;
+        }
+
+        .health-text {
+            font-weight: 700;
+            text-align: center;
+            color: var(--accent);
+            font-size: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .flasks {
+            display: flex;
+            gap: 15px;
+        }
+
+        .flask {
+            width: 60px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--red) 0%, #cc0000 100%);
+            border: 4px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            position: relative;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .flask:hover:not(.disabled) {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .flask-count {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: var(--accent);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid var(--border);
+        }
+
+        .flask.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .flask.info {
+            background: linear-gradient(135deg, var(--blue) 0%, #3d5afe 100%);
+        }
+
+        /* COMBAT LOG */
+        .combat-log {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            width: 350px;
+            max-height: 250px;
+            overflow-y: auto;
+            background: linear-gradient(135deg, var(--bg-main) 0%, #e8e3d6 100%);
+            border: 4px solid var(--border);
+            padding: 20px;
+            z-index: 1000;
+            display: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .combat-log.show {
+            display: block;
+            animation: slideInRight 0.4s ease;
+        }
+
+        .log-entry {
+            padding: 10px 12px;
+            border-bottom: 2px solid rgba(43, 43, 43, 0.2);
+            font-size: 13px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .log-entry:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .log-entry.damage { 
+            color: var(--red);
+            border-left: 4px solid var(--red);
+            background: rgba(255, 77, 77, 0.1);
+        }
+        .log-entry.heal { 
+            color: var(--green);
+            border-left: 4px solid var(--green);
+            background: rgba(0, 184, 92, 0.1);
+        }
+        .log-entry.crit { 
+            color: var(--orange);
+            font-weight: bold;
+            border-left: 4px solid var(--orange);
+            background: rgba(255, 183, 77, 0.1);
+        }
+        .log-entry.info { 
+            color: var(--blue);
+            border-left: 4px solid var(--blue);
+            background: rgba(92, 124, 250, 0.1);
+        }
+        .log-entry.gold { 
+            color: var(--yellow);
+            border-left: 4px solid var(--yellow);
+            background: rgba(255, 216, 77, 0.1);
+        }
+
+        /* MODALS */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--bg-main) 0%, #e8e3d6 100%);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 5px solid var(--border);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            transform: translateY(-30px);
+            animation: modalSlideUp 0.5s ease forwards;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 4px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--bg-panel) 0%, #ddd8c9 100%);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .modal-body {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--border);
+            font-weight: bold;
+            transition: color 0.3s, transform 0.3s;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: var(--red);
+            transform: rotate(90deg);
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .btn {
+            border: 3px solid var(--border);
+            background: var(--bg-main);
+            padding: 14px 28px;
+            text-align: center;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 8px;
+            font-size: 16px;
+            border-radius: 12px;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+            min-width: 140px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:hover {
+            background: var(--tab-active);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, #333 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--green) 0%, #00994d 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--red) 0%, #cc0000 100%);
+            color: white;
+        }
+
+        /* ANIMATIONS */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); box-shadow: 0 0 30px rgba(0, 184, 92, 0.5); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.9; }
+        }
+
+        @keyframes pulseDanger {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 0.8; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes modalSlideUp {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-60px) scale(1.2); opacity: 0; }
+        }
+
+        @keyframes monsterAttack {
+            0% { transform: translateX(0) rotate(0); }
+            25% { transform: translateX(-30px) rotate(-5deg); }
+            50% { transform: translateX(30px) rotate(5deg); }
+            100% { transform: translateX(0) rotate(0); }
+        }
+
+        /* DAMAGE NUMBERS */
+        .damage-number {
+            position: absolute;
+            font-weight: 900;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 500;
+            animation: floatUp 1s ease-out forwards;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .damage-number.crit {
+            font-size: 32px;
+            animation: floatUp 1.2s ease-out forwards;
+        }
+
+        /* LOADING & EFFECTS */
+        .spinner {
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--accent);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .monster-attack {
+            animation: monsterAttack 0.6s ease;
+        }
+
+        .player-hit {
+            animation: shake 0.6s ease;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .battle-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            
+            .monster-display {
+                height: 250px;
+            }
+            
+            .monster-image {
+                width: 180px;
+                height: 180px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .answers-section {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .top-bar {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .player-health-section {
+                flex-direction: column;
+                gap: 20px;
+                align-items: center;
+            }
+            
+            .health-container {
+                max-width: 100%;
+            }
+            
+            .combat-log {
+                width: 280px;
+                right: 15px;
+                top: 15px;
+            }
+            
+            .question-box {
+                font-size: 18px;
+                padding: 20px;
+            }
+            
+            .answer-text {
+                font-size: 16px;
+            }
+            
+            .modal-content {
+                max-width: 95%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app {
+                border-radius: 12px;
+            }
+            
+            .monster-display {
+                height: 200px;
+            }
+            
+            .monster-image {
+                width: 140px;
+                height: 140px;
+                font-size: 48px;
+            }
+            
+            .timer {
+                width: 100px;
+                height: 100px;
+                font-size: 28px;
+            }
+            
+            .panel-box {
+                padding: 15px;
+            }
+            
+            .stat-value {
+                font-size: 24px;
+            }
+            
+            .flasks {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-<div class="app">
-    <!-- TOP BAR -->
-    <div class="top-bar">
-        <div class="profile">
-            <div class="pfp" id="player-avatar">
-                <i class="fas fa-user"></i>
-            </div>
-            <div class="profile-info">
-                <div style="font-weight: 700;">HIGH SCORE: <span id="player-highscore">-</span></div>
-                <div>NAME: <span id="player-name">-</span></div>
-                <div>POWER: <span id="player-power">-</span></div>
-            </div>
-        </div>
-        
-        <div class="stage-display">
-            <div class="stage-main" id="current-stage">STAGE -</div>
-            <div class="stage-sub" id="stage-level">LEVEL -</div>
-        </div>
-        
-        <div class="gold-display">
-            <i class="fas fa-coins"></i> GOLD<br>
-            <span id="gold-amount">-</span>
-        </div>
-    </div>
-
-    <!-- BATTLE AREA -->
-    <div class="battle-area">
-        <div class="monster-header">
-            <div class="monster-name" id="monster-name">-</div>
-            <div class="monster-category" id="monster-category">-</div>
-        </div>
-        
-        <div class="monster-hp-container">
-            <div class="hp-bar">
-                <div class="hp-fill" id="monster-hp-bar" style="width: 100%"></div>
-            </div>
-            <div class="hp-text" id="monster-hp-text">HP: - / -</div>
-        </div>
-        
-        <div class="battle-grid">
-            <!-- PLAYER PANEL -->
-            <div class="player-panel">
-                <div class="panel-box difficulty" id="difficulty">-</div>
-                <div class="panel-box player-stat">
-                    <div class="stat-value" id="player-damage">-</div>
-                    <div class="stat-label">DAMAGE</div>
+    <div class="app">
+        <!-- TOP BAR -->
+        <div class="top-bar">
+            <div class="profile">
+                <div class="pfp" id="player-avatar">
+                    <i class="fas fa-user"></i>
                 </div>
-                <div class="panel-box player-stat">
-                    <div class="stat-value" id="player-defense">-</div>
-                    <div class="stat-label">DEFENSE</div>
-                </div>
-                <div class="panel-box player-stat">
-                    <div class="stat-value" id="player-crit">-</div>
-                    <div class="stat-label">CRIT CHANCE</div>
+                <div class="profile-info">
+                    <div style="font-weight: 800;">HIGH SCORE: <span id="player-highscore">1</span></div>
+                    <div>NAME: <span id="player-name">Hero</span></div>
+                    <div>POWER: <span id="player-power">38</span></div>
                 </div>
             </div>
             
-            <!-- MONSTER DISPLAY -->
-            <div class="monster-display">
-                <div class="monster-image" id="monster-image">
-                    <i class="fas fa-question"></i>
+            <div class="stage-display">
+                <div class="stage-main" id="current-stage">STAGE 1</div>
+                <div class="stage-sub" id="stage-level">LEVEL BEGINNER</div>
+            </div>
+            
+            <div class="gold-display">
+                <i class="fas fa-coins"></i> GOLD<br>
+                <span id="gold-amount">100</span>
+            </div>
+        </div>
+
+        <!-- BATTLE AREA -->
+        <div class="battle-area">
+            <div class="monster-header">
+                <div class="monster-name" id="monster-name">Goblin</div>
+                <div class="monster-category" id="monster-category">CREATURE</div>
+            </div>
+            
+            <div class="monster-hp-container">
+                <div class="hp-bar">
+                    <div class="hp-fill" id="monster-hp-bar" style="width: 100%"></div>
                 </div>
+                <div class="hp-text" id="monster-hp-text">HP: 50 / 50</div>
             </div>
             
-            <!-- TIMER -->
-            <div class="timer-container">
-                <div class="timer" id="timer">
-                    <span id="timer-seconds">-</span>
-                    <div class="timer-ring" id="timer-ring"></div>
+            <div class="battle-grid">
+                <!-- PLAYER PANEL -->
+                <div class="player-panel">
+                    <div class="panel-box difficulty" id="difficulty">EASY</div>
+                    <div class="panel-box player-stat">
+                        <div class="stat-value" id="player-damage">10</div>
+                        <div class="stat-label">DAMAGE</div>
+                    </div>
+                    <div class="panel-box player-stat">
+                        <div class="stat-value" id="player-defense">5</div>
+                        <div class="stat-label">DEFENSE</div>
+                    </div>
+                    <div class="panel-box player-stat">
+                        <div class="stat-value" id="player-crit">5%</div>
+                        <div class="stat-label">CRIT CHANCE</div>
+                    </div>
                 </div>
-                <div class="timer-text" id="timer-text">SECONDS REMAINING</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- QUESTION SECTION -->
-    <div class="question-section">
-        <div class="question-header">
-            <div class="question-category" id="question-category">-</div>
-            <div class="question-difficulty" id="question-difficulty">-</div>
-        </div>
-        <div class="question-box" id="question-text">-</div>
-        <div class="question-image" id="question-image"></div>
-    </div>
-
-    <!-- ANSWERS -->
-    <div class="answers-section" id="answers-container">
-        <div class="answer-option answer-a" data-index="0">
-            <div class="option-label">A</div>
-            <div class="answer-text" id="answer-text-0">-</div>
-            <div class="answer-image" id="answer-image-0"></div>
-        </div>
-        <div class="answer-option answer-b" data-index="1">
-            <div class="option-label">B</div>
-            <div class="answer-text" id="answer-text-1">-</div>
-            <div class="answer-image" id="answer-image-1"></div>
-        </div>
-        <div class="answer-option answer-c" data-index="2">
-            <div class="option-label">C</div>
-            <div class="answer-text" id="answer-text-2">-</div>
-            <div class="answer-image" id="answer-image-2"></div>
-        </div>
-        <div class="answer-option answer-d" data-index="3">
-            <div class="option-label">D</div>
-            <div class="answer-text" id="answer-text-3">-</div>
-            <div class="answer-image" id="answer-image-3"></div>
-        </div>
-    </div>
-
-    <!-- PLAYER HEALTH -->
-    <div class="player-health-section">
-        <div class="health-container">
-            <div class="health-bar">
-                <div class="health-fill" id="player-hp-bar" style="width: 100%"></div>
-            </div>
-            <div class="health-text" id="player-hp-text">HEALTH: - / -</div>
-        </div>
-        
-        <div class="flasks">
-            <div class="flask" id="health-flask" onclick="useHealthFlask()">
-                <i class="fas fa-flask"></i>
-                <div class="flask-count" id="flask-count">-</div>
-            </div>
-            <div class="flask" onclick="toggleCombatLog()" style="background: var(--blue);">
-                <i class="fas fa-scroll"></i>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- COMBAT LOG -->
-<div class="combat-log" id="combat-log">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <h4 style="margin: 0;">Combat Log</h4>
-        <button class="btn" onclick="clearCombatLog()" style="font-size: 10px; padding: 4px 8px;">Clear</button>
-    </div>
-    <div id="log-entries"></div>
-</div>
-
-<!-- RESULT MODAL -->
-<div class="modal" id="result-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="result-title">-</h3>
-            <button class="close-btn" onclick="closeResultModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div id="result-content">
-                <div class="loading">-</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- GAME OVER MODAL -->
-<div class="modal" id="gameover-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 style="color: var(--red);">GAME OVER</h3>
-            <button class="close-btn" onclick="closeGameOverModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div style="text-align: center; padding: 20px;">
-                <i class="fas fa-skull-crossbones" style="font-size: 64px; color: var(--red); margin-bottom: 20px;"></i>
-                <h4>You have been defeated!</h4>
-                <p id="gameover-details">-</p>
-                <p id="gameover-gold">-</p>
-                <div style="margin-top: 30px; display: flex; gap: 10px; justify-content: center;">
-                    <button class="btn btn-primary" onclick="returnToLobby()">
-                        <i class="fas fa-home"></i> LOBBY
-                    </button>
-                    <button class="btn btn-success" onclick="restartRun()">
-                        <i class="fas fa-redo"></i> RETRY
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- STAGE CLEAR MODAL -->
-<div class="modal" id="stageclear-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 style="color: var(--green);">STAGE CLEAR!</h3>
-            <button class="close-btn" onclick="closeStageClearModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div style="text-align: center; padding: 20px;">
-                <i class="fas fa-trophy" style="font-size: 64px; color: var(--yellow); margin-bottom: 20px;"></i>
-                <h4>Monster Defeated!</h4>
-                <p id="stageclear-details">-</p>
-                <p id="stageclear-reward">-</p>
-                <p id="stageclear-streak">-</p>
-                <div style="margin-top: 30px;">
-                    <button class="btn btn-success" onclick="nextStage()">
-                        <i class="fas fa-forward"></i> NEXT STAGE
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ERROR MODAL -->
-<div class="modal" id="error-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 style="color: var(--red);">ERROR</h3>
-            <button class="close-btn" onclick="closeErrorModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div style="text-align: center; padding: 20px;">
-                <i class="fas fa-exclamation-triangle" style="font-size: 64px; color: var(--red); margin-bottom: 20px;"></i>
-                <h4 id="error-title">Game Setup Required</h4>
-                <p id="error-message">No game data found. Please set up the game first.</p>
-                <div style="margin-top: 30px;">
-                    <button class="btn btn-primary" onclick="goToAdmin()">
-                        <i class="fas fa-cog"></i> GO TO ADMIN PANEL
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script type="module">
-// Import Supabase client
-import { supabase } from './supabase.js';
-
-console.log('RPG Battle - Supabase client loaded');
-
-// Game state
-let gameState = {
-    currentRun: null,
-    playerStats: null,
-    currentMonster: null,
-    currentQuestion: null,
-    questionOptions: [],
-    selectedAnswer: null,
-    timerInterval: null,
-    timeLeft: 30,
-    maxTime: 30,
-    isAnswering: false,
-    combatLog: [],
-    healthFlasks: 3,
-    streak: 0,
-    goldEarned: 0,
-    currentUser: null,
-    monsterQuestions: [],
-    currentQuestionIndex: 0
-};
-
-// Initialize game
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log('Initializing RPG Battle...');
-    
-    try {
-        // Setup event listeners
-        setupEventListeners();
-        
-        // Load game data
-        await loadGameData();
-        
-        // Initialize flasks
-        document.getElementById('flask-count').textContent = gameState.healthFlasks;
-        
-        console.log('Game initialization complete');
-    } catch (error) {
-        console.error('Failed to initialize game:', error);
-        showError('Initialization Error', 'Failed to initialize game. Please check console for details.');
-    }
-});
-
-// Setup event listeners
-function setupEventListeners() {
-    // Answer selection
-    document.querySelectorAll('.answer-option').forEach(option => {
-        option.addEventListener('click', function() {
-            if (gameState.isAnswering) return;
-            
-            const index = parseInt(this.getAttribute('data-index'));
-            selectAnswer(index);
-        });
-    });
-}
-
-// Test database connection
-async function testDatabaseConnection() {
-    try {
-        console.log('Testing database connection...');
-        
-        // Try to query a simple table
-        const { data, error } = await supabase
-            .from('users')
-            .select('count', { count: 'exact', head: true })
-            .limit(1);
-        
-        if (error) {
-            console.error('Database connection test failed:', error);
-            return false;
-        }
-        
-        console.log('Database connection successful');
-        return true;
-        
-    } catch (error) {
-        console.error('Database connection test failed:', error);
-        return false;
-    }
-}
-
-// Create default data if needed
-async function createDefaultData() {
-    console.log('Checking for default data...');
-    
-    try {
-        // Check if users exist
-        const { data: users, error: usersError } = await supabase
-            .from('users')
-            .select('id')
-            .limit(1);
-        
-        if (usersError) throw usersError;
-        
-        // If no users, create a default user
-        if (!users || users.length === 0) {
-            console.log('Creating default user...');
-            const { data: newUser, error: createUserError } = await supabase
-                .from('users')
-                .insert([
-                    {
-                        username: 'Player1',
-                        highest_stage: 1,
-                        gold: 100
-                    }
-                ])
-                .select()
-                .single();
-            
-            if (createUserError) throw createUserError;
-            console.log('Default user created:', newUser.username);
-        }
-        
-        // Check if monsters exist
-        const { data: monsters, error: monstersError } = await supabase
-            .from('monsters')
-            .select('id')
-            .limit(1);
-        
-        if (monstersError) throw monstersError;
-        
-        // If no monsters, create a default monster
-        if (!monsters || monsters.length === 0) {
-            console.log('Creating default monster...');
-            const { data: newMonster, error: createMonsterError } = await supabase
-                .from('monsters')
-                .insert([
-                    {
-                        name: 'Goblin',
-                        stage: 1,
-                        hp: 50,
-                        damage: 8,
-                        defense: 2,
-                        timer_seconds: 30,
-                        category: 'Creature',
-                        gold_reward: 10
-                    }
-                ])
-                .select()
-                .single();
-            
-            if (createMonsterError) throw createMonsterError;
-            console.log('Default monster created:', newMonster.name);
-        }
-        
-        // Check if questions exist
-        const { data: questions, error: questionsError } = await supabase
-            .from('questions')
-            .select('id')
-            .limit(1);
-        
-        if (questionsError) throw questionsError;
-        
-        // If no questions, create a default question
-        if (!questions || questions.length === 0) {
-            console.log('Creating default question...');
-            const { data: newQuestion, error: createQuestionError } = await supabase
-                .from('questions')
-                .insert([
-                    {
-                        category: 'Math',
-                        difficulty: 'Easy',
-                        question_text: 'What is 2 + 2?',
-                        timer_seconds: 30
-                    }
-                ])
-                .select()
-                .single();
-            
-            if (createQuestionError) throw createQuestionError;
-            
-            // Create default options for the question
-            console.log('Creating default question options...');
-            const { error: optionsError } = await supabase
-                .from('question_options')
-                .insert([
-                    {
-                        question_id: newQuestion.id,
-                        option_text: '4',
-                        is_correct: true
-                    },
-                    {
-                        question_id: newQuestion.id,
-                        option_text: '5',
-                        is_correct: false
-                    },
-                    {
-                        question_id: newQuestion.id,
-                        option_text: '3',
-                        is_correct: false
-                    },
-                    {
-                        question_id: newQuestion.id,
-                        option_text: '6',
-                        is_correct: false
-                    }
-                ]);
-            
-            if (optionsError) throw optionsError;
-            console.log('Default question and options created');
-        }
-        
-        console.log('Default data check complete');
-        return true;
-        
-    } catch (error) {
-        console.error('Error creating default data:', error);
-        return false;
-    }
-}
-
-// Load game data from Supabase
-async function loadGameData() {
-    try {
-        console.log('Loading game data...');
-        
-        // First test database connection
-        const isConnected = await testDatabaseConnection();
-        if (!isConnected) {
-            showError('Database Connection Failed', 'Cannot connect to database. Please check your Supabase configuration.');
-            return;
-        }
-        
-        // Create default data if needed
-        await createDefaultData();
-        
-        // Get current user
-        const { data: users, error: usersError } = await supabase
-            .from('users')
-            .select('*')
-            .order('created_at', { ascending: true })
-            .limit(1);
-        
-        if (usersError) {
-            console.error('Error loading users:', usersError);
-            showError('Database Error', 'Could not load user data: ' + usersError.message);
-            return;
-        }
-        
-        if (!users || users.length === 0) {
-            showError('No User Found', 'Please create a user in the admin panel first.');
-            return;
-        }
-        
-        gameState.currentUser = users[0];
-        console.log('Loaded user:', gameState.currentUser.username);
-        
-        // Update player info
-        document.getElementById('player-name').textContent = gameState.currentUser.username || 'Player';
-        document.getElementById('player-highscore').textContent = gameState.currentUser.highest_stage || 1;
-        document.getElementById('gold-amount').textContent = gameState.currentUser.gold || 0;
-        
-        // Get or create player stats
-        await getOrCreatePlayerStats();
-        
-        // Get current run
-        const { data: runs, error: runsError } = await supabase
-            .from('runs')
-            .select('*')
-            .eq('user_id', gameState.currentUser.id)
-            .order('created_at', { ascending: false })
-            .limit(1);
-        
-        if (runsError) {
-            console.error('Error loading runs:', runsError);
-            showError('Database Error', 'Could not load game runs: ' + runsError.message);
-            return;
-        }
-        
-        if (runs && runs.length > 0) {
-            gameState.currentRun = runs[0];
-            console.log('Loaded existing run, stage:', gameState.currentRun.current_stage);
-            
-            // Load monster if available
-            if (gameState.currentRun.current_monster) {
-                await loadMonster(gameState.currentRun.current_monster);
-            } else {
-                // Get monster for current stage
-                await loadMonsterForStage(gameState.currentRun.current_stage);
-            }
-            
-            updateRunDisplay();
-            
-        } else {
-            // No active run, create one
-            console.log('No existing run, creating new run...');
-            await createNewRun();
-        }
-        
-        // Check if we have a monster
-        if (!gameState.currentMonster) {
-            await loadAnyMonster();
-        }
-        
-        if (!gameState.currentMonster) {
-            showError('No Monsters Found', 'Please add monsters to the database in the admin panel.');
-            return;
-        }
-        
-        // Load monster-specific questions
-        await loadMonsterQuestions(gameState.currentMonster.id);
-        
-        // Load first question
-        await loadQuestion();
-        
-        // Start the game timer
-        startTimer();
-        
-        console.log('Game data loaded successfully');
-        
-    } catch (error) {
-        console.error('Error loading game data:', error);
-        showError('Game Error', 'Failed to load game: ' + error.message);
-    }
-}
-
-// Get or create player stats
-async function getOrCreatePlayerStats() {
-    try {
-        const { data: stats, error: statsError } = await supabase
-            .from('player_stats')
-            .select('*')
-            .eq('user_id', gameState.currentUser.id)
-            .single();
-        
-        if (statsError && statsError.code !== 'PGRST116') { // PGRST116 = no rows returned
-            console.error('Error loading player stats:', statsError);
-            throw statsError;
-        }
-        
-        if (stats) {
-            gameState.playerStats = stats;
-            console.log('Loaded player stats');
-        } else {
-            // Create default player stats
-            const defaultStats = {
-                user_id: gameState.currentUser.id,
-                base_hp: 100,
-                base_damage: 10,
-                base_defense: 5,
-                crit_chance: 0.05
-            };
-            
-            const { data: newStats, error: createError } = await supabase
-                .from('player_stats')
-                .insert([defaultStats])
-                .select()
-                .single();
-            
-            if (createError) {
-                console.error('Error creating player stats:', createError);
-                // Use in-memory stats if database insert fails
-                gameState.playerStats = defaultStats;
-                console.log('Using in-memory player stats');
-            } else {
-                gameState.playerStats = newStats;
-                console.log('Created default player stats');
-            }
-        }
-        
-    } catch (error) {
-        console.error('Error in getOrCreatePlayerStats:', error);
-        // Use default stats
-        gameState.playerStats = {
-            user_id: gameState.currentUser.id,
-            base_hp: 100,
-            base_damage: 10,
-            base_defense: 5,
-            crit_chance: 0.05
-        };
-    }
-}
-
-// Create new run
-async function createNewRun() {
-    try {
-        console.log('Creating new run...');
-        
-        // Check if monsters exist
-        let { data: monsters, error: monstersError } = await supabase
-            .from('monsters')
-            .select('*')
-            .eq('stage', 1)
-            .limit(1);
-        
-        if (monstersError) throw monstersError;
-        
-        if (!monsters || monsters.length === 0) {
-            // Try any monster
-            const { data: anyMonsters, error: anyError } = await supabase
-                .from('monsters')
-                .select('*')
-                .order('stage', { ascending: true })
-                .limit(1);
-            
-            if (anyError) throw anyError;
-            
-            if (!anyMonsters || anyMonsters.length === 0) {
-                // Create emergency monster
-                monsters = [{
-                    id: 'emergency-monster',
-                    name: 'Training Dummy',
-                    stage: 1,
-                    hp: 30,
-                    damage: 5,
-                    defense: 0,
-                    timer_seconds: 30,
-                    category: 'Training',
-                    gold_reward: 5
-                }];
-                console.log('Using emergency monster');
-            } else {
-                monsters = anyMonsters;
-            }
-        }
-        
-        const monster = monsters[0];
-        const playerHP = gameState.playerStats?.base_hp || 100;
-        
-        console.log('Creating run with monster:', monster.name);
-        
-        // Create run (if monster has an id, use it, otherwise skip database insert)
-        if (monster.id && monster.id !== 'emergency-monster') {
-            const { data: run, error: runError } = await supabase
-                .from('runs')
-                .insert([{
-                    user_id: gameState.currentUser.id,
-                    current_stage: 1,
-                    current_monster: monster.id,
-                    player_hp: playerHP,
-                    monster_hp: monster.hp,
-                    streak: 0,
-                    started_at: new Date().toISOString()
-                }])
-                .select()
-                .single();
-            
-            if (runError) throw runError;
-            
-            gameState.currentRun = run;
-        } else {
-            // Create in-memory run for emergency monster
-            gameState.currentRun = {
-                id: 'emergency-run',
-                user_id: gameState.currentUser.id,
-                current_stage: 1,
-                current_monster: null,
-                player_hp: playerHP,
-                monster_hp: monster.hp,
-                streak: 0,
-                started_at: new Date().toISOString()
-            };
-            console.log('Created in-memory emergency run');
-        }
-        
-        gameState.currentMonster = monster;
-        updateRunDisplay();
-        updateMonsterDisplay();
-        
-        addToCombatLog('New run started!', 'info');
-        
-    } catch (error) {
-        console.error('Error creating new run:', error);
-        // Create emergency run
-        gameState.currentRun = {
-            id: 'emergency-run-fallback',
-            user_id: gameState.currentUser?.id || 'unknown',
-            current_stage: 1,
-            current_monster: null,
-            player_hp: 100,
-            monster_hp: 30,
-            streak: 0,
-            started_at: new Date().toISOString()
-        };
-        
-        gameState.currentMonster = {
-            id: 'emergency-monster-fallback',
-            name: 'Training Dummy',
-            stage: 1,
-            hp: 30,
-            damage: 5,
-            defense: 0,
-            timer_seconds: 30,
-            category: 'Training',
-            gold_reward: 5
-        };
-        
-        updateRunDisplay();
-        updateMonsterDisplay();
-        addToCombatLog('Emergency run started (database error)', 'info');
-    }
-}
-
-// Load monster data
-async function loadMonster(monsterId) {
-    if (!monsterId) {
-        console.log('No monster ID provided');
-        gameState.currentMonster = null;
-        return;
-    }
-    
-    try {
-        console.log('Loading monster with ID:', monsterId);
-        const { data: monster, error } = await supabase
-            .from('monsters')
-            .select('*')
-            .eq('id', monsterId)
-            .single();
-        
-        if (error) {
-            console.error('Error loading monster:', error);
-            gameState.currentMonster = null;
-            return;
-        }
-        
-        gameState.currentMonster = monster;
-        updateMonsterDisplay();
-        
-    } catch (error) {
-        console.error('Error in loadMonster:', error);
-        gameState.currentMonster = null;
-    }
-}
-
-// Load any monster as fallback
-async function loadAnyMonster() {
-    try {
-        const { data: monsters, error } = await supabase
-            .from('monsters')
-            .select('*')
-            .order('stage', { ascending: true })
-            .limit(1);
-        
-        if (error) {
-            console.error('Error loading any monster:', error);
-            return false;
-        }
-        
-        if (monsters && monsters.length > 0) {
-            gameState.currentMonster = monsters[0];
-            console.log('Loaded fallback monster:', gameState.currentMonster.name);
-            updateMonsterDisplay();
-            return true;
-        }
-        return false;
-    } catch (error) {
-        console.error('Error in loadAnyMonster:', error);
-        return false;
-    }
-}
-
-// Load monster-specific questions
-async function loadMonsterQuestions(monsterId) {
-    try {
-        console.log('Loading questions for monster:', monsterId);
-        
-        // Get all questions assigned to this monster
-        const { data: monsterQuestions, error } = await supabase
-            .from('monster_questions')
-            .select(`question_order, questions (*)`)
-            .eq('monster_id', monsterId)
-            .order('question_order', { ascending: true });
-        
-        if (error) throw error;
-        
-        if (monsterQuestions && monsterQuestions.length > 0) {
-            // Extract the questions from the result
-            gameState.monsterQuestions = monsterQuestions.map(mq => ({
-                ...mq.questions,
-                question_order: mq.question_order
-            }));
-            gameState.currentQuestionIndex = 0;
-            console.log(`Loaded ${gameState.monsterQuestions.length} specific questions for monster`);
-        } else {
-            // No specific questions assigned
-            console.log('No specific questions assigned to monster');
-            gameState.monsterQuestions = [];
-            gameState.currentQuestionIndex = 0;
-        }
-        
-    } catch (error) {
-        console.error('Error loading monster questions:', error);
-        gameState.monsterQuestions = [];
-        gameState.currentQuestionIndex = 0;
-    }
-}
-
-// Load monster for current stage
-async function loadMonsterForStage(stage) {
-    try {
-        console.log('Loading monster for stage:', stage);
-        const { data: monsters, error } = await supabase
-            .from('monsters')
-            .select('*')
-            .eq('stage', stage)
-            .limit(1);
-        
-        if (error) {
-            console.error('Error loading monster for stage:', error);
-            return;
-        }
-        
-        if (monsters && monsters.length > 0) {
-            gameState.currentMonster = monsters[0];
-            updateMonsterDisplay();
-        } else {
-            console.log(`No monster found for stage ${stage}`);
-            gameState.currentMonster = null;
-        }
-        
-    } catch (error) {
-        console.error('Error in loadMonsterForStage:', error);
-        gameState.currentMonster = null;
-    }
-}
-
-// Load question from database
-async function loadQuestion() {
-    try {
-        console.log('Loading question...');
-        
-        // Reset selection
-        gameState.selectedAnswer = null;
-        gameState.isAnswering = false;
-        
-        // Clear previous selections
-        document.querySelectorAll('.answer-option').forEach(option => {
-            option.classList.remove('selected', 'correct', 'incorrect');
-        });
-        
-        let question = null;
-        
-        // Check if we have monster-specific questions
-        if (gameState.monsterQuestions && gameState.monsterQuestions.length > 0) {
-            // Use monster-specific questions in order
-            if (gameState.currentQuestionIndex >= gameState.monsterQuestions.length) {
-                gameState.currentQuestionIndex = 0; // Reset to start
-            }
-            
-            question = gameState.monsterQuestions[gameState.currentQuestionIndex];
-            console.log(`Using monster-specific question ${gameState.currentQuestionIndex + 1}/${gameState.monsterQuestions.length}`);
-            
-            // Move to next question
-            gameState.currentQuestionIndex++;
-            if (gameState.currentQuestionIndex >= gameState.monsterQuestions.length) {
-                gameState.currentQuestionIndex = 0; // Loop back to start
-            }
-            
-        } else {
-            // Fallback: Get random question
-            console.log('Using fallback: random question');
-            
-            // Get random question
-            const { data: questions, error: questionsError } = await supabase
-                .from('questions')
-                .select('*');
-            
-            if (questionsError) throw questionsError;
-            
-            if (!questions || questions.length === 0) {
-                // Create dummy question
-                question = {
-                    id: 'dummy',
-                    question_text: 'What is 2 + 2?',
-                    category: 'Math',
-                    difficulty: 'Easy',
-                    timer_seconds: 30
-                };
-                console.log('Using dummy question');
-            } else {
-                const randomIndex = Math.floor(Math.random() * questions.length);
-                question = questions[randomIndex];
-                console.log('Loaded random question:', question.category);
-            }
-        }
-        
-        if (!question) {
-            console.error('No question found or created');
-            addToCombatLog('Failed to load question!', 'error');
-            return;
-        }
-        
-        gameState.currentQuestion = question;
-        
-        // Get question options
-        let options = [];
-        if (question.id !== 'dummy') {
-            const { data: optionsData, error: optionsError } = await supabase
-                .from('question_options')
-                .select('*')
-                .eq('question_id', gameState.currentQuestion.id);
-            
-            if (optionsError) {
-                console.error('Error loading options:', optionsError);
-                // Create dummy options
-                options = [
-                    { id: 'dummy1', option_text: '4', is_correct: true, image_url: null },
-                    { id: 'dummy2', option_text: '5', is_correct: false, image_url: null },
-                    { id: 'dummy3', option_text: '3', is_correct: false, image_url: null },
-                    { id: 'dummy4', option_text: '6', is_correct: false, image_url: null }
-                ];
-                console.log('Using dummy options');
-            } else {
-                options = optionsData || [];
                 
-                // Check if we have enough options
-                if (options.length < 2) {
-                    console.log('Question has insufficient options, creating dummy options');
-                    options = [
-                        { id: 'dummy1', option_text: '4', is_correct: true, image_url: null },
-                        { id: 'dummy2', option_text: '5', is_correct: false, image_url: null },
-                        { id: 'dummy3', option_text: '3', is_correct: false, image_url: null },
-                        { id: 'dummy4', option_text: '6', is_correct: false, image_url: null }
-                    ];
-                }
+                <!-- MONSTER DISPLAY -->
+                <div class="monster-display">
+                    <div class="monster-image" id="monster-image">
+                        <i class="fas fa-dragon"></i>
+                    </div>
+                </div>
+                
+                <!-- TIMER -->
+                <div class="timer-container">
+                    <div class="timer" id="timer">
+                        <span id="timer-seconds">30</span>
+                        <div class="timer-ring" id="timer-ring"></div>
+                    </div>
+                    <div class="timer-text" id="timer-text">SECONDS REMAINING</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUESTION SECTION -->
+        <div class="question-section">
+            <div class="question-header">
+                <div class="question-category" id="question-category">MATH</div>
+                <div class="question-difficulty" id="question-difficulty">EASY</div>
+            </div>
+            <div class="question-box" id="question-text">What is 15 + 27?</div>
+        </div>
+
+        <!-- ANSWERS -->
+        <div class="answers-section" id="answers-container">
+            <div class="answer-option answer-a" data-index="0">
+                <div class="option-label">A</div>
+                <div class="answer-text" id="answer-text-0">42</div>
+            </div>
+            <div class="answer-option answer-b" data-index="1">
+                <div class="option-label">B</div>
+                <div class="answer-text" id="answer-text-1">32</div>
+            </div>
+            <div class="answer-option answer-c" data-index="2">
+                <div class="option-label">C</div>
+                <div class="answer-text" id="answer-text-2">52</div>
+            </div>
+            <div class="answer-option answer-d" data-index="3">
+                <div class="option-label">D</div>
+                <div class="answer-text" id="answer-text-3">37</div>
+            </div>
+        </div>
+
+        <!-- PLAYER HEALTH -->
+        <div class="player-health-section">
+            <div class="health-container">
+                <div class="health-bar">
+                    <div class="health-fill" id="player-hp-bar" style="width: 100%"></div>
+                </div>
+                <div class="health-text" id="player-hp-text">HEALTH: 100 / 100</div>
+            </div>
+            
+            <div class="flasks">
+                <div class="flask" id="health-flask" onclick="useHealthFlask()">
+                    <i class="fas fa-flask"></i>
+                    <div class="flask-count" id="flask-count">3</div>
+                </div>
+                <div class="flask info" onclick="toggleCombatLog()">
+                    <i class="fas fa-scroll"></i>
+                </div>
+                <div class="flask" onclick="showDebugInfo()" style="background: linear-gradient(135deg, var(--purple) 0%, #5e35b1 100%);">
+                    <i class="fas fa-bug"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMBAT LOG -->
+    <div class="combat-log" id="combat-log">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 3px solid var(--border);">
+            <h4 style="margin: 0; font-size: 18px;"><i class="fas fa-history"></i> COMBAT LOG</h4>
+            <button class="btn" onclick="clearCombatLog()" style="font-size: 12px; padding: 6px 12px; min-width: auto;">Clear</button>
+        </div>
+        <div id="log-entries">
+            <div class="log-entry info"><i class="fas fa-info-circle"></i> Welcome to RPG Battle!</div>
+            <div class="log-entry info"><i class="fas fa-info-circle"></i> Answer questions to defeat monsters</div>
+            <div class="log-entry damage"><i class="fas fa-skull-crossbones"></i> Monster attacks when you answer wrong or run out of time!</div>
+        </div>
+    </div>
+
+    <!-- RESULT MODAL -->
+    <div class="modal" id="result-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="result-title">RESULT</h3>
+                <button class="close-btn" onclick="closeResultModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="result-content">
+                    <!-- Content filled by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME OVER MODAL -->
+    <div class="modal" id="gameover-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: var(--red);"><i class="fas fa-skull-crossbones"></i> GAME OVER</h3>
+                <button class="close-btn" onclick="closeGameOverModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; padding: 20px;">
+                    <div class="spinner" style="border-left-color: var(--red);"></div>
+                    <h4>You have been defeated!</h4>
+                    <p id="gameover-details" style="font-size: 18px; margin: 15px 0;">Stage reached: 1</p>
+                    <p id="gameover-gold" style="font-size: 16px; color: var(--yellow); font-weight: bold;">Gold earned this run: 0</p>
+                    <div style="margin-top: 30px; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
+                        <button class="btn btn-primary" onclick="returnToLobby()">
+                            <i class="fas fa-home"></i> LOBBY
+                        </button>
+                        <button class="btn btn-success" onclick="restartRun()">
+                            <i class="fas fa-redo"></i> RETRY
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STAGE CLEAR MODAL -->
+    <div class="modal" id="stageclear-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: var(--green);"><i class="fas fa-trophy"></i> STAGE CLEAR!</h3>
+                <button class="close-btn" onclick="closeStageClearModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; padding: 20px;">
+                    <div class="spinner" style="border-left-color: var(--green);"></div>
+                    <h4>Monster Defeated!</h4>
+                    <p id="stageclear-details" style="font-size: 18px; margin: 10px 0;">Stage 1 cleared!</p>
+                    <p id="stageclear-reward" style="font-size: 16px; color: var(--yellow); font-weight: bold;">Total Reward: 10 Gold</p>
+                    <p id="stageclear-streak" style="font-size: 16px; color: var(--orange); font-weight: bold;">Final Streak: 0</p>
+                    <div style="margin-top: 30px;">
+                        <button class="btn btn-success" onclick="nextStage()">
+                            <i class="fas fa-forward"></i> NEXT STAGE
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEBUG INFO MODAL -->
+    <div class="modal" id="debug-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-bug"></i> Game Debug Info</h3>
+                <button class="close-btn" onclick="closeDebugModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: left; padding: 10px;">
+                    <h4>Game State:</h4>
+                    <pre id="debug-state" style="background: #f5f5f5; padding: 15px; border-radius: 8px; font-size: 12px; max-height: 300px; overflow-y: auto; font-family: monospace;"></pre>
+                    <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn" onclick="resetGame()">
+                            <i class="fas fa-trash"></i> Reset Game
+                        </button>
+                        <button class="btn btn-success" onclick="loadMoreQuestions()">
+                            <i class="fas fa-plus"></i> Add More Questions
+                        </button>
+                        <button class="btn btn-danger" onclick="cheatKillMonster()">
+                            <i class="fas fa-skull"></i> Kill Monster
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // GAME DATA
+        // ============================================
+
+        // Sample monsters
+        const monsters = [
+            {
+                id: 1,
+                name: "Goblin",
+                stage: 1,
+                hp: 50,
+                maxHp: 50,
+                damage: 8,
+                defense: 2,
+                timer: 30,
+                category: "Creature",
+                goldReward: 10,
+                description: "A small but nasty creature"
+            },
+            {
+                id: 2,
+                name: "Orc",
+                stage: 2,
+                hp: 80,
+                maxHp: 80,
+                damage: 12,
+                defense: 5,
+                timer: 25,
+                category: "Brute",
+                goldReward: 20,
+                description: "Strong and tough warrior"
+            },
+            {
+                id: 3,
+                name: "Troll",
+                stage: 3,
+                hp: 120,
+                maxHp: 120,
+                damage: 15,
+                defense: 8,
+                timer: 20,
+                category: "Giant",
+                goldReward: 35,
+                description: "Regenerates health quickly"
+            },
+            {
+                id: 4,
+                name: "Dragon",
+                stage: 4,
+                hp: 200,
+                maxHp: 200,
+                damage: 25,
+                defense: 15,
+                timer: 15,
+                category: "Legendary",
+                goldReward: 100,
+                description: "Fire-breathing ancient beast"
+            },
+            {
+                id: 5,
+                name: "Lich",
+                stage: 5,
+                hp: 150,
+                maxHp: 150,
+                damage: 30,
+                defense: 20,
+                timer: 12,
+                category: "Undead",
+                goldReward: 150,
+                description: "Powerful undead sorcerer"
             }
-        } else {
-            // Create dummy options for dummy question
-            options = [
-                { id: 'dummy1', option_text: '4', is_correct: true, image_url: null },
-                { id: 'dummy2', option_text: '5', is_correct: false, image_url: null },
-                { id: 'dummy3', option_text: '3', is_correct: false, image_url: null },
-                { id: 'dummy4', option_text: '6', is_correct: false, image_url: null }
-            ];
-        }
-        
-        gameState.questionOptions = options;
-        
-        // Shuffle options to randomize positions (keep track of correct answer)
-        shuffleOptions();
-        
-        // Update display
-        updateQuestionDisplay();
-        
-        // Set timer based on question
-        gameState.maxTime = gameState.currentQuestion.timer_seconds || 30;
-        gameState.timeLeft = gameState.maxTime;
-        updateTimer();
-        
-        // Reset timer ring
-        document.getElementById('timer-ring').style.transform = 'rotate(0deg)';
-        
-        addToCombatLog('New question loaded: ' + gameState.currentQuestion.category, 'info');
-        
-    } catch (error) {
-        console.error('Error loading question:', error);
-        addToCombatLog('Failed to load question: ' + error.message, 'error');
-        
-        // Create emergency fallback question
-        gameState.currentQuestion = {
-            id: 'emergency',
-            question_text: 'What is 2 + 2?',
-            category: 'Emergency',
-            difficulty: 'Easy',
-            timer_seconds: 30
-        };
-        
-        gameState.questionOptions = [
-            { id: 'e1', option_text: '4', is_correct: true, image_url: null },
-            { id: 'e2', option_text: '5', is_correct: false, image_url: null },
-            { id: 'e3', option_text: '3', is_correct: false, image_url: null },
-            { id: 'e4', option_text: '6', is_correct: false, image_url: null }
         ];
-        
-        shuffleOptions();
-        updateQuestionDisplay();
-        gameState.maxTime = 30;
-        gameState.timeLeft = gameState.maxTime;
-        updateTimer();
-        
-        addToCombatLog('Loaded emergency fallback question', 'info');
-    }
-}
 
-// Shuffle question options while keeping track of correct answer
-function shuffleOptions() {
-    if (!gameState.questionOptions || gameState.questionOptions.length < 2) return;
-    
-    // Create array of indices
-    const indices = Array.from({ length: gameState.questionOptions.length }, (_, i) => i);
-    
-    // Fisher-Yates shuffle
-    for (let i = indices.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [indices[i], indices[j]] = [indices[j], indices[i]];
-    }
-    
-    // Reorder options based on shuffled indices
-    const shuffledOptions = indices.map(i => gameState.questionOptions[i]);
-    gameState.questionOptions = shuffledOptions;
-}
-
-// Update player stats display
-function updatePlayerStats() {
-    if (!gameState.playerStats) return;
-    
-    const baseDamage = gameState.playerStats.base_damage || 10;
-    const baseDefense = gameState.playerStats.base_defense || 5;
-    const critChance = gameState.playerStats.crit_chance || 0.05;
-    
-    document.getElementById('player-damage').textContent = baseDamage;
-    document.getElementById('player-defense').textContent = baseDefense;
-    document.getElementById('player-crit').textContent = `${(critChance * 100).toFixed(1)}%`;
-    
-    // Calculate power level
-    const power = baseDamage + baseDefense + (critChance * 100);
-    document.getElementById('player-power').textContent = Math.round(power);
-}
-
-// Update run display
-function updateRunDisplay() {
-    if (!gameState.currentRun) return;
-    
-    document.getElementById('current-stage').textContent = `STAGE ${gameState.currentRun.current_stage}`;
-    document.getElementById('stage-level').textContent = `LEVEL ${gameState.currentRun.current_stage}`;
-    
-    // Update player HP
-    const playerHP = gameState.currentRun.player_hp;
-    const maxHP = gameState.playerStats?.base_hp || 100;
-    const hpPercent = (playerHP / maxHP) * 100;
-    
-    document.getElementById('player-hp-bar').style.width = `${hpPercent}%`;
-    document.getElementById('player-hp-text').textContent = `HEALTH: ${playerHP} / ${maxHP}`;
-    
-    // Update streak
-    gameState.streak = gameState.currentRun.streak || 0;
-    
-    // Update player stats
-    updatePlayerStats();
-}
-
-// Update monster display
-function updateMonsterDisplay() {
-    if (!gameState.currentMonster) return;
-    
-    document.getElementById('monster-name').textContent = gameState.currentMonster.name;
-    document.getElementById('monster-category').textContent = gameState.currentMonster.category || 'MONSTER';
-    
-    // Update monster HP
-    const monsterHP = gameState.currentRun?.monster_hp || gameState.currentMonster.hp;
-    const maxHP = gameState.currentMonster.hp;
-    const hpPercent = (monsterHP / maxHP) * 100;
-    
-    document.getElementById('monster-hp-bar').style.width = `${hpPercent}%`;
-    document.getElementById('monster-hp-text').textContent = `HP: ${monsterHP} / ${maxHP}`;
-    
-    // Update difficulty
-    const stage = gameState.currentRun?.current_stage || 1;
-    const difficulty = stage <= 3 ? 'EASY' : stage <= 6 ? 'MEDIUM' : stage <= 10 ? 'HARD' : 'EXPERT';
-    document.getElementById('difficulty').textContent = difficulty;
-    
-    // Update monster image
-    const monsterImage = document.getElementById('monster-image');
-    if (gameState.currentMonster.image_url) {
-        monsterImage.innerHTML = `<img src="${gameState.currentMonster.image_url}" alt="${gameState.currentMonster.name}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-dragon\\'></i>'">`;
-    } else {
-        monsterImage.innerHTML = '<i class="fas fa-dragon"></i>';
-    }
-}
-
-// Update question display
-function updateQuestionDisplay() {
-    if (!gameState.currentQuestion) return;
-    
-    document.getElementById('question-text').textContent = gameState.currentQuestion.question_text;
-    document.getElementById('question-category').textContent = gameState.currentQuestion.category || 'GENERAL';
-    document.getElementById('question-difficulty').textContent = gameState.currentQuestion.difficulty || 'MEDIUM';
-    
-    // Update question image
-    const questionImage = document.getElementById('question-image');
-    if (gameState.currentQuestion.image_url) {
-        questionImage.src = gameState.currentQuestion.image_url;
-        questionImage.alt = gameState.currentQuestion.question_text;
-        questionImage.classList.add('show');
-    } else {
-        questionImage.classList.remove('show');
-    }
-    
-    // Update answer options (only show up to 4 options)
-    for (let i = 0; i < 4; i++) {
-        const option = gameState.questionOptions[i];
-        const answerText = document.getElementById(`answer-text-${i}`);
-        const answerImage = document.getElementById(`answer-image-${i}`);
-        const answerOption = document.querySelector(`.answer-option[data-index="${i}"]`);
-        
-        if (option) {
-            answerText.textContent = option.option_text;
-            
-            if (option.image_url) {
-                answerImage.src = option.image_url;
-                answerImage.alt = option.option_text;
-                answerImage.classList.add('show');
-            } else {
-                answerImage.classList.remove('show');
+        // Sample questions
+        let questions = [
+            {
+                id: 1,
+                category: "Math",
+                difficulty: "Easy",
+                question: "What is 15 + 27?",
+                options: [
+                    { text: "42", correct: true },
+                    { text: "32", correct: false },
+                    { text: "52", correct: false },
+                    { text: "37", correct: false }
+                ]
+            },
+            {
+                id: 2,
+                category: "Science",
+                difficulty: "Medium",
+                question: "What planet is known as the Red Planet?",
+                options: [
+                    { text: "Venus", correct: false },
+                    { text: "Mars", correct: true },
+                    { text: "Jupiter", correct: false },
+                    { text: "Saturn", correct: false }
+                ]
+            },
+            {
+                id: 3,
+                category: "History",
+                difficulty: "Medium",
+                question: "Who was the first president of the United States?",
+                options: [
+                    { text: "Abraham Lincoln", correct: false },
+                    { text: "George Washington", correct: true },
+                    { text: "Thomas Jefferson", correct: false },
+                    { text: "John Adams", correct: false }
+                ]
+            },
+            {
+                id: 4,
+                category: "Geography",
+                difficulty: "Easy",
+                question: "What is the largest ocean on Earth?",
+                options: [
+                    { text: "Atlantic Ocean", correct: false },
+                    { text: "Indian Ocean", correct: false },
+                    { text: "Pacific Ocean", correct: true },
+                    { text: "Arctic Ocean", correct: false }
+                ]
+            },
+            {
+                id: 5,
+                category: "Literature",
+                difficulty: "Hard",
+                question: "Who wrote 'Romeo and Juliet'?",
+                options: [
+                    { text: "Charles Dickens", correct: false },
+                    { text: "William Shakespeare", correct: true },
+                    { text: "Jane Austen", correct: false },
+                    { text: "Mark Twain", correct: false }
+                ]
+            },
+            {
+                id: 6,
+                category: "Sports",
+                difficulty: "Easy",
+                question: "How many players are on a soccer team?",
+                options: [
+                    { text: "9", correct: false },
+                    { text: "10", correct: false },
+                    { text: "11", correct: true },
+                    { text: "12", correct: false }
+                ]
             }
-            
-            answerOption.style.display = 'flex';
-        } else {
-            answerOption.style.display = 'none';
-        }
-    }
-}
+        ];
 
-// Select answer
-function selectAnswer(index) {
-    if (gameState.isAnswering) return;
-    
-    // Clear previous selection
-    document.querySelectorAll('.answer-option').forEach(option => {
-        option.classList.remove('selected');
-    });
-    
-    // Mark selected
-    const selectedOption = document.querySelector(`.answer-option[data-index="${index}"]`);
-    selectedOption.classList.add('selected');
-    gameState.selectedAnswer = index;
-    gameState.isAnswering = true;
-    
-    // Clear timer
-    clearInterval(gameState.timerInterval);
-    
-    // Check answer
-    checkAnswer(index);
-}
-
-// Check if answer is correct
-async function checkAnswer(selectedIndex) {
-    const option = gameState.questionOptions[selectedIndex];
-    const isCorrect = option?.is_correct || false;
-    
-    // Mark correct/incorrect
-    document.querySelectorAll('.answer-option').forEach(optionEl => {
-        const optionIndex = parseInt(optionEl.getAttribute('data-index'));
-        const optionData = gameState.questionOptions[optionIndex];
-        
-        if (optionData?.is_correct) {
-            optionEl.classList.add('correct');
-        } else if (optionIndex === selectedIndex) {
-            optionEl.classList.add('incorrect');
-        }
-    });
-    
-    // Process combat
-    await processCombat(isCorrect);
-    
-    // Show result
-    showResult(isCorrect, option?.option_text);
-}
-
-// Process combat based on answer
-async function processCombat(isCorrect) {
-    try {
-        if (!gameState.currentRun || !gameState.currentMonster) return;
-        
-        let damageToMonster = 0;
-        let damageToPlayer = 0;
-        let goldEarned = 0;
-        
-        if (isCorrect) {
-            // Player hits monster
-            const baseDamage = gameState.playerStats?.base_damage || 10;
-            const critChance = gameState.playerStats?.crit_chance || 0.05;
-            const isCrit = Math.random() < critChance;
-            
-            damageToMonster = baseDamage;
-            
-            // Apply crit
-            if (isCrit) {
-                damageToMonster *= 2;
-                addToCombatLog(`CRITICAL HIT! ${damageToMonster} damage!`, 'crit');
-            } else {
-                addToCombatLog(`Hit monster for ${damageToMonster} damage`, 'damage');
+        // More questions can be added dynamically
+        const additionalQuestions = [
+            {
+                id: 7,
+                category: "Movies",
+                difficulty: "Medium",
+                question: "Which movie features the quote 'You can't handle the truth!'?",
+                options: [
+                    { text: "A Few Good Men", correct: true },
+                    { text: "The Godfather", correct: false },
+                    { text: "Pulp Fiction", correct: false },
+                    { text: "Goodfellas", correct: false }
+                ]
+            },
+            {
+                id: 8,
+                category: "Music",
+                difficulty: "Easy",
+                question: "Which band released the album 'The Dark Side of the Moon'?",
+                options: [
+                    { text: "The Beatles", correct: false },
+                    { text: "Pink Floyd", correct: true },
+                    { text: "Led Zeppelin", correct: false },
+                    { text: "The Rolling Stones", correct: false }
+                ]
+            },
+            {
+                id: 9,
+                category: "Technology",
+                difficulty: "Hard",
+                question: "What does 'HTTP' stand for?",
+                options: [
+                    { text: "HyperText Transfer Protocol", correct: true },
+                    { text: "HyperText Transmission Protocol", correct: false },
+                    { text: "High Transfer Text Protocol", correct: false },
+                    { text: "Hyper Transfer Text Protocol", correct: false }
+                ]
+            },
+            {
+                id: 10,
+                category: "Biology",
+                difficulty: "Medium",
+                question: "What is the largest organ in the human body?",
+                options: [
+                    { text: "Liver", correct: false },
+                    { text: "Heart", correct: false },
+                    { text: "Skin", correct: true },
+                    { text: "Lungs", correct: false }
+                ]
             }
+        ];
+
+        // ============================================
+        // GAME STATE
+        // ============================================
+
+        let gameState = {
+            player: {
+                name: "Hero",
+                gold: 100,
+                highscore: 1,
+                stats: {
+                    baseHp: 100,
+                    currentHp: 100,
+                    damage: 10,
+                    defense: 5,
+                    critChance: 0.05,
+                    flasks: 3
+                }
+            },
+            currentStage: 1,
+            currentMonster: null,
+            currentQuestion: null,
+            questionOptions: [],
+            selectedAnswer: null,
+            timerInterval: null,
+            timeLeft: 30,
+            maxTime: 30,
+            isAnswering: false,
+            isMonsterAttacking: false,
+            combatLog: [],
+            streak: 0,
+            goldEarned: 0,
+            totalCorrect: 0,
+            totalQuestions: 0,
+            gameActive: true
+        };
+
+        // ============================================
+        // GAME INITIALIZATION
+        // ============================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('RPG Battle Game Initializing...');
             
-            // Apply monster defense
-            const monsterDefense = gameState.currentMonster.defense || 0;
-            damageToMonster = Math.max(1, damageToMonster - monsterDefense);
+            // Initialize game
+            initializeGame();
             
-            // Update monster HP
-            let newMonsterHP = gameState.currentRun.monster_hp - damageToMonster;
-            if (newMonsterHP < 0) newMonsterHP = 0;
+            // Set up event listeners
+            setupEventListeners();
             
-            // Monster attacks player (reduced damage on correct answer)
-            const monsterDamage = Math.floor((gameState.currentMonster.damage || 10) * 0.3);
-            const playerDefense = gameState.playerStats?.base_defense || 5;
-            damageToPlayer = Math.max(1, monsterDamage - playerDefense);
+            // Start the game
+            startNewRun();
             
-            addToCombatLog(`Monster hits back for ${damageToPlayer} damage`, 'damage');
+            console.log('Game initialized successfully!');
+        });
+
+        function initializeGame() {
+            // Set player info
+            updatePlayerDisplay();
             
-            // Update player HP
-            let newPlayerHP = gameState.currentRun.player_hp - damageToPlayer;
+            // Initialize combat log
+            gameState.combatLog = [
+                { message: "Welcome to RPG Battle!", type: "info", timestamp: getCurrentTime() },
+                { message: "Answer questions to defeat monsters", type: "info", timestamp: getCurrentTime() },
+                { message: "Monster attacks when you answer wrong or run out of time!", type: "damage", timestamp: getCurrentTime() }
+            ];
+            updateCombatLog();
+        }
+
+        function setupEventListeners() {
+            // Answer selection
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    if (!gameState.gameActive || gameState.isAnswering || gameState.isMonsterAttacking) return;
+                    
+                    const index = parseInt(this.getAttribute('data-index'));
+                    selectAnswer(index);
+                });
+            });
             
-            // Gold reward - use monster's gold_reward field
-            goldEarned = gameState.currentMonster.gold_reward || Math.floor(gameState.currentMonster.stage * 10);
-            gameState.goldEarned += goldEarned;
-            
-            // Increase streak
-            gameState.streak++;
-            
-            // Update run in database if it's not an emergency run
-            if (gameState.currentRun.id && !gameState.currentRun.id.includes('emergency')) {
-                const { error: updateError } = await supabase
-                    .from('runs')
-                    .update({
-                        monster_hp: newMonsterHP,
-                        player_hp: newPlayerHP,
-                        streak: gameState.streak
-                    })
-                    .eq('id', gameState.currentRun.id);
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (!gameState.gameActive || gameState.isAnswering || gameState.isMonsterAttacking) return;
                 
-                if (updateError) throw updateError;
-            }
-            
-            // Update local state
-            gameState.currentRun.monster_hp = newMonsterHP;
-            gameState.currentRun.player_hp = newPlayerHP;
-            gameState.currentRun.streak = gameState.streak;
-            
-            // Check if monster is defeated
-            if (newMonsterHP <= 0) {
-                setTimeout(() => {
-                    showStageClear(goldEarned);
-                }, 1500);
-            } else {
-                setTimeout(() => {
-                    loadQuestion();
-                    startTimer();
-                }, 2000);
-            }
-            
-        } else {
-            // Wrong answer - monster hits harder
-            const monsterDamage = gameState.currentMonster.damage || 10;
-            const playerDefense = gameState.playerStats?.base_defense || 5;
-            damageToPlayer = Math.max(5, monsterDamage - playerDefense);
-            
-            addToCombatLog(`Wrong answer! Monster hits for ${damageToPlayer} damage`, 'damage');
-            
-            // Reset streak
+                const key = e.key.toUpperCase();
+                if (key === 'A' || key === '1') selectAnswer(0);
+                else if (key === 'B' || key === '2') selectAnswer(1);
+                else if (key === 'C' || key === '3') selectAnswer(2);
+                else if (key === 'D' || key === '4') selectAnswer(3);
+                else if (key === 'H') useHealthFlask();
+                else if (key === 'L') toggleCombatLog();
+                else if (key === 'ESCAPE') showDebugInfo();
+                else if (key === ' ') e.preventDefault(); // Prevent space from scrolling
+            });
+        }
+
+        // ============================================
+        // GAME FLOW
+        // ============================================
+
+        function startNewRun() {
+            gameState.gameActive = true;
+            gameState.currentStage = 1;
             gameState.streak = 0;
+            gameState.goldEarned = 0;
+            gameState.totalCorrect = 0;
+            gameState.totalQuestions = 0;
+            gameState.player.stats.currentHp = gameState.player.stats.baseHp;
+            gameState.player.stats.flasks = 3;
             
-            // Update player HP
-            let newPlayerHP = gameState.currentRun.player_hp - damageToPlayer;
+            // Load first monster
+            loadMonsterForStage(1);
             
-            // Update run in database if it's not an emergency run
-            if (gameState.currentRun.id && !gameState.currentRun.id.includes('emergency')) {
-                const { error: updateError } = await supabase
-                    .from('runs')
-                    .update({
-                        player_hp: newPlayerHP,
-                        streak: 0
-                    })
-                    .eq('id', gameState.currentRun.id);
-                
-                if (updateError) throw updateError;
+            // Load first question
+            loadRandomQuestion();
+            
+            // Start timer
+            startTimer();
+            
+            // Update displays
+            updatePlayerDisplay();
+            updateStageDisplay();
+            
+            addToCombatLog("New adventure begins! Good luck!", "info");
+        }
+
+        // ============================================
+        // MONSTER FUNCTIONS
+        // ============================================
+
+        function loadMonsterForStage(stage) {
+            let monster = monsters.find(m => m.stage === stage);
+            
+            if (!monster) {
+                monster = {
+                    id: stage,
+                    name: `Monster ${stage}`,
+                    stage: stage,
+                    hp: 30 + (stage * 25),
+                    maxHp: 30 + (stage * 25),
+                    damage: 5 + (stage * 4),
+                    defense: stage * 3,
+                    timer: Math.max(10, 30 - (stage * 3)),
+                    category: "Unknown",
+                    goldReward: stage * 20,
+                    description: "A mysterious creature"
+                };
             }
             
-            // Update local state
-            gameState.currentRun.player_hp = newPlayerHP;
-            gameState.currentRun.streak = 0;
+            gameState.currentMonster = JSON.parse(JSON.stringify(monster));
+            updateMonsterDisplay();
             
-            // Check if player is dead
-            if (newPlayerHP <= 0) {
-                setTimeout(() => {
-                    showGameOver();
-                }, 1500);
-            } else {
-                setTimeout(() => {
-                    loadQuestion();
-                    startTimer();
-                }, 2000);
+            gameState.maxTime = gameState.currentMonster.timer;
+            gameState.timeLeft = gameState.maxTime;
+            updateTimer();
+            
+            addToCombatLog(`A wild ${gameState.currentMonster.name} appears!`, "info");
+        }
+
+        function updateMonsterDisplay() {
+            if (!gameState.currentMonster) return;
+            
+            document.getElementById('monster-name').textContent = gameState.currentMonster.name;
+            document.getElementById('monster-category').textContent = gameState.currentMonster.category.toUpperCase();
+            
+            const hpPercent = (gameState.currentMonster.hp / gameState.currentMonster.maxHp) * 100;
+            document.getElementById('monster-hp-bar').style.width = `${hpPercent}%`;
+            document.getElementById('monster-hp-text').textContent = `HP: ${gameState.currentMonster.hp} / ${gameState.currentMonster.maxHp}`;
+            
+            const monsterImage = document.getElementById('monster-image');
+            const icons = ['fa-dragon', 'fa-ghost', 'fa-spider', 'fa-skull', 'fa-robot', 'fa-user-ninja', 'fa-crow', 'fa-cat'];
+            const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+            monsterImage.innerHTML = `<i class="fas ${randomIcon}"></i>`;
+            
+            const difficulty = gameState.currentStage <= 2 ? 'EASY' : 
+                            gameState.currentStage <= 4 ? 'MEDIUM' : 
+                            gameState.currentStage <= 6 ? 'HARD' : 'EXPERT';
+            document.getElementById('difficulty').textContent = difficulty;
+        }
+
+        // ============================================
+        // QUESTION FUNCTIONS
+        // ============================================
+
+        function loadRandomQuestion() {
+            gameState.selectedAnswer = null;
+            gameState.isAnswering = false;
+            
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+                option.style.pointerEvents = 'auto';
+            });
+            
+            if (questions.length === 0) {
+                loadMoreQuestions();
+            }
+            
+            const randomIndex = Math.floor(Math.random() * questions.length);
+            gameState.currentQuestion = questions[randomIndex];
+            
+            gameState.questionOptions = shuffleArray([...gameState.currentQuestion.options]);
+            updateQuestionDisplay();
+            
+            gameState.timeLeft = gameState.maxTime;
+            updateTimer();
+            
+            gameState.totalQuestions++;
+        }
+
+        function updateQuestionDisplay() {
+            if (!gameState.currentQuestion) return;
+            
+            document.getElementById('question-text').textContent = gameState.currentQuestion.question;
+            document.getElementById('question-category').textContent = gameState.currentQuestion.category.toUpperCase();
+            document.getElementById('question-difficulty').textContent = gameState.currentQuestion.difficulty.toUpperCase();
+            
+            for (let i = 0; i < 4; i++) {
+                const option = gameState.questionOptions[i];
+                const answerText = document.getElementById(`answer-text-${i}`);
+                
+                if (option) {
+                    answerText.textContent = option.text;
+                }
             }
         }
-        
-        // Update UI
-        updateRunDisplay();
-        updateMonsterDisplay();
-        
-    } catch (error) {
-        console.error('Error processing combat:', error);
-        addToCombatLog('Combat error: ' + error.message, 'error');
-    }
-}
 
-// Start timer
-function startTimer() {
-    // Clear existing timer
-    clearInterval(gameState.timerInterval);
-    
-    // Reset time
-    gameState.timeLeft = gameState.maxTime;
-    updateTimer();
-    
-    // Start countdown
-    gameState.timerInterval = setInterval(() => {
-        gameState.timeLeft--;
-        updateTimer();
-        
-        if (gameState.timeLeft <= 0) {
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // ============================================
+        // ANSWER HANDLING
+        // ============================================
+
+        function selectAnswer(index) {
+            if (!gameState.gameActive) return;
+            
+            const selectedOption = document.querySelector(`.answer-option[data-index="${index}"]`);
+            selectedOption.classList.add('selected');
+            gameState.selectedAnswer = index;
+            gameState.isAnswering = true;
+            
             clearInterval(gameState.timerInterval);
-            timeOut();
+            
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            checkAnswer(index);
         }
-    }, 1000);
-}
 
-// Update timer display
-function updateTimer() {
-    document.getElementById('timer-seconds').textContent = gameState.timeLeft;
-    
-    // Update timer ring
-    const progress = (gameState.timeLeft / gameState.maxTime) * 360;
-    document.getElementById('timer-ring').style.transform = `rotate(${progress}deg)`;
-    
-    // Update text color based on time
-    if (gameState.timeLeft <= 10) {
-        document.getElementById('timer-seconds').style.color = 'var(--red)';
-    } else if (gameState.timeLeft <= 20) {
-        document.getElementById('timer-seconds').style.color = 'var(--orange)';
-    } else {
-        document.getElementById('timer-seconds').style.color = 'var(--accent)';
-    }
-}
-
-// Time out handler
-function timeOut() {
-    if (gameState.isAnswering) return;
-    
-    addToCombatLog('Time ran out!', 'info');
-    
-    // Process as wrong answer
-    const randomAnswer = Math.floor(Math.random() * Math.min(4, gameState.questionOptions.length));
-    selectAnswer(randomAnswer);
-}
-
-// Show result
-function showResult(isCorrect, answerText) {
-    const modal = document.getElementById('result-modal');
-    const title = document.getElementById('result-title');
-    const content = document.getElementById('result-content');
-    
-    if (isCorrect) {
-        title.textContent = 'CORRECT!';
-        title.style.color = 'var(--green)';
-        content.innerHTML = `
-            <div style="text-align: center;">
-                <i class="fas fa-check-circle" style="font-size: 64px; color: var(--green); margin-bottom: 20px;"></i>
-                <h4>Well done!</h4>
-                <p>Your answer: <strong>${answerText || 'Correct'}</strong></p>
-                <p>Streak: <strong>${gameState.streak}</strong></p>
-            </div>
-        `;
-    } else {
-        title.textContent = 'WRONG!';
-        title.style.color = 'var(--red)';
-        content.innerHTML = `
-            <div style="text-align: center;">
-                <i class="fas fa-times-circle" style="font-size: 64px; color: var(--red); margin-bottom: 20px;"></i>
-                <h4>Incorrect answer</h4>
-                <p>Your answer: <strong>${answerText || 'Wrong'}</strong></p>
-                <p>The correct answer was highlighted.</p>
-                <p>Streak lost!</p>
-            </div>
-        `;
-    }
-    
-    modal.classList.add('active');
-    
-    // Auto-close after 2 seconds
-    setTimeout(() => {
-        closeResultModal();
-    }, 2000);
-}
-
-// Close result modal
-function closeResultModal() {
-    document.getElementById('result-modal').classList.remove('active');
-}
-
-// Show stage clear
-function showStageClear(goldEarned) {
-    const modal = document.getElementById('stageclear-modal');
-    
-    document.getElementById('stageclear-details').textContent = 
-        `Stage ${gameState.currentRun.current_stage} cleared!`;
-    document.getElementById('stageclear-reward').textContent = 
-        `Reward: ${goldEarned} Gold`;
-    document.getElementById('stageclear-streak').textContent = 
-        `Streak: ${gameState.streak}`;
-    
-    modal.classList.add('active');
-}
-
-// Close stage clear modal
-function closeStageClearModal() {
-    document.getElementById('stageclear-modal').classList.remove('active');
-}
-
-// Show game over
-async function showGameOver() {
-    try {
-        // Update user gold if not emergency
-        if (gameState.currentUser && gameState.currentUser.id && !gameState.currentUser.id.includes('emergency')) {
-            const newGold = (gameState.currentUser.gold || 0) + gameState.goldEarned;
+        function checkAnswer(selectedIndex) {
+            const selectedOption = gameState.questionOptions[selectedIndex];
+            const isCorrect = selectedOption?.correct || false;
             
-            await supabase
-                .from('users')
-                .update({ 
-                    gold: newGold,
-                    highest_stage: Math.max(gameState.currentUser.highest_stage || 0, gameState.currentRun.current_stage)
-                })
-                .eq('id', gameState.currentUser.id);
-            
-            // Delete the run if it exists in database
-            if (gameState.currentRun.id && !gameState.currentRun.id.includes('emergency')) {
-                await supabase
-                    .from('runs')
-                    .delete()
-                    .eq('id', gameState.currentRun.id);
-            }
-        }
-        
-        const modal = document.getElementById('gameover-modal');
-        
-        document.getElementById('gameover-details').textContent = 
-            `Stage reached: ${gameState.currentRun.current_stage}`;
-        document.getElementById('gameover-gold').textContent = 
-            `Gold earned: ${gameState.goldEarned}`;
-        
-        modal.classList.add('active');
-        
-    } catch (error) {
-        console.error('Error in game over:', error);
-        // Still show game over modal even if database update fails
-        const modal = document.getElementById('gameover-modal');
-        document.getElementById('gameover-details').textContent = 
-            `Stage reached: ${gameState.currentRun.current_stage}`;
-        document.getElementById('gameover-gold').textContent = 
-            `Gold earned: ${gameState.goldEarned}`;
-        modal.classList.add('active');
-    }
-}
-
-// Close game over modal
-function closeGameOverModal() {
-    document.getElementById('gameover-modal').classList.remove('active');
-}
-
-// Show error modal
-function showError(title, message) {
-    document.getElementById('error-title').textContent = title;
-    document.getElementById('error-message').textContent = message;
-    document.getElementById('error-modal').classList.add('active');
-}
-
-// Close error modal
-function closeErrorModal() {
-    document.getElementById('error-modal').classList.remove('active');
-}
-
-// Go to admin panel
-function goToAdmin() {
-    window.location.href = 'index.html';
-}
-
-// Next stage
-async function nextStage() {
-    try {
-        const nextStage = gameState.currentRun.current_stage + 1;
-        
-        // Get monster for next stage
-        const { data: monsters, error: monstersError } = await supabase
-            .from('monsters')
-            .select('*')
-            .eq('stage', nextStage)
-            .limit(1);
-        
-        if (monstersError) throw monstersError;
-        
-        if (!monsters || monsters.length === 0) {
-            // No more stages - victory!
-            addToCombatLog('No more monsters! You win!', 'info');
-            
-            // Update user with final gold if not emergency
-            if (gameState.currentUser && gameState.currentUser.id && !gameState.currentUser.id.includes('emergency')) {
-                const newGold = (gameState.currentUser.gold || 0) + gameState.goldEarned;
+            document.querySelectorAll('.answer-option').forEach(optionEl => {
+                const optionIndex = parseInt(optionEl.getAttribute('data-index'));
+                const optionData = gameState.questionOptions[optionIndex];
                 
-                await supabase
-                    .from('users')
-                    .update({ 
-                        gold: newGold,
-                        highest_stage: Math.max(gameState.currentUser.highest_stage || 0, gameState.currentRun.current_stage)
-                    })
-                    .eq('id', gameState.currentUser.id);
-                
-                // Delete run
-                if (gameState.currentRun.id && !gameState.currentRun.id.includes('emergency')) {
-                    await supabase
-                        .from('runs')
-                        .delete()
-                        .eq('id', gameState.currentRun.id);
-                }
-            }
-            
-            alert('Congratulations! You have completed all stages!');
-            window.location.reload();
-            return;
-        }
-        
-        const monster = monsters[0];
-        
-        // Update run to next stage if not emergency
-        if (gameState.currentRun.id && !gameState.currentRun.id.includes('emergency')) {
-            const { error: updateError } = await supabase
-                .from('runs')
-                .update({
-                    current_stage: nextStage,
-                    current_monster: monster.id,
-                    monster_hp: monster.hp
-                })
-                .eq('id', gameState.currentRun.id);
-            
-            if (updateError) throw updateError;
-        }
-        
-        // Update local state
-        gameState.currentRun.current_stage = nextStage;
-        gameState.currentRun.current_monster = monster.id;
-        gameState.currentRun.monster_hp = monster.hp;
-        
-        // Update gold in user if not emergency
-        if (gameState.currentUser && gameState.currentUser.id && !gameState.currentUser.id.includes('emergency')) {
-            const newGold = (gameState.currentUser.gold || 0) + gameState.goldEarned;
-            
-            await supabase
-                .from('users')
-                .update({ gold: newGold })
-                .eq('id', gameState.currentUser.id);
-            
-            document.getElementById('gold-amount').textContent = newGold;
-            gameState.currentUser.gold = newGold;
-        }
-        
-        gameState.goldEarned = 0;
-        
-        // Reset question cycling
-        gameState.currentQuestionIndex = 0;
-        
-        closeStageClearModal();
-        await loadMonster(monster.id);
-        await loadMonsterQuestions(monster.id);
-        await loadQuestion();
-        startTimer();
-        
-        addToCombatLog(`Advanced to stage ${nextStage}!`, 'info');
-        
-    } catch (error) {
-        console.error('Error advancing to next stage:', error);
-        addToCombatLog('Failed to advance: ' + error.message, 'error');
-    }
-}
-
-// Return to lobby
-function returnToLobby() {
-    closeGameOverModal();
-    window.location.reload();
-}
-
-// Restart run
-async function restartRun() {
-    try {
-        // Delete current run if it exists in database
-        if (gameState.currentRun && gameState.currentRun.id && !gameState.currentRun.id.includes('emergency')) {
-            await supabase
-                .from('runs')
-                .delete()
-                .eq('id', gameState.currentRun.id);
-        }
-        
-        closeGameOverModal();
-        await createNewRun();
-        
-    } catch (error) {
-        console.error('Error restarting run:', error);
-    }
-}
-
-// Use health flask
-function useHealthFlask() {
-    if (gameState.healthFlasks <= 0 || !gameState.currentRun) return;
-    
-    if (gameState.currentRun.player_hp >= (gameState.playerStats?.base_hp || 100)) {
-        addToCombatLog('Already at full health!', 'info');
-        return;
-    }
-    
-    gameState.healthFlasks--;
-    
-    // Heal 50% of max HP
-    const maxHP = gameState.playerStats?.base_hp || 100;
-    const healAmount = Math.floor(maxHP * 0.5);
-    const newHP = Math.min(maxHP, gameState.currentRun.player_hp + healAmount);
-    
-    // Update run if not emergency
-    if (gameState.currentRun.id && !gameState.currentRun.id.includes('emergency')) {
-        supabase
-            .from('runs')
-            .update({ player_hp: newHP })
-            .eq('id', gameState.currentRun.id)
-            .then(() => {
-                gameState.currentRun.player_hp = newHP;
-                updateRunDisplay();
-                addToCombatLog(`Used health flask! Healed ${healAmount} HP`, 'heal');
-                
-                // Update flask count
-                document.getElementById('flask-count').textContent = gameState.healthFlasks;
-                
-                if (gameState.healthFlasks <= 0) {
-                    document.getElementById('health-flask').classList.add('disabled');
-                }
-            })
-            .catch(error => {
-                console.error('Error using health flask:', error);
-                // Still update local state
-                gameState.currentRun.player_hp = newHP;
-                updateRunDisplay();
-                addToCombatLog(`Used health flask! Healed ${healAmount} HP`, 'heal');
-                document.getElementById('flask-count').textContent = gameState.healthFlasks;
-                if (gameState.healthFlasks <= 0) {
-                    document.getElementById('health-flask').classList.add('disabled');
+                if (optionData?.correct) {
+                    optionEl.classList.add('correct');
+                } else if (optionIndex === selectedIndex) {
+                    optionEl.classList.add('incorrect');
                 }
             });
-    } else {
-        // Update local state for emergency runs
-        gameState.currentRun.player_hp = newHP;
-        updateRunDisplay();
-        addToCombatLog(`Used health flask! Healed ${healAmount} HP`, 'heal');
-        document.getElementById('flask-count').textContent = gameState.healthFlasks;
-        if (gameState.healthFlasks <= 0) {
-            document.getElementById('health-flask').classList.add('disabled');
+            
+            if (isCorrect) {
+                gameState.totalCorrect++;
+            }
+            
+            processCombat(isCorrect);
+            showResult(isCorrect);
         }
-    }
-}
 
-// Toggle combat log
-function toggleCombatLog() {
-    const log = document.getElementById('combat-log');
-    log.classList.toggle('show');
-}
+        // ============================================
+        // COMBAT SYSTEM - CORE LOGIC
+        // ============================================
 
-// Clear combat log
-function clearCombatLog() {
-    gameState.combatLog = [];
-    document.getElementById('log-entries').innerHTML = '';
-}
+        function processCombat(isCorrect) {
+            if (!gameState.gameActive) return;
+            
+            if (isCorrect) {
+                // PLAYER ATTACKS MONSTER
+                const baseDamage = gameState.player.stats.damage;
+                const critChance = gameState.player.stats.critChance;
+                const isCrit = Math.random() < critChance;
+                
+                let damageToMonster = isCrit ? baseDamage * 2 : baseDamage;
+                
+                if (isCrit) {
+                    addToCombatLog(`CRITICAL HIT! ${damageToMonster} damage!`, "crit");
+                    showDamageNumber(gameState.currentMonster.name, damageToMonster, true);
+                } else {
+                    addToCombatLog(`You hit the ${gameState.currentMonster.name} for ${damageToMonster} damage`, "damage");
+                    showDamageNumber(gameState.currentMonster.name, damageToMonster, false);
+                }
+                
+                const monsterDefense = gameState.currentMonster.defense || 0;
+                damageToMonster = Math.max(1, damageToMonster - monsterDefense);
+                
+                gameState.currentMonster.hp -= damageToMonster;
+                if (gameState.currentMonster.hp < 0) gameState.currentMonster.hp = 0;
+                
+                // MONSTER COUNTER-ATTACKS (reduced damage)
+                const monsterDamage = Math.floor((gameState.currentMonster.damage || 10) * 0.3);
+                const playerDefense = gameState.player.stats.defense;
+                let damageToPlayer = Math.max(1, monsterDamage - playerDefense);
+                
+                gameState.player.stats.currentHp -= damageToPlayer;
+                if (gameState.player.stats.currentHp < 0) gameState.player.stats.currentHp = 0;
+                
+                addToCombatLog(`${gameState.currentMonster.name} hits back for ${damageToPlayer} damage`, "damage");
+                showDamageNumber("You", damageToPlayer, false);
+                
+                const goldEarned = gameState.currentMonster.goldReward || 10;
+                gameState.goldEarned += goldEarned;
+                addToCombatLog(`Earned ${goldEarned} gold!`, "gold");
+                
+                gameState.streak++;
+                
+                if (gameState.currentMonster.hp <= 0) {
+                    setTimeout(() => showStageClear(goldEarned), 1500);
+                } else {
+                    setTimeout(() => {
+                        loadRandomQuestion();
+                        startTimer();
+                    }, 2000);
+                }
+                
+            } else {
+                // WRONG ANSWER - MONSTER ATTACKS PLAYER
+                gameState.isMonsterAttacking = true;
+                
+                const monsterDamage = gameState.currentMonster.damage || 10;
+                const playerDefense = gameState.player.stats.defense;
+                let damageToPlayer = Math.max(5, monsterDamage - playerDefense);
+                
+                gameState.player.stats.currentHp -= damageToPlayer;
+                if (gameState.player.stats.currentHp < 0) gameState.player.stats.currentHp = 0;
+                
+                addToCombatLog(`Wrong answer! ${gameState.currentMonster.name} attacks for ${damageToPlayer} damage!`, "damage");
+                showDamageNumber("You", damageToPlayer, false);
+                
+                animateMonsterAttack();
+                animatePlayerHit();
+                
+                gameState.streak = 0;
+                
+                if (gameState.player.stats.currentHp <= 0) {
+                    setTimeout(() => showGameOver(), 1500);
+                } else {
+                    setTimeout(() => {
+                        gameState.isMonsterAttacking = false;
+                        loadRandomQuestion();
+                        startTimer();
+                    }, 2000);
+                }
+            }
+            
+            updatePlayerDisplay();
+            updateMonsterDisplay();
+        }
 
-// Add to combat log
-function addToCombatLog(message, type = 'info') {
-    const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-    gameState.combatLog.push({ message, type, timestamp });
-    
-    // Keep only last 10 entries
-    if (gameState.combatLog.length > 10) {
-        gameState.combatLog.shift();
-    }
-    
-    // Update display
-    const logEntries = document.getElementById('log-entries');
-    const entry = document.createElement('div');
-    entry.className = `log-entry ${type}`;
-    entry.textContent = `[${timestamp}] ${message}`;
-    
-    logEntries.appendChild(entry);
-    logEntries.scrollTop = logEntries.scrollHeight;
-}
+        // ============================================
+        // VISUAL EFFECTS
+        // ============================================
 
-// Make functions globally available
-window.useHealthFlask = useHealthFlask;
-window.toggleCombatLog = toggleCombatLog;
-window.clearCombatLog = clearCombatLog;
-window.closeResultModal = closeResultModal;
-window.closeStageClearModal = closeStageClearModal;
-window.closeGameOverModal = closeGameOverModal;
-window.returnToLobby = returnToLobby;
-window.restartRun = restartRun;
-window.nextStage = nextStage;
-window.goToAdmin = goToAdmin;
-window.closeErrorModal = closeErrorModal;
-</script>
+        function showDamageNumber(target, damage, isCrit) {
+            const damageNumber = document.createElement('div');
+            damageNumber.className = `damage-number ${isCrit ? 'crit' : ''}`;
+            damageNumber.textContent = isCrit ? `✨${damage}✨` : `-${damage}`;
+            damageNumber.style.color = isCrit ? 'var(--orange)' : 'var(--red)';
+            damageNumber.style.fontSize = isCrit ? '32px' : '24px';
+            damageNumber.style.fontWeight = '900';
+            
+            if (target === "You") {
+                damageNumber.style.left = '50%';
+                damageNumber.style.top = '85%';
+                damageNumber.style.transform = 'translateX(-50%)';
+            } else {
+                damageNumber.style.left = '50%';
+                damageNumber.style.top = '15%';
+                damageNumber.style.transform = 'translateX(-50%)';
+            }
+            
+            document.querySelector('.app').appendChild(damageNumber);
+            
+            setTimeout(() => damageNumber.remove(), 1000);
+        }
+
+        function animateMonsterAttack() {
+            const monsterImage = document.getElementById('monster-image');
+            monsterImage.classList.add('monster-attack');
+            
+            const attackEffect = document.createElement('div');
+            attackEffect.style.position = 'absolute';
+            attackEffect.style.width = '100%';
+            attackEffect.style.height = '100%';
+            attackEffect.style.background = 'radial-gradient(circle, rgba(255,0,0,0.4) 0%, transparent 70%)';
+            attackEffect.style.borderRadius = '50%';
+            attackEffect.style.zIndex = '1';
+            attackEffect.style.animation = 'pulseDanger 0.5s';
+            
+            monsterImage.parentElement.appendChild(attackEffect);
+            
+            setTimeout(() => {
+                monsterImage.classList.remove('monster-attack');
+                attackEffect.remove();
+            }, 600);
+        }
+
+        function animatePlayerHit() {
+            const playerPanel = document.querySelector('.player-panel');
+            playerPanel.classList.add('player-hit');
+            
+            const hitEffect = document.createElement('div');
+            hitEffect.style.position = 'fixed';
+            hitEffect.style.top = '0';
+            hitEffect.style.left = '0';
+            hitEffect.style.width = '100%';
+            hitEffect.style.height = '100%';
+            hitEffect.style.background = 'radial-gradient(circle, rgba(255,0,0,0.3) 0%, transparent 70%)';
+            hitEffect.style.pointerEvents = 'none';
+            hitEffect.style.zIndex = '999';
+            hitEffect.style.animation = 'fadeIn 0.3s';
+            
+            document.body.appendChild(hitEffect);
+            
+            setTimeout(() => {
+                playerPanel.classList.remove('player-hit');
+                hitEffect.remove();
+            }, 600);
+        }
+
+        // ============================================
+        // TIMER SYSTEM
+        // ============================================
+
+        function startTimer() {
+            clearInterval(gameState.timerInterval);
+            
+            gameState.timeLeft = gameState.maxTime;
+            updateTimer();
+            
+            gameState.timerInterval = setInterval(() => {
+                gameState.timeLeft--;
+                updateTimer();
+                
+                if (gameState.timeLeft === 10) {
+                    document.getElementById('timer').classList.add('warning');
+                    addToCombatLog("Time is running out!", "info");
+                }
+                
+                if (gameState.timeLeft === 5) {
+                    document.getElementById('timer').classList.remove('warning');
+                    document.getElementById('timer').classList.add('danger');
+                }
+                
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    timeOut();
+                }
+            }, 1000);
+        }
+
+        function updateTimer() {
+            document.getElementById('timer-seconds').textContent = gameState.timeLeft;
+            
+            const progress = (gameState.timeLeft / gameState.maxTime) * 360;
+            document.getElementById('timer-ring').style.transform = `rotate(${progress}deg)`;
+            
+            const timerElement = document.getElementById('timer-seconds');
+            if (gameState.timeLeft <= 5) {
+                timerElement.style.color = 'var(--red)';
+            } else if (gameState.timeLeft <= 10) {
+                timerElement.style.color = 'var(--orange)';
+            } else {
+                timerElement.style.color = 'var(--accent)';
+            }
+        }
+
+        function timeOut() {
+            if (!gameState.gameActive || gameState.isAnswering || gameState.isMonsterAttacking) return;
+            
+            addToCombatLog("Time's up! Monster attacks!", "damage");
+            
+            gameState.isAnswering = true;
+            
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            document.querySelectorAll('.answer-option').forEach(optionEl => {
+                const optionIndex = parseInt(optionEl.getAttribute('data-index'));
+                const optionData = gameState.questionOptions[optionIndex];
+                
+                if (optionData?.correct) {
+                    optionEl.classList.add('correct');
+                }
+            });
+            
+            setTimeout(() => processCombat(false), 1000);
+        }
+
+        // ============================================
+        // UI UPDATES
+        // ============================================
+
+        function updatePlayerDisplay() {
+            const hpPercent = (gameState.player.stats.currentHp / gameState.player.stats.baseHp) * 100;
+            document.getElementById('player-hp-bar').style.width = `${hpPercent}%`;
+            document.getElementById('player-hp-text').textContent = 
+                `HEALTH: ${gameState.player.stats.currentHp} / ${gameState.player.stats.baseHp}`;
+            
+            document.getElementById('player-damage').textContent = gameState.player.stats.damage;
+            document.getElementById('player-defense').textContent = gameState.player.stats.defense;
+            document.getElementById('player-crit').textContent = `${(gameState.player.stats.critChance * 100).toFixed(0)}%`;
+            document.getElementById('player-power').textContent = calculatePowerLevel();
+            document.getElementById('player-highscore').textContent = gameState.player.highscore;
+            document.getElementById('gold-amount').textContent = gameState.player.gold;
+            document.getElementById('flask-count').textContent = gameState.player.stats.flasks;
+            
+            const flask = document.getElementById('health-flask');
+            if (gameState.player.stats.flasks <= 0) {
+                flask.classList.add('disabled');
+            } else {
+                flask.classList.remove('disabled');
+            }
+        }
+
+        function updateStageDisplay() {
+            document.getElementById('current-stage').textContent = `STAGE ${gameState.currentStage}`;
+            
+            const levelNames = ["BEGINNER", "APPRENTICE", "WARRIOR", "VETERAN", "CHAMPION", "HERO", "LEGEND", "MYTH"];
+            const levelIndex = Math.min(gameState.currentStage - 1, levelNames.length - 1);
+            document.getElementById('stage-level').textContent = `LEVEL ${levelNames[levelIndex]}`;
+        }
+
+        function calculatePowerLevel() {
+            const stats = gameState.player.stats;
+            return Math.round(
+                stats.damage * 2 + 
+                stats.defense * 1.5 + 
+                (stats.critChance * 150) +
+                (stats.baseHp / 10)
+            );
+        }
+
+        // ============================================
+        // COMBAT LOG
+        // ============================================
+
+        function addToCombatLog(message, type = "info") {
+            const timestamp = getCurrentTime();
+            gameState.combatLog.push({ message, type, timestamp });
+            
+            if (gameState.combatLog.length > 15) {
+                gameState.combatLog.shift();
+            }
+            
+            updateCombatLog();
+        }
+
+        function updateCombatLog() {
+            const logEntries = document.getElementById('log-entries');
+            logEntries.innerHTML = '';
+            
+            const icons = {
+                "damage": "fa-skull-crossbones",
+                "heal": "fa-heart",
+                "crit": "fa-bolt",
+                "info": "fa-info-circle",
+                "gold": "fa-coins"
+            };
+            
+            gameState.combatLog.forEach(entry => {
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${entry.type}`;
+                logEntry.innerHTML = `<i class="fas ${icons[entry.type] || 'fa-info-circle'}"></i> <strong>[${entry.timestamp}]</strong> ${entry.message}`;
+                logEntries.appendChild(logEntry);
+            });
+            
+            logEntries.scrollTop = logEntries.scrollHeight;
+        }
+
+        function getCurrentTime() {
+            const now = new Date();
+            return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+        }
+
+        // ============================================
+        // ITEMS & POWER-UPS
+        // ============================================
+
+        function useHealthFlask() {
+            if (!gameState.gameActive || gameState.player.stats.flasks <= 0 || 
+                gameState.player.stats.currentHp >= gameState.player.stats.baseHp ||
+                gameState.isAnswering) return;
+            
+            gameState.player.stats.flasks--;
+            
+            const healAmount = Math.floor(gameState.player.stats.baseHp * 0.5);
+            const newHP = Math.min(gameState.player.stats.baseHp, gameState.player.stats.currentHp + healAmount);
+            const actualHeal = newHP - gameState.player.stats.currentHp;
+            
+            gameState.player.stats.currentHp = newHP;
+            
+            updatePlayerDisplay();
+            addToCombatLog(`Used Health Flask! Healed ${actualHeal} HP`, "heal");
+            
+            const healthBar = document.getElementById('player-hp-bar');
+            healthBar.classList.add('pulse');
+            setTimeout(() => healthBar.classList.remove('pulse'), 500);
+        }
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+
+        function showResult(isCorrect) {
+            const modal = document.getElementById('result-modal');
+            const title = document.getElementById('result-title');
+            const content = document.getElementById('result-content');
+            
+            if (isCorrect) {
+                title.textContent = '✅ CORRECT!';
+                title.style.color = 'var(--green)';
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fas fa-check-circle" style="font-size: 72px; color: var(--green); margin-bottom: 20px;"></i>
+                        <h4>Well done!</h4>
+                        <p style="font-size: 18px; margin: 10px 0;">You answered correctly!</p>
+                        <p style="font-size: 16px;">Current Streak: <strong style="color: var(--orange);">${gameState.streak}</strong></p>
+                        <p style="margin-top: 20px; font-size: 14px; color: #666;">The monster counter-attacks with reduced damage!</p>
+                    </div>
+                `;
+            } else {
+                title.textContent = '❌ WRONG!';
+                title.style.color = 'var(--red)';
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fas fa-times-circle" style="font-size: 72px; color: var(--red); margin-bottom: 20px;"></i>
+                        <h4>Incorrect answer!</h4>
+                        <p style="font-size: 18px; margin: 10px 0;">The monster attacks you with full force!</p>
+                        <p style="color: var(--red); font-weight: bold; font-size: 16px;">Streak lost!</p>
+                        <p style="margin-top: 20px; font-size: 14px; color: #666;">Be careful - the monster only attacks when you're wrong or run out of time!</p>
+                    </div>
+                `;
+            }
+            
+            modal.classList.add('active');
+            setTimeout(() => closeResultModal(), 2000);
+        }
+
+        function closeResultModal() {
+            document.getElementById('result-modal').classList.remove('active');
+        }
+
+        function showStageClear(goldEarned) {
+            gameState.player.gold += gameState.goldEarned;
+            document.getElementById('gold-amount').textContent = gameState.player.gold;
+            
+            if (gameState.currentStage > gameState.player.highscore) {
+                gameState.player.highscore = gameState.currentStage;
+                document.getElementById('player-highscore').textContent = gameState.player.highscore;
+            }
+            
+            document.getElementById('stageclear-details').textContent = 
+                `Stage ${gameState.currentStage} cleared!`;
+            document.getElementById('stageclear-reward').textContent = 
+                `Total Reward: ${gameState.goldEarned} Gold`;
+            document.getElementById('stageclear-streak').textContent = 
+                `Final Streak: ${gameState.streak}`;
+            
+            document.getElementById('stageclear-modal').classList.add('active');
+        }
+
+        function closeStageClearModal() {
+            document.getElementById('stageclear-modal').classList.remove('active');
+        }
+
+        function showGameOver() {
+            gameState.gameActive = false;
+            document.getElementById('gameover-details').textContent = 
+                `Stage reached: ${gameState.currentStage}`;
+            document.getElementById('gameover-gold').textContent = 
+                `Gold earned this run: ${gameState.goldEarned}`;
+            
+            const accuracy = gameState.totalQuestions > 0 ? 
+                Math.round((gameState.totalCorrect / gameState.totalQuestions) * 100) : 0;
+            addToCombatLog(`Game Over! Accuracy: ${accuracy}%`, "info");
+            
+            document.getElementById('gameover-modal').classList.add('active');
+        }
+
+        function closeGameOverModal() {
+            document.getElementById('gameover-modal').classList.remove('active');
+        }
+
+        // ============================================
+        // GAME CONTROL
+        // ============================================
+
+        function nextStage() {
+            closeStageClearModal();
+            
+            gameState.currentStage++;
+            gameState.goldEarned = 0;
+            gameState.streak = 0;
+            
+            loadMonsterForStage(gameState.currentStage);
+            loadRandomQuestion();
+            startTimer();
+            
+            updateStageDisplay();
+            
+            addToCombatLog(`Advanced to Stage ${gameState.currentStage}!`, "info");
+        }
+
+        function returnToLobby() {
+            closeGameOverModal();
+            startNewRun();
+        }
+
+        function restartRun() {
+            closeGameOverModal();
+            startNewRun();
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+
+        function toggleCombatLog() {
+            const log = document.getElementById('combat-log');
+            log.classList.toggle('show');
+        }
+
+        function clearCombatLog() {
+            gameState.combatLog = [
+                { message: "Combat log cleared", type: "info", timestamp: getCurrentTime() }
+            ];
+            updateCombatLog();
+        }
+
+        function showDebugInfo() {
+            const modal = document.getElementById('debug-modal');
+            const debugState = document.getElementById('debug-state');
+            
+            const debugInfo = {
+                gameState: {
+                    currentStage: gameState.currentStage,
+                    playerHP: gameState.player.stats.currentHp,
+                    monsterHP: gameState.currentMonster?.hp || 0,
+                    streak: gameState.streak,
+                    goldEarned: gameState.goldEarned,
+                    totalQuestions: gameState.totalQuestions,
+                    totalCorrect: gameState.totalCorrect,
+                    accuracy: gameState.totalQuestions > 0 ? 
+                        Math.round((gameState.totalCorrect / gameState.totalQuestions) * 100) : 0
+                },
+                questionsCount: questions.length,
+                isAnswering: gameState.isAnswering,
+                isMonsterAttacking: gameState.isMonsterAttacking,
+                timeLeft: gameState.timeLeft
+            };
+            
+            debugState.textContent = JSON.stringify(debugInfo, null, 2);
+            modal.classList.add('active');
+        }
+
+        function closeDebugModal() {
+            document.getElementById('debug-modal').classList.remove('active');
+        }
+
+        function resetGame() {
+            if (confirm("Are you sure you want to reset the game? All progress will be lost.")) {
+                gameState.player = {
+                    name: "Hero",
+                    gold: 100,
+                    highscore: 1,
+                    stats: {
+                        baseHp: 100,
+                        currentHp: 100,
+                        damage: 10,
+                        defense: 5,
+                        critChance: 0.05,
+                        flasks: 3
+                    }
+                };
+                
+                startNewRun();
+                closeDebugModal();
+                addToCombatLog("Game has been reset!", "info");
+            }
+        }
+
+        function loadMoreQuestions() {
+            questions = [...questions, ...additionalQuestions];
+            addToCombatLog(`Added ${additionalQuestions.length} more questions!`, "info");
+            closeDebugModal();
+        }
+
+        function cheatKillMonster() {
+            if (gameState.currentMonster) {
+                gameState.currentMonster.hp = 0;
+                updateMonsterDisplay();
+                addToCombatLog("Monster defeated by cheat!", "crit");
+                closeDebugModal();
+                
+                setTimeout(() => {
+                    const goldEarned = gameState.currentMonster.goldReward || 10;
+                    showStageClear(goldEarned);
+                }, 500);
+            }
+        }
+
+        // ============================================
+        // GLOBAL FUNCTIONS
+        // ============================================
+
+        window.useHealthFlask = useHealthFlask;
+        window.toggleCombatLog = toggleCombatLog;
+        window.clearCombatLog = clearCombatLog;
+        window.closeResultModal = closeResultModal;
+        window.closeStageClearModal = closeStageClearModal;
+        window.closeGameOverModal = closeGameOverModal;
+        window.closeDebugModal = closeDebugModal;
+        window.returnToLobby = returnToLobby;
+        window.restartRun = restartRun;
+        window.nextStage = nextStage;
+        window.showDebugInfo = showDebugInfo;
+        window.resetGame = resetGame;
+        window.loadMoreQuestions = loadMoreQuestions;
+        window.cheatKillMonster = cheatKillMonster;
+
+        console.log("RPG Battle Game Loaded Successfully!");
+        console.log("Game Logic: Monster attacks ONLY when you answer wrong or time runs out!");
+    </script>
 </body>
 </html>
