@@ -439,6 +439,40 @@
             background: #f0fff0;
         }
 
+        /* Monster Questions Management */
+        .monster-questions {
+            margin-top: 20px;
+            border: 2px solid var(--border);
+            background: var(--bg-panel);
+            padding: 15px;
+        }
+
+        .monster-question-item {
+            border: 2px solid var(--border);
+            background: var(--bg-main);
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .question-preview {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .monster-question-order {
+            font-weight: bold;
+            margin-right: 10px;
+            background: var(--accent);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 2px;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .tabs {
@@ -477,6 +511,7 @@
             <div class="tab active" data-tab="dashboard">DASHBOARD</div>
             <div class="tab" data-tab="equipment">EQUIPMENT</div>
             <div class="tab" data-tab="monsters">MONSTERS</div>
+            <div class="tab" data-tab="monster_questions">MONSTER QS</div>
             <div class="tab" data-tab="questions">QUESTIONS</div>
             <div class="tab" data-tab="question_options">OPTIONS</div>
             <div class="tab" data-tab="gacha_banners">BANNERS</div>
@@ -540,6 +575,22 @@
                     </div>
                     <div class="table-content" id="monsters-content">
                         <div class="loading">Loading monsters data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monster Questions Section -->
+            <div id="monster_questions-section" class="table-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>MONSTER QUESTION ASSIGNMENTS</h3>
+                        <div>
+                            <button class="btn" onclick="refreshCurrentTable()">REFRESH</button>
+                            <button class="btn btn-primary" onclick="openModal('monster_questions')">ASSIGN QUESTIONS</button>
+                        </div>
+                    </div>
+                    <div class="table-content" id="monster_questions-content">
+                        <div class="loading">Loading monster questions data...</div>
                     </div>
                 </div>
             </div>
@@ -773,6 +824,77 @@
         </div>
     </div>
 
+    <!-- Monster Questions Management Modal -->
+    <div class="modal" id="monster-questions-modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 id="monster-questions-modal-title">Manage Monster Questions</h3>
+                <button class="close-btn" onclick="closeMonsterQuestionsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="monster-info" style="margin-bottom: 20px; padding: 15px; background: var(--bg-panel); border: 2px solid var(--border);">
+                    <h4 id="monster-name"></h4>
+                    <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                        <span class="badge" id="monster-stage"></span>
+                        <span class="badge" id="monster-category"></span>
+                        <span class="badge" id="monster-gold"></span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h4 style="margin: 0;">Assigned Questions (Will cycle in order)</h4>
+                    <button class="btn btn-primary" onclick="openAddQuestionToMonsterModal()">
+                        ADD QUESTION TO MONSTER
+                    </button>
+                </div>
+                
+                <div id="monster-questions-list" class="monster-questions">
+                    <!-- Assigned questions will be loaded here -->
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: var(--bg-panel); border: 2px solid var(--border);">
+                    <h4>How This Works:</h4>
+                    <p>When a player fights this monster, questions will be asked in the order shown above.</p>
+                    <p>The cycle continues until the monster is defeated or the player dies.</p>
+                    <p>Each question has options that the player must choose from.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Question to Monster Modal -->
+    <div class="modal" id="add-question-to-monster-modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Add Question to Monster</h3>
+                <button class="close-btn" onclick="closeAddQuestionToMonsterModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Select Question *</label>
+                    <select id="question-select" class="form-control">
+                        <option value="">Loading questions...</option>
+                    </select>
+                </div>
+                <div id="question-preview" style="margin-top: 15px; padding: 15px; background: var(--bg-panel); border: 2px solid var(--border); display: none;">
+                    <h5>Question Preview:</h5>
+                    <p id="preview-question-text"></p>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <span class="badge" id="preview-category"></span>
+                        <span class="badge" id="preview-difficulty"></span>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <small><strong>Options:</strong> <span id="preview-options-count">0</span> options available</small>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button class="btn" onclick="closeAddQuestionToMonsterModal()">CANCEL</button>
+                    <button class="btn btn-primary" onclick="addQuestionToMonster()">ADD QUESTION</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         // Import Supabase client
         import { supabase } from './supabase.js';
@@ -786,14 +908,17 @@
         let allData = {};
         let currentQuestionId = null;
         let currentQuestionOptions = [];
+        let currentMonsterId = null;
+        let currentMonsterQuestions = [];
         
         // Store dropdown data
         let dropdownData = {
-            users: [],      // For user_id dropdowns
-            equipment: [],  // For equipment_id dropdowns
-            monsters: [],   // For monster_id dropdowns
-            questions: [],  // For question_id dropdowns
-            gacha_banners: [] // For banner_id dropdowns
+            users: [],           // For user_id dropdowns
+            equipment: [],       // For equipment_id dropdowns
+            monsters: [],        // For monster_id dropdowns
+            questions: [],       // For question_id dropdowns
+            gacha_banners: [],   // For banner_id dropdowns
+            question_categories: [] // For question categories
         };
 
         // Table schemas - NO PRE-INSTALLED DATA, BLANK SLATE
@@ -823,7 +948,17 @@
                     { name: 'defense', type: 'number', label: 'Defense', required: true, defaultValue: 5 },
                     { name: 'timer_seconds', type: 'number', label: 'Timer (seconds)', required: true, defaultValue: 30 },
                     { name: 'category', type: 'text', label: 'Category', required: true },
+                    { name: 'gold_reward', type: 'number', label: 'Gold Reward', required: true, defaultValue: 10 },
                     { name: 'image_url', type: 'text', label: 'Image URL', required: false }
+                ]
+            },
+            monster_questions: {
+                displayName: 'Monster Questions',
+                icon: '❓',
+                columns: [
+                    { name: 'monster_id', type: 'select', label: 'Monster', required: true, options: 'monsters', displayField: 'name' },
+                    { name: 'question_id', type: 'select', label: 'Question', required: true, options: 'questions', displayField: 'question_text' },
+                    { name: 'question_order', type: 'number', label: 'Question Order', required: true, defaultValue: 1 }
                 ]
             },
             questions: {
@@ -963,6 +1098,14 @@
             // Delete confirmation
             document.getElementById('confirm-delete-btn').addEventListener('click', confirmDelete);
             
+            // Question select change for preview
+            document.getElementById('question-select')?.addEventListener('change', async function() {
+                const questionId = this.value;
+                if (questionId) {
+                    await loadQuestionPreview(questionId);
+                }
+            });
+            
             // Menu button
             document.querySelector('.menu').addEventListener('click', () => {
                 const choice = prompt('Menu options:\n1. Database Status\n2. Export Data\n3. Settings\n4. Clean Database (DANGER)\n5. Logout\n\nEnter option number:');
@@ -1023,14 +1166,36 @@
             
             for (const type of dropdownTypes) {
                 try {
-                    const { data, error } = await supabase
-                        .from(type)
-                        .select('id, name, username, question_text')
-                        .order('created_at', { ascending: true });
+                    if (type === 'question_categories') {
+                        // Load distinct question categories
+                        const { data, error } = await supabase
+                            .from('questions')
+                            .select('category')
+                            .order('category', { ascending: true });
+                        
+                        if (error) throw error;
+                        
+                        // Get unique categories
+                        const categories = [...new Set(data.map(item => item.category))];
+                        dropdownData[type] = categories.map(cat => ({ id: cat, name: cat }));
+                    } else {
+                        let selectFields = 'id';
+                        
+                        // Add appropriate display field based on type
+                        if (type === 'users') selectFields += ', username';
+                        else if (type === 'questions') selectFields += ', question_text, category, difficulty';
+                        else selectFields += ', name';
+                        
+                        const { data, error } = await supabase
+                            .from(type)
+                            .select(selectFields)
+                            .order('created_at', { ascending: true });
+                        
+                        if (error) throw error;
+                        
+                        dropdownData[type] = data || [];
+                    }
                     
-                    if (error) throw error;
-                    
-                    dropdownData[type] = data || [];
                     console.log(`Loaded ${dropdownData[type].length} ${type} for dropdowns`);
                     
                 } catch (error) {
@@ -1047,7 +1212,7 @@
                 
                 // Add appropriate display field based on type
                 if (type === 'users') selectFields += ', username';
-                else if (type === 'questions') selectFields += ', question_text';
+                else if (type === 'questions') selectFields += ', question_text, category, difficulty';
                 else selectFields += ', name';
                 
                 const { data, error } = await supabase
@@ -1175,11 +1340,20 @@
             contentDiv.innerHTML = `<div class="loading">Loading ${tableName} data...</div>`;
             
             try {
-                const { data, error } = await supabase
-                    .from(tableName)
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(100);
+                let query = supabase.from(tableName).select('*');
+                
+                // Special handling for monster_questions to join with monster and question data
+                if (tableName === 'monster_questions') {
+                    query = supabase
+                        .from(tableName)
+                        .select(`
+                            *,
+                            monsters (name),
+                            questions (question_text, category, difficulty)
+                        `);
+                }
+                
+                const { data, error } = await query.order('created_at', { ascending: false }).limit(100);
                 
                 if (error) throw error;
                 
@@ -1225,6 +1399,10 @@
                 html += `<th>Options</th>`;
             }
             
+            if (tableName === 'monsters') {
+                html += `<th>Questions</th>`;
+            }
+            
             // Add actions header
             html += `<th>Created</th><th>Actions</th></tr></thead><tbody>`;
             
@@ -1247,20 +1425,36 @@
                         html += value ? `✓` : `✗`;
                     } else if (col.type === 'select') {
                         // For dropdown columns, try to display the related item name
-                        const dropdownItems = dropdownData[col.options] || [];
-                        const relatedItem = dropdownItems.find(d => d.id === value);
-                        
-                        if (relatedItem) {
-                            const displayValue = getDropdownDisplayValue(relatedItem, col.displayField);
-                            html += displayValue;
-                        } else if (value && typeof value === 'string' && value.length > 0) {
-                            // Only show substring if value exists and is a non-empty string
-                            html += `<span title="${value}">${value.substring(0, 8)}...</span>`;
+                        if (tableName === 'monster_questions') {
+                            // Handle joined data for monster_questions
+                            if (col.name === 'monster_id' && item.monsters) {
+                                html += item.monsters.name || 'Unknown Monster';
+                            } else if (col.name === 'question_id' && item.questions) {
+                                const questionText = item.questions.question_text;
+                                const displayText = questionText && questionText.length > 30 ? 
+                                    questionText.substring(0, 30) + '...' : 
+                                    (questionText || 'Unknown Question');
+                                html += displayText;
+                            } else {
+                                html += value ? `<span title="${value}">${value.substring(0, 8)}...</span>` : `-`;
+                            }
                         } else {
-                            html += `-`;
+                            const dropdownItems = dropdownData[col.options] || [];
+                            const relatedItem = dropdownItems.find(d => d.id === value);
+                            
+                            if (relatedItem) {
+                                const displayValue = getDropdownDisplayValue(relatedItem, col.displayField);
+                                html += displayValue;
+                            } else if (value && typeof value === 'string' && value.length > 0) {
+                                html += `<span title="${value}">${value.substring(0, 8)}...</span>`;
+                            } else {
+                                html += `-`;
+                            }
                         }
                     } else if (col.name === 'image_url' && value && typeof value === 'string') {
                         html += `<div class="image-preview"><img src="${value}" alt="Preview" onerror="this.style.display='none'"></div>`;
+                    } else if (col.name === 'question_text' && value && typeof value === 'string' && value.length > 50) {
+                        html += `${value.substring(0, 50)}...`;
                     } else if (value && typeof value === 'string' && value.length > 30) {
                         html += `${value.substring(0, 30)}...`;
                     } else if (value === null || value === undefined || value === '') {
@@ -1284,6 +1478,17 @@
                         </button>
                     </td>`;
                 } else if (tableName === 'questions') {
+                    html += `<td>-</td>`;
+                }
+                
+                // Add questions column for monsters
+                if (tableName === 'monsters' && item.id) {
+                    html += `<td>
+                        <button class="action-btn" onclick="manageMonsterQuestions('${item.id}')">
+                            MANAGE QUESTIONS
+                        </button>
+                    </td>`;
+                } else if (tableName === 'monsters') {
                     html += `<td>-</td>`;
                 }
                 
@@ -1893,6 +2098,333 @@
             }
         }
 
+        // Monster Questions Management
+        async function manageMonsterQuestions(monsterId) {
+            currentMonsterId = monsterId;
+            
+            try {
+                // Load monster details
+                const { data: monster, error: monsterError } = await supabase
+                    .from('monsters')
+                    .select('*')
+                    .eq('id', monsterId)
+                    .single();
+                
+                if (monsterError) throw monsterError;
+                
+                // Load assigned questions for this monster
+                await loadMonsterQuestions(monsterId);
+                
+                // Update modal title
+                document.getElementById('monster-questions-modal-title').textContent = `Questions for ${monster.name}`;
+                
+                // Update monster info
+                document.getElementById('monster-name').textContent = monster.name;
+                document.getElementById('monster-stage').textContent = `Stage: ${monster.stage}`;
+                document.getElementById('monster-category').textContent = `Category: ${monster.category}`;
+                document.getElementById('monster-gold').textContent = `Gold: ${monster.gold_reward}`;
+                
+                // Show modal
+                document.getElementById('monster-questions-modal').classList.add('active');
+                
+            } catch (error) {
+                console.error('Error loading monster questions:', error);
+                showMessage(`Error loading monster questions: ${error.message}`, 'error');
+            }
+        }
+
+        // Load monster questions
+        async function loadMonsterQuestions(monsterId) {
+            try {
+                const { data: monsterQuestions, error } = await supabase
+                    .from('monster_questions')
+                    .select(`
+                        *,
+                        questions (
+                            id,
+                            question_text,
+                            category,
+                            difficulty,
+                            timer_seconds
+                        )
+                    `)
+                    .eq('monster_id', monsterId)
+                    .order('question_order', { ascending: true });
+                
+                if (error) throw error;
+                
+                currentMonsterQuestions = monsterQuestions || [];
+                renderMonsterQuestions(currentMonsterQuestions);
+                
+            } catch (error) {
+                console.error('Error loading monster questions:', error);
+                currentMonsterQuestions = [];
+                renderMonsterQuestions([]);
+            }
+        }
+
+        // Render monster questions
+        function renderMonsterQuestions(monsterQuestions) {
+            const questionsList = document.getElementById('monster-questions-list');
+            
+            if (!monsterQuestions || monsterQuestions.length === 0) {
+                questionsList.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No Questions Assigned</h3>
+                        <p>Add questions to this monster using the "ADD QUESTION TO MONSTER" button.</p>
+                        <p>Questions will be asked in order during battle.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            monsterQuestions.forEach((mq, index) => {
+                if (!mq || !mq.questions) return;
+                
+                const question = mq.questions;
+                html += `
+                    <div class="monster-question-item" data-id="${mq.id}">
+                        <div>
+                            <div class="monster-question-order">${mq.question_order}</div>
+                            <div class="question-preview">
+                                <strong>${question.question_text || 'No question text'}</strong>
+                            </div>
+                            <div style="display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap;">
+                                <span class="badge" style="font-size: 10px;">${question.category}</span>
+                                <span class="badge" style="font-size: 10px;">${question.difficulty}</span>
+                                <span class="badge" style="font-size: 10px;">${question.timer_seconds}s</span>
+                            </div>
+                        </div>
+                        <div class="option-actions">
+                            <button class="action-btn" onclick="reorderMonsterQuestion('${mq.id}', 'up')" ${index === 0 ? 'disabled' : ''}>
+                                ↑
+                            </button>
+                            <button class="action-btn" onclick="reorderMonsterQuestion('${mq.id}', 'down')" ${index === monsterQuestions.length - 1 ? 'disabled' : ''}>
+                                ↓
+                            </button>
+                            <button class="action-btn delete" onclick="removeQuestionFromMonster('${mq.id}')">
+                                REMOVE
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            questionsList.innerHTML = html;
+        }
+
+        // Close monster questions modal
+        function closeMonsterQuestionsModal() {
+            document.getElementById('monster-questions-modal').classList.remove('active');
+            currentMonsterId = null;
+            currentMonsterQuestions = [];
+        }
+
+        // Open add question to monster modal
+        async function openAddQuestionToMonsterModal() {
+            // Load questions for dropdown
+            if (!dropdownData.questions || dropdownData.questions.length === 0) {
+                await loadDropdownData('questions');
+            }
+            
+            const selectElement = document.getElementById('question-select');
+            selectElement.innerHTML = '<option value="">Select a question</option>';
+            
+            // Filter out questions already assigned to this monster
+            const assignedQuestionIds = currentMonsterQuestions.map(mq => mq.question_id);
+            const availableQuestions = dropdownData.questions.filter(q => !assignedQuestionIds.includes(q.id));
+            
+            availableQuestions.forEach(question => {
+                const displayText = question.question_text && question.question_text.length > 50 ? 
+                    question.question_text.substring(0, 50) + '...' : 
+                    question.question_text;
+                selectElement.innerHTML += `<option value="${question.id}">${displayText} (${question.category} - ${question.difficulty})</option>`;
+            });
+            
+            document.getElementById('add-question-to-monster-modal').classList.add('active');
+        }
+
+        // Close add question to monster modal
+        function closeAddQuestionToMonsterModal() {
+            document.getElementById('add-question-to-monster-modal').classList.remove('active');
+            document.getElementById('question-preview').style.display = 'none';
+        }
+
+        // Load question preview
+        async function loadQuestionPreview(questionId) {
+            try {
+                const { data: question, error } = await supabase
+                    .from('questions')
+                    .select('*')
+                    .eq('id', questionId)
+                    .single();
+                
+                if (error) throw error;
+                
+                // Load option count
+                const { count: optionCount, error: countError } = await supabase
+                    .from('question_options')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('question_id', questionId);
+                
+                if (countError) console.error('Error loading option count:', countError);
+                
+                // Update preview
+                document.getElementById('preview-question-text').textContent = question.question_text;
+                document.getElementById('preview-category').textContent = question.category;
+                document.getElementById('preview-difficulty').textContent = question.difficulty;
+                document.getElementById('preview-options-count').textContent = optionCount || 0;
+                
+                document.getElementById('question-preview').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading question preview:', error);
+            }
+        }
+
+        // Add question to monster
+        async function addQuestionToMonster() {
+            const questionId = document.getElementById('question-select').value;
+            
+            if (!questionId) {
+                showMessage('Please select a question!', 'error');
+                return;
+            }
+            
+            if (!currentMonsterId) {
+                showMessage('No monster selected!', 'error');
+                return;
+            }
+            
+            try {
+                // Get the next order number
+                const nextOrder = currentMonsterQuestions.length > 0 ? 
+                    Math.max(...currentMonsterQuestions.map(mq => mq.question_order)) + 1 : 1;
+                
+                const { error } = await supabase
+                    .from('monster_questions')
+                    .insert([{
+                        monster_id: currentMonsterId,
+                        question_id: questionId,
+                        question_order: nextOrder
+                    }]);
+                
+                if (error) throw error;
+                
+                showMessage('Question added to monster successfully!', 'success');
+                
+                // Reload monster questions
+                await loadMonsterQuestions(currentMonsterId);
+                closeAddQuestionToMonsterModal();
+                
+                // Reload the monster_questions table if it's currently active
+                if (currentTable === 'monster_questions') {
+                    await loadTableData('monster_questions');
+                }
+                
+            } catch (error) {
+                console.error('Error adding question to monster:', error);
+                showMessage(`Error adding question: ${error.message}`, 'error');
+            }
+        }
+
+        // Reorder monster question
+        async function reorderMonsterQuestion(monsterQuestionId, direction) {
+            try {
+                const monsterQuestion = currentMonsterQuestions.find(mq => mq.id === monsterQuestionId);
+                if (!monsterQuestion) return;
+                
+                const currentOrder = monsterQuestion.question_order;
+                let newOrder;
+                
+                if (direction === 'up') {
+                    newOrder = currentOrder - 1;
+                } else if (direction === 'down') {
+                    newOrder = currentOrder + 1;
+                } else {
+                    return;
+                }
+                
+                // Find the question that currently has the newOrder position
+                const swapWith = currentMonsterQuestions.find(mq => mq.question_order === newOrder);
+                
+                if (swapWith) {
+                    // Swap the two questions
+                    const { error: error1 } = await supabase
+                        .from('monster_questions')
+                        .update({ question_order: 999 }) // Temporary value
+                        .eq('id', monsterQuestionId);
+                    
+                    if (error1) throw error1;
+                    
+                    const { error: error2 } = await supabase
+                        .from('monster_questions')
+                        .update({ question_order: currentOrder })
+                        .eq('id', swapWith.id);
+                    
+                    if (error2) throw error2;
+                    
+                    const { error: error3 } = await supabase
+                        .from('monster_questions')
+                        .update({ question_order: newOrder })
+                        .eq('id', monsterQuestionId);
+                    
+                    if (error3) throw error3;
+                } else {
+                    // Just update the order
+                    const { error } = await supabase
+                        .from('monster_questions')
+                        .update({ question_order: newOrder })
+                        .eq('id', monsterQuestionId);
+                    
+                    if (error) throw error;
+                }
+                
+                showMessage('Question order updated!', 'success');
+                
+                // Reload monster questions
+                await loadMonsterQuestions(currentMonsterId);
+                
+                // Reload the monster_questions table if it's currently active
+                if (currentTable === 'monster_questions') {
+                    await loadTableData('monster_questions');
+                }
+                
+            } catch (error) {
+                console.error('Error reordering monster question:', error);
+                showMessage(`Error reordering question: ${error.message}`, 'error');
+            }
+        }
+
+        // Remove question from monster
+        async function removeQuestionFromMonster(monsterQuestionId) {
+            if (!confirm('Are you sure you want to remove this question from the monster?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('monster_questions')
+                    .delete()
+                    .eq('id', monsterQuestionId);
+                
+                if (error) throw error;
+                
+                showMessage('Question removed from monster!', 'success');
+                
+                // Reload monster questions
+                await loadMonsterQuestions(currentMonsterId);
+                
+                // Reload the monster_questions table if it's currently active
+                if (currentTable === 'monster_questions') {
+                    await loadTableData('monster_questions');
+                }
+                
+            } catch (error) {
+                console.error('Error removing question from monster:', error);
+                showMessage(`Error removing question: ${error.message}`, 'error');
+            }
+        }
+
         // Show message
         function showMessage(text, type) {
             // Create message element
@@ -1929,6 +2461,13 @@
         window.saveNewOption = saveNewOption;
         window.toggleCorrectOption = toggleCorrectOption;
         window.deleteQuestionOption = deleteQuestionOption;
+        window.manageMonsterQuestions = manageMonsterQuestions;
+        window.closeMonsterQuestionsModal = closeMonsterQuestionsModal;
+        window.openAddQuestionToMonsterModal = openAddQuestionToMonsterModal;
+        window.closeAddQuestionToMonsterModal = closeAddQuestionToMonsterModal;
+        window.addQuestionToMonster = addQuestionToMonster;
+        window.reorderMonsterQuestion = reorderMonsterQuestion;
+        window.removeQuestionFromMonster = removeQuestionFromMonster;
         window.refreshCurrentTable = refreshCurrentTable;
         window.refreshDropdowns = refreshDropdowns;
         window.resetTable = resetTable;
