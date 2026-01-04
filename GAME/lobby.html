@@ -786,30 +786,6 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-/* CONFIG MODAL */
-.config-input {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin: 20px 0;
-}
-
-.config-input label {
-    font-weight: 600;
-}
-
-.config-input input {
-    padding: 10px;
-    border: 2px solid var(--border);
-    background: var(--bg-panel);
-    font-size: 16px;
-}
-
-.config-input input:focus {
-    outline: none;
-    border-color: var(--green);
-}
-
 /* ITEM COMPARISON */
 .item-comparison {
     display: flex;
@@ -1110,22 +1086,7 @@ body {
         <div class="modal-body">
             <div style="text-align: center; padding: 40px;">
                 <h4>Game Settings</h4>
-                <div class="config-input">
-                    <label for="supabase-url">Supabase URL:</label>
-                    <input type="text" id="supabase-url" placeholder="https://your-project.supabase.co">
-                    
-                    <label for="supabase-key">Supabase Anon Key:</label>
-                    <input type="text" id="supabase-key" placeholder="your-anon-key">
-                    
-                    <button class="btn btn-success" onclick="saveConfig()">
-                        <i class="fas fa-save"></i> SAVE CONFIG
-                    </button>
-                    
-                    <button class="btn btn-primary" onclick="testConnection()">
-                        <i class="fas fa-plug"></i> TEST CONNECTION
-                    </button>
-                </div>
-                <hr style="margin: 20px 0; border-color: var(--border);">
+                <p>Audio, graphics, and gameplay options would go here.</p>
                 <button class="btn btn-warning" style="margin-top: 20px;" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i> LOGOUT
                 </button>
@@ -1168,8 +1129,12 @@ body {
 <!-- TOOLTIP -->
 <div class="tooltip" id="tooltip" style="display: none;"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
+<script type="module">
+// Import Supabase client from external file
+import { supabase } from './supabase.js';
+
+console.log('RPG Lobby - Supabase client loaded from external file');
+
 // Global variables
 let currentUser = null;
 let playerStats = null;
@@ -1180,115 +1145,31 @@ let inventoryItems = [];
 let gachaBanners = [];
 let leaderboardData = [];
 let isLoading = false;
-let supabase = null;
-
-// Configuration
-const DEFAULT_CONFIG = {
-    supabaseUrl: '',
-    supabaseKey: ''
-};
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Initializing RPG Lobby...');
     
-    // Load configuration
-    await loadConfig();
-    
-    // Initialize Supabase
+    // Check if supabase is available
     if (!supabase) {
-        await showConfigModal();
-    } else {
-        await withLoading(async () => {
-            await loadPlayerData();
-            await loadCurrentRun();
-            await loadGachaBanners();
-            await loadLeaderboard();
-            updateUI();
-        });
-        
-        // Auto-refresh every 30 seconds
-        setInterval(async () => {
-            await refreshData();
-        }, 30000);
-    }
-});
-
-// Load configuration from localStorage
-async function loadConfig() {
-    try {
-        const config = JSON.parse(localStorage.getItem('rpg-lobby-config')) || DEFAULT_CONFIG;
-        
-        if (config.supabaseUrl && config.supabaseKey) {
-            // Initialize Supabase
-            supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseKey);
-            console.log('Supabase initialized with saved config');
-            return true;
-        }
-        return false;
-    } catch (error) {
-        console.error('Error loading config:', error);
-        return false;
-    }
-}
-
-// Save configuration
-async function saveConfig() {
-    const url = document.getElementById('supabase-url').value.trim();
-    const key = document.getElementById('supabase-key').value.trim();
-    
-    if (!url || !key) {
-        showNotification('Please enter both URL and Key', 'error');
-        return;
-    }
-    
-    const config = { supabaseUrl: url, supabaseKey: key };
-    localStorage.setItem('rpg-lobby-config', JSON.stringify(config));
-    
-    // Reinitialize Supabase
-    supabase = window.supabase.createClient(url, key);
-    
-    // Test connection
-    await testConnection();
-}
-
-// Test Supabase connection
-async function testConnection() {
-    if (!supabase) {
-        showNotification('Supabase not initialized', 'error');
+        console.error('Supabase client not available from supabase.js');
+        showError('Supabase Error', 'Failed to initialize Supabase client. Please check your supabase.js file.');
         return;
     }
     
     await withLoading(async () => {
-        try {
-            const { data, error } = await supabase.from('users').select('count').limit(1);
-            
-            if (error) throw error;
-            
-            showNotification('Connection successful!', 'success');
-            closeSettingsModal();
-            
-            // Load data
-            await loadPlayerData();
-            await loadCurrentRun();
-            await loadGachaBanners();
-            await loadLeaderboard();
-            updateUI();
-            
-        } catch (error) {
-            console.error('Connection test failed:', error);
-            showNotification('Connection failed: ' + error.message, 'error');
-        }
+        await loadPlayerData();
+        await loadCurrentRun();
+        await loadGachaBanners();
+        await loadLeaderboard();
+        updateUI();
     });
-}
-
-// Show config modal
-async function showConfigModal() {
-    const config = JSON.parse(localStorage.getItem('rpg-lobby-config')) || DEFAULT_CONFIG;
-    document.getElementById('supabase-url').value = config.supabaseUrl;
-    document.getElementById('supabase-key').value = config.supabaseKey;
-    openSettingsModal();
-}
+    
+    // Auto-refresh every 30 seconds
+    setInterval(async () => {
+        await refreshData();
+    }, 30000);
+});
 
 // Loading wrapper
 async function withLoading(fn) {
@@ -1496,7 +1377,8 @@ async function loadGachaBanners() {
     } catch (error) {
         console.error('Error loading gacha banners:', error);
         document.getElementById('active-banner').innerHTML = `
-            <div class="loading">-</div>
+            <div class="loading">-
+            </div>
         `;
     }
 }
@@ -2005,9 +1887,6 @@ function closeGachaModal() {
 
 // Open settings modal
 function openSettingsModal() {
-    const config = JSON.parse(localStorage.getItem('rpg-lobby-config')) || DEFAULT_CONFIG;
-    document.getElementById('supabase-url').value = config.supabaseUrl;
-    document.getElementById('supabase-key').value = config.supabaseKey;
     document.getElementById('settings-modal').classList.add('active');
 }
 
@@ -2475,27 +2354,6 @@ function showNotification(message, type = 'success') {
     notification.textContent = message;
     notification.className = `notification ${type} show`;
     
-    // Play sound effect if available
-    try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.value = type === 'success' ? 800 : type === 'error' ? 400 : 600;
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-        
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.5);
-    } catch (e) {
-        // Audio not supported, ignore
-    }
-    
     setTimeout(() => {
         notification.classList.remove('show');
     }, 3000);
@@ -2504,8 +2362,7 @@ function showNotification(message, type = 'success') {
 // Logout
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
-        // Clear all data
-        localStorage.removeItem('rpg-lobby-config');
+        // Clear game state
         localStorage.removeItem('rpg-game-state');
         
         showNotification('Logged out successfully', 'success');
@@ -2535,8 +2392,9 @@ window.equipSlot = equipSlot;
 window.logout = logout;
 window.goToAdmin = goToAdmin;
 window.closeErrorModal = closeErrorModal;
-window.saveConfig = saveConfig;
-window.testConnection = testConnection;
+window.showItemTooltip = showItemTooltip;
+window.hideTooltip = hideTooltip;
+window.showStatDetails = showStatDetails;
 </script>
 </body>
 </html>
