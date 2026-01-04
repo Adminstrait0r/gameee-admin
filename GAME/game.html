@@ -935,7 +935,9 @@ let gameState = {
     healthFlasks: 3,
     streak: 0,
     goldEarned: 0,
-    currentUser: null
+    currentUser: null,
+    monsterQuestions: [],      // All questions assigned to current monster
+    currentQuestionIndex: 0    // Current question index in monsterQuestions array
 };
 
 // Initialize game
@@ -1033,6 +1035,9 @@ async function loadGameData() {
             
             updateRunDisplay();
             
+            // Load monster-specific questions
+            await loadMonsterQuestions(gameState.currentMonster.id);
+            
             // Load first question
             await loadQuestion();
             
@@ -1091,6 +1096,9 @@ async function createNewRun() {
         await loadMonster(monster.id);
         updateRunDisplay();
         
+        // Load monster-specific questions
+        await loadMonsterQuestions(monster.id);
+        
         addToCombatLog('New run started!', 'info');
         
         // Load first question
@@ -1125,6 +1133,41 @@ async function loadMonster(monsterId) {
     }
 }
 
+// Load monster-specific questions
+async function loadMonsterQuestions(monsterId) {
+    try {
+        // Get all questions assigned to this monster
+        const { data: monsterQuestions, error } = await supabase
+            .from('monster_questions')
+            .select(`
+                question_order,
+                questions (*)
+            `)
+            .eq('monster_id', monsterId)
+            .order('question_order', { ascending: true });
+        
+        if (error) throw error;
+        
+        if (monsterQuestions && monsterQuestions.length > 0) {
+            // Extract the questions from the result
+            gameState.monsterQuestions = monsterQuestions.map(mq => ({
+                ...mq.questions,
+                question_order: mq.question_order
+            }));
+            gameState.currentQuestionIndex = 0;
+            console.log(`Loaded ${gameState.monsterQuestions.length} questions for monster`);
+        } else {
+            // No specific questions assigned - use any questions from monster category
+            console.log('No specific questions assigned to monster, will use category-based questions');
+            gameState.monsterQuestions = [];
+        }
+        
+    } catch (error) {
+        console.error('Error loading monster questions:', error);
+        gameState.monsterQuestions = [];
+    }
+}
+
 // Load monster for current stage
 async function loadMonsterForStage(stage) {
     try {
@@ -1139,6 +1182,9 @@ async function loadMonsterForStage(stage) {
         if (monsters && monsters.length > 0) {
             gameState.currentMonster = monsters[0];
             updateMonsterDisplay();
+            
+            // Load monster-specific questions
+            await loadMonsterQuestions(gameState.currentMonster.id);
         }
         
     } catch (error) {
@@ -1158,51 +1204,75 @@ async function loadQuestion() {
             option.classList.remove('selected', 'correct', 'incorrect');
         });
         
-        // Check if questions exist
-        const { data: questionsCount, error: countError } = await supabase
-            .from('questions')
-            .select('*', { count: 'exact', head: true });
+        let question = null;
         
-        if (countError) throw countError;
-        
-        if (!questionsCount || questionsCount === 0) {
-            showError('No Questions', 'Please add questions to the database in the admin panel.');
-            return;
-        }
-        
-        // Get random question
-        let query = supabase
-            .from('questions')
-            .select('*');
-        
-        // Filter by monster category if available
-        if (gameState.currentMonster?.category) {
-            query = query.eq('category', gameState.currentMonster.category);
-        }
-        
-        const { data: questions, error } = await query;
-        
-        if (error) throw error;
-        
-        if (!questions || questions.length === 0) {
-            // Fallback to any question
-            const { data: allQuestions, error: allError } = await supabase
+        // Check if we have monster-specific questions
+        if (gameState.monsterQuestions && gameState.monsterQuestions.length > 0) {
+            // Use monster-specific questions in order
+            question = gameState.monsterQuestions[gameState.currentQuestionIndex];
+            
+            // Move to next question (loop back if at end)
+            gameState.currentQuestionIndex = (gameState.currentQuestionIndex + 1) % gameState.monsterQuestions.length;
+            
+            console.log(`Using monster-specific question ${gameState.currentQuestionIndex}/${gameState.monsterQuestions.length}`);
+            
+        } else {
+            // Fallback: Get random question from monster's category
+            console.log('Using fallback: random question from category');
+            
+            // Check if questions exist
+            const { data: questionsCount, error: countError } = await supabase
                 .from('questions')
-                .select('*');
+                .select('*', { count: 'exact', head: true });
             
-            if (allError) throw allError;
+            if (countError) throw countError;
             
-            if (!allQuestions || allQuestions.length === 0) {
-                addToCombatLog('No questions available!', 'error');
+            if (!questionsCount || questionsCount === 0) {
+                showError('No Questions', 'Please add questions to the database in the admin panel.');
                 return;
             }
             
-            const randomIndex = Math.floor(Math.random() * allQuestions.length);
-            gameState.currentQuestion = allQuestions[randomIndex];
-        } else {
-            const randomIndex = Math.floor(Math.random() * questions.length);
-            gameState.currentQuestion = questions[randomIndex];
+            // Get random question
+            let query = supabase
+                .from('questions')
+                .select('*');
+            
+            // Filter by monster category if available
+            if (gameState.currentMonster?.category) {
+                query = query.eq('category', gameState.currentMonster.category);
+            }
+            
+            const { data: questions, error } = await query;
+            
+            if (error) throw error;
+            
+            if (!questions || questions.length === 0) {
+                // Fallback to any question
+                const { data: allQuestions, error: allError } = await supabase
+                    .from('questions')
+                    .select('*');
+                
+                if (allError) throw allError;
+                
+                if (!allQuestions || allQuestions.length === 0) {
+                    addToCombatLog('No questions available!', 'error');
+                    return;
+                }
+                
+                const randomIndex = Math.floor(Math.random() * allQuestions.length);
+                question = allQuestions[randomIndex];
+            } else {
+                const randomIndex = Math.floor(Math.random() * questions.length);
+                question = questions[randomIndex];
+            }
         }
+        
+        if (!question) {
+            addToCombatLog('No question available!', 'error');
+            return;
+        }
+        
+        gameState.currentQuestion = question;
         
         // Get question options
         const { data: options, error: optionsError } = await supabase
@@ -1219,6 +1289,9 @@ async function loadQuestion() {
             addToCombatLog('Question has insufficient options!', 'error');
             return;
         }
+        
+        // Shuffle options to randomize positions (keep track of correct answer)
+        shuffleOptions();
         
         // Update display
         updateQuestionDisplay();
@@ -1237,6 +1310,24 @@ async function loadQuestion() {
         console.error('Error loading question:', error);
         addToCombatLog('Failed to load question: ' + error.message, 'error');
     }
+}
+
+// Shuffle question options while keeping track of correct answer
+function shuffleOptions() {
+    if (!gameState.questionOptions || gameState.questionOptions.length < 2) return;
+    
+    // Create array of indices
+    const indices = Array.from({ length: gameState.questionOptions.length }, (_, i) => i);
+    
+    // Fisher-Yates shuffle
+    for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    
+    // Reorder options based on shuffled indices
+    const shuffledOptions = indices.map(i => gameState.questionOptions[i]);
+    gameState.questionOptions = shuffledOptions;
 }
 
 // Update player stats display
@@ -1325,7 +1416,7 @@ function updateQuestionDisplay() {
         questionImage.classList.remove('show');
     }
     
-    // Update answer options
+    // Update answer options (only show up to 4 options)
     for (let i = 0; i < 4; i++) {
         const option = gameState.questionOptions[i];
         const answerText = document.getElementById(`answer-text-${i}`);
@@ -1452,8 +1543,8 @@ async function processCombat(isCorrect) {
             // Update player HP
             let newPlayerHP = gameState.currentRun.player_hp - damageToPlayer;
             
-            // Gold reward
-            goldEarned = Math.floor(gameState.currentMonster.stage * 10);
+            // Gold reward - use monster's gold_reward field
+            goldEarned = gameState.currentMonster.gold_reward || Math.floor(gameState.currentMonster.stage * 10);
             gameState.goldEarned += goldEarned;
             
             // Increase streak
@@ -1586,7 +1677,7 @@ function timeOut() {
     addToCombatLog('Time ran out!', 'info');
     
     // Process as wrong answer
-    const randomAnswer = Math.floor(Math.random() * 4);
+    const randomAnswer = Math.floor(Math.random() * Math.min(4, gameState.questionOptions.length));
     selectAnswer(randomAnswer);
 }
 
@@ -1775,8 +1866,12 @@ async function nextStage() {
         gameState.currentUser.gold = newGold;
         gameState.goldEarned = 0;
         
+        // Reset question cycling
+        gameState.currentQuestionIndex = 0;
+        
         closeStageClearModal();
         await loadMonster(monster.id);
+        await loadMonsterQuestions(monster.id);
         await loadQuestion();
         startTimer();
         
