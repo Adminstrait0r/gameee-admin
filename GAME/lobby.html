@@ -133,10 +133,16 @@ body {
     cursor: pointer;
     font-size: 12px;
     white-space: nowrap;
+    transition: all 0.2s;
 }
 
 .btn:hover {
     background: var(--tab-active);
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: translateY(0);
 }
 
 .btn-primary {
@@ -204,6 +210,11 @@ body {
     padding: 15px;
     border: 2px solid var(--border);
     text-align: center;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
 }
 
 .stat-label {
@@ -488,6 +499,11 @@ body {
     background: var(--bg-main);
     border: 2px solid var(--border);
     margin-bottom: 8px;
+    transition: transform 0.2s;
+}
+
+.leaderboard-item:hover {
+    transform: translateX(5px);
 }
 
 .rank {
@@ -606,6 +622,11 @@ body {
     cursor: pointer;
     color: var(--border);
     font-weight: bold;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: var(--red);
 }
 
 /* INVENTORY MODAL */
@@ -623,6 +644,12 @@ body {
     background: var(--bg-panel);
     cursor: pointer;
     position: relative;
+    transition: all 0.2s;
+}
+
+.inventory-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .inventory-item.equipped {
@@ -687,6 +714,8 @@ body {
     z-index: 1001;
     transform: translateX(400px);
     transition: transform 0.3s ease;
+    min-width: 300px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
 .notification.show {
@@ -708,6 +737,106 @@ body {
     padding: 40px;
     color: #666;
     font-style: italic;
+}
+
+/* LOADING OVERLAY */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    color: white;
+    font-size: 24px;
+    backdrop-filter: blur(5px);
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--green);
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* TOOLTIP */
+.tooltip {
+    position: fixed;
+    background: var(--accent);
+    color: white;
+    padding: 10px 15px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 1002;
+    max-width: 300px;
+    pointer-events: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* CONFIG MODAL */
+.config-input {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.config-input label {
+    font-weight: 600;
+}
+
+.config-input input {
+    padding: 10px;
+    border: 2px solid var(--border);
+    background: var(--bg-panel);
+    font-size: 16px;
+}
+
+.config-input input:focus {
+    outline: none;
+    border-color: var(--green);
+}
+
+/* ITEM COMPARISON */
+.item-comparison {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+}
+
+.comparison-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-diff {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.stat-diff.positive {
+    color: var(--green);
+}
+
+.stat-diff.negative {
+    color: var(--red);
 }
 
 /* RESPONSIVE */
@@ -744,6 +873,17 @@ body {
         flex-wrap: wrap;
         justify-content: center;
     }
+    
+    .equipment-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .helmet-slot { grid-column: 1; grid-row: 1; }
+    .shield-slot { grid-column: 2; grid-row: 1; }
+    .chest-slot { grid-column: 1; grid-row: 2; }
+    .weapon-slot { grid-column: 2; grid-row: 2; }
+    .legs-slot { grid-column: 1; grid-row: 3; }
+    .boots-slot { grid-column: 2; grid-row: 3; }
 }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -790,22 +930,22 @@ body {
             <div class="stats-section">
                 <div class="section-title">CHARACTER STATS</div>
                 <div class="stats-grid">
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="showStatDetails('health')">
                         <div class="stat-label">HEALTH</div>
                         <div class="stat-value" id="stat-health">-</div>
                     </div>
                     
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="showStatDetails('damage')">
                         <div class="stat-label">DAMAGE</div>
                         <div class="stat-value" id="stat-damage">-</div>
                     </div>
                     
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="showStatDetails('defense')">
                         <div class="stat-label">DEFENSE</div>
                         <div class="stat-value" id="stat-defense">-</div>
                     </div>
                     
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="showStatDetails('crit')">
                         <div class="stat-label">CRIT CHANCE</div>
                         <div class="stat-value" id="stat-crit">-</div>
                     </div>
@@ -970,8 +1110,23 @@ body {
         <div class="modal-body">
             <div style="text-align: center; padding: 40px;">
                 <h4>Game Settings</h4>
-                <p>Audio, graphics, and gameplay options would go here.</p>
-                <button class="btn btn-primary" style="margin-top: 20px;" onclick="logout()">
+                <div class="config-input">
+                    <label for="supabase-url">Supabase URL:</label>
+                    <input type="text" id="supabase-url" placeholder="https://your-project.supabase.co">
+                    
+                    <label for="supabase-key">Supabase Anon Key:</label>
+                    <input type="text" id="supabase-key" placeholder="your-anon-key">
+                    
+                    <button class="btn btn-success" onclick="saveConfig()">
+                        <i class="fas fa-save"></i> SAVE CONFIG
+                    </button>
+                    
+                    <button class="btn btn-primary" onclick="testConnection()">
+                        <i class="fas fa-plug"></i> TEST CONNECTION
+                    </button>
+                </div>
+                <hr style="margin: 20px 0; border-color: var(--border);">
+                <button class="btn btn-warning" style="margin-top: 20px;" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i> LOGOUT
                 </button>
             </div>
@@ -1004,12 +1159,17 @@ body {
 <!-- NOTIFICATION -->
 <div class="notification" id="notification"></div>
 
-<script type="module">
-// Import Supabase client
-import { supabase } from './supabase.js';
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay" style="display: none;">
+    <div class="spinner"></div>
+    <div id="loading-text">Loading...</div>
+</div>
 
-console.log('RPG Lobby - Supabase client loaded');
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip" style="display: none;"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
 // Global variables
 let currentUser = null;
 let playerStats = null;
@@ -1019,34 +1179,143 @@ let currentRun = null;
 let inventoryItems = [];
 let gachaBanners = [];
 let leaderboardData = [];
+let isLoading = false;
+let supabase = null;
+
+// Configuration
+const DEFAULT_CONFIG = {
+    supabaseUrl: '',
+    supabaseKey: ''
+};
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Initializing RPG Lobby...');
     
-    // Load player data
-    await loadPlayerData();
+    // Load configuration
+    await loadConfig();
     
-    // Load active run
-    await loadCurrentRun();
-    
-    // Load gacha banners
-    await loadGachaBanners();
-    
-    // Load leaderboard
-    await loadLeaderboard();
-    
-    // Update UI
-    updateUI();
-    
-    // Auto-refresh every 30 seconds
-    setInterval(async () => {
-        await refreshData();
-    }, 30000);
+    // Initialize Supabase
+    if (!supabase) {
+        await showConfigModal();
+    } else {
+        await withLoading(async () => {
+            await loadPlayerData();
+            await loadCurrentRun();
+            await loadGachaBanners();
+            await loadLeaderboard();
+            updateUI();
+        });
+        
+        // Auto-refresh every 30 seconds
+        setInterval(async () => {
+            await refreshData();
+        }, 30000);
+    }
 });
+
+// Load configuration from localStorage
+async function loadConfig() {
+    try {
+        const config = JSON.parse(localStorage.getItem('rpg-lobby-config')) || DEFAULT_CONFIG;
+        
+        if (config.supabaseUrl && config.supabaseKey) {
+            // Initialize Supabase
+            supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseKey);
+            console.log('Supabase initialized with saved config');
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Error loading config:', error);
+        return false;
+    }
+}
+
+// Save configuration
+async function saveConfig() {
+    const url = document.getElementById('supabase-url').value.trim();
+    const key = document.getElementById('supabase-key').value.trim();
+    
+    if (!url || !key) {
+        showNotification('Please enter both URL and Key', 'error');
+        return;
+    }
+    
+    const config = { supabaseUrl: url, supabaseKey: key };
+    localStorage.setItem('rpg-lobby-config', JSON.stringify(config));
+    
+    // Reinitialize Supabase
+    supabase = window.supabase.createClient(url, key);
+    
+    // Test connection
+    await testConnection();
+}
+
+// Test Supabase connection
+async function testConnection() {
+    if (!supabase) {
+        showNotification('Supabase not initialized', 'error');
+        return;
+    }
+    
+    await withLoading(async () => {
+        try {
+            const { data, error } = await supabase.from('users').select('count').limit(1);
+            
+            if (error) throw error;
+            
+            showNotification('Connection successful!', 'success');
+            closeSettingsModal();
+            
+            // Load data
+            await loadPlayerData();
+            await loadCurrentRun();
+            await loadGachaBanners();
+            await loadLeaderboard();
+            updateUI();
+            
+        } catch (error) {
+            console.error('Connection test failed:', error);
+            showNotification('Connection failed: ' + error.message, 'error');
+        }
+    });
+}
+
+// Show config modal
+async function showConfigModal() {
+    const config = JSON.parse(localStorage.getItem('rpg-lobby-config')) || DEFAULT_CONFIG;
+    document.getElementById('supabase-url').value = config.supabaseUrl;
+    document.getElementById('supabase-key').value = config.supabaseKey;
+    openSettingsModal();
+}
+
+// Loading wrapper
+async function withLoading(fn) {
+    if (isLoading) return;
+    isLoading = true;
+    
+    const overlay = document.getElementById('loading-overlay');
+    overlay.style.display = 'flex';
+    
+    try {
+        await fn();
+    } catch (error) {
+        console.error('Error in loading operation:', error);
+        showNotification('Operation failed: ' + error.message, 'error');
+    } finally {
+        isLoading = false;
+        overlay.style.display = 'none';
+    }
+}
 
 // Load player data from database
 async function loadPlayerData() {
+    if (!supabase) {
+        showNotification('Database not configured', 'error');
+        return;
+    }
+    
     try {
         // Get current user
         const { data: users, error: usersError } = await supabase
@@ -1067,6 +1336,7 @@ async function loadPlayerData() {
         }
         
         currentUser = users[0];
+        updatePlayerAvatar();
         
         // Update player info
         document.getElementById('player-username').textContent = currentUser.username || '-';
@@ -1112,7 +1382,8 @@ async function loadPlayerData() {
                     const slot = item.equipment.slot.toLowerCase();
                     equippedItems[slot] = {
                         ...item.equipment,
-                        player_equipment_id: item.id
+                        player_equipment_id: item.id,
+                        is_equipped: true
                     };
                 }
             });
@@ -1121,8 +1392,9 @@ async function loadPlayerData() {
             inventoryItems = playerEquipment.map(item => ({
                 ...item.equipment,
                 player_equipment_id: item.id,
-                is_equipped: item.is_equipped
-            }));
+                is_equipped: item.is_equipped,
+                player_equipment_data: item
+            })).filter(item => item.id); // Filter out null items
         }
         
         console.log('Player data loaded successfully');
@@ -1131,6 +1403,20 @@ async function loadPlayerData() {
         console.error('Error loading player data:', error);
         showError('Game Error', 'Failed to load player data. Please try again.');
     }
+}
+
+// Update player avatar
+function updatePlayerAvatar() {
+    const pfp = document.getElementById('player-avatar');
+    const username = currentUser?.username || 'Player';
+    const initials = username.substring(0, 2).toUpperCase();
+    
+    // Generate a consistent color based on username
+    const colors = ['#FF6B6B', '#4ECDC4', '#FFD166', '#06D6A0', '#118AB2', '#EF476F'];
+    const colorIndex = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+    
+    pfp.style.backgroundColor = colors[colorIndex];
+    pfp.innerHTML = `<span style="font-size: 20px; font-weight: bold;">${initials}</span>`;
 }
 
 // Load current active run
@@ -1278,13 +1564,13 @@ function updateUI() {
         
         // Update health bar
         const healthPercent = currentRun ? (currentRun.player_hp / totalHP * 100) : 100;
-        document.getElementById('health-bar-fill').style.width = `${healthPercent}%`;
+        document.getElementById('health-bar-fill').style.width = `${Math.max(0, healthPercent)}%`;
         document.getElementById('health-text').textContent = currentRun ? 
-            `${currentRun.player_hp} / ${totalHP} HP` : 
+            `${Math.max(0, currentRun.player_hp)} / ${totalHP} HP` : 
             `${totalHP} / ${totalHP} HP`;
         
-        // Calculate player level (simplified)
-        const level = Math.floor((totalHP + totalDamage + totalDefense) / 100) + 1;
+        // Calculate player level (simplified based on stats)
+        const level = Math.floor((totalHP + totalDamage * 10 + totalDefense * 5) / 100) + 1;
         document.getElementById('player-level').textContent = level;
     }
     
@@ -1312,6 +1598,16 @@ function updateUI() {
             const icon = element.querySelector('.equipment-icon');
             if (item.image_url) {
                 icon.innerHTML = `<img src="${item.image_url}" alt="${item.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas fa-question\\'></i>'">`;
+            } else {
+                const iconClass = {
+                    helmet: 'fa-helmet-battle',
+                    shield: 'fa-shield-alt',
+                    chest: 'fa-vest',
+                    weapon: 'fa-sword',
+                    legs: 'fa-running',
+                    boots: 'fa-boot'
+                }[slot];
+                icon.innerHTML = `<i class="fas ${iconClass}"></i>`;
             }
         } else {
             element.classList.add('empty');
@@ -1345,13 +1641,13 @@ function updateRunDisplay() {
     
     let monsterHTML = '';
     if (monster) {
-        const monsterHPPercent = (currentRun.monster_hp / monster.hp * 100);
+        const monsterHPPercent = Math.max(0, (currentRun.monster_hp / monster.hp * 100));
         
         monsterHTML = `
             <div class="monster-display">
                 <div class="monster-image">
                     ${monster.image_url ? 
-                        `<img src="${monster.image_url}" alt="${monster.name}">` : 
+                        `<img src="${monster.image_url}" alt="${monster.name}" onerror="this.innerHTML='<i class=\\'fas fa-dragon\\'></i>'">` : 
                         `<i class="fas fa-dragon"></i>`
                     }
                 </div>
@@ -1361,8 +1657,11 @@ function updateRunDisplay() {
                     <div class="hp-bar">
                         <div class="hp-fill" style="width: ${monsterHPPercent}%"></div>
                     </div>
-                    <div>HP: ${currentRun.monster_hp} / ${monster.hp}</div>
+                    <div>HP: ${Math.max(0, currentRun.monster_hp)} / ${monster.hp}</div>
                     <div>Category: ${monster.category || '-'}</div>
+                    <div style="font-size: 12px; color: #666;">
+                        Gold Reward: ${monster.gold_reward || 0} <i class="fas fa-coins"></i>
+                    </div>
                 </div>
             </div>
         `;
@@ -1377,7 +1676,7 @@ function updateRunDisplay() {
             <button class="btn btn-success" onclick="continueRun()">
                 <i class="fas fa-play"></i> CONTINUE
             </button>
-            <button class="btn" onclick="abandonRun()">
+            <button class="btn btn-warning" onclick="abandonRun()">
                 <i class="fas fa-times"></i> ABANDON
             </button>
         </div>
@@ -1400,14 +1699,17 @@ function updateBannerDisplay() {
     if (featuredRates.length > 0) {
         featuredHTML = `
             <div class="banner-featured">
-                ${featuredRates.slice(0, 3).map(() => `
+                ${featuredRates.slice(0, 3).map((rate, i) => `
                     <div class="featured-item">
-                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star" style="color: ${rate.rarity === 'legendary' ? 'var(--orange)' : 'var(--purple)'}"></i>
                     </div>
                 `).join('')}
             </div>
         `;
     }
+    
+    const canAfford = currentUser && currentUser.gold >= banner.cost;
+    const canAffordMulti = currentUser && currentUser.gold >= (banner.cost * 10);
     
     bannerDiv.innerHTML = `
         <h4>${banner.name}</h4>
@@ -1415,12 +1717,19 @@ function updateBannerDisplay() {
         <div class="banner-cost">
             <i class="fas fa-coins"></i> ${banner.cost} GOLD
         </div>
-        <button class="btn btn-warning" onclick="pullGacha('${banner.id}')" style="margin-top: 10px;">
-            <i class="fas fa-dice"></i> PULL ONCE
-        </button>
-        <button class="btn btn-primary" onclick="pullGachaMulti('${banner.id}', 10)" style="margin-top: 10px;">
-            <i class="fas fa-dice-five"></i> 10-PULL
-        </button>
+        <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center;">
+            <button class="btn ${canAfford ? 'btn-warning' : ''}" 
+                    onclick="pullGacha('${banner.id}')" 
+                    ${!canAfford ? 'disabled style="opacity: 0.5;"' : ''}>
+                <i class="fas fa-dice"></i> PULL ONCE
+            </button>
+            <button class="btn ${canAffordMulti ? 'btn-primary' : ''}" 
+                    onclick="pullGachaMulti('${banner.id}')" 
+                    ${!canAffordMulti ? 'disabled style="opacity: 0.5;"' : ''}>
+                <i class="fas fa-dice-five"></i> 10-PULL
+            </button>
+        </div>
+        ${!canAfford ? '<div style="margin-top: 10px; font-size: 12px; color: var(--yellow);">Not enough gold!</div>' : ''}
     `;
 }
 
@@ -1436,13 +1745,17 @@ function updateLeaderboardDisplay() {
     let html = '';
     leaderboardData.forEach((entry, index) => {
         const rankClass = index === 0 ? 'top' : index < 3 ? 'top-3' : '';
+        const isCurrentUser = currentUser && entry.user_id === currentUser.id;
+        const username = entry.user?.username || 'Unknown';
+        
         html += `
-            <div class="leaderboard-item">
+            <div class="leaderboard-item" style="${isCurrentUser ? 'border-color: var(--green); background: rgba(0,184,92,0.1);' : ''}">
                 <div class="rank ${rankClass}">${index + 1}</div>
                 <div style="flex: 1;">
-                    <strong>${entry.user?.username || '-'}</strong>
+                    <strong>${username}</strong>
+                    ${isCurrentUser ? ' <span style="color: var(--green); font-size: 10px;">(YOU)</span>' : ''}
                     <div style="font-size: 12px;">
-                        Stage ${entry.highest_stage} | ${entry.monsters_defeated || 0} kills
+                        Stage ${entry.highest_stage || 0} | ${entry.monsters_defeated || 0} kills
                     </div>
                 </div>
                 <div style="font-weight: 700; color: var(--green);">
@@ -1460,7 +1773,7 @@ async function openInventoryModal() {
     const modal = document.getElementById('inventory-modal');
     const itemsDiv = document.getElementById('inventory-items');
     
-    if (inventoryItems.length === 0) {
+    if (!inventoryItems || inventoryItems.length === 0) {
         itemsDiv.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
                 <h4>No Items</h4>
@@ -1473,30 +1786,37 @@ async function openInventoryModal() {
     } else {
         let html = '';
         inventoryItems.forEach(item => {
+            if (!item) return;
+            
             const isEquipped = item.is_equipped;
             const slot = item.slot?.toLowerCase();
             const equippedClass = isEquipped ? 'equipped' : '';
+            const equippedItem = equippedItems[slot];
             
             html += `
-                <div class="inventory-item ${equippedClass}" onclick="selectInventoryItem('${item.id}')" data-id="${item.id}">
+                <div class="inventory-item ${equippedClass}" 
+                     onclick="selectInventoryItem('${item.id}')" 
+                     data-id="${item.id}"
+                     onmouseenter="showItemTooltip(event, '${item.id}')"
+                     onmouseleave="hideTooltip()">
                     <div class="item-image">
                         ${item.image_url ? 
-                            `<img src="${item.image_url}" alt="${item.name}">` : 
+                            `<img src="${item.image_url}" alt="${item.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas fa-question\\'></i>'">` : 
                             `<i class="fas fa-question"></i>`
                         }
                     </div>
-                    <div style="font-size: 12px; font-weight: 600;">${item.name || '-'}</div>
-                    <div style="font-size: 10px; color: #666;">${item.slot || '-'}</div>
-                    <div class="item-rarity rarity-${item.rarity || 'common'}" style="margin-top: 5px;">
+                    <div style="font-size: 12px; font-weight: 600; margin-bottom: 5px;">${item.name || '-'}</div>
+                    <div style="font-size: 10px; color: #666; margin-bottom: 5px;">${item.slot || '-'}</div>
+                    <div class="item-rarity rarity-${item.rarity || 'common'}" style="margin-bottom: 5px;">
                         ${item.rarity?.toUpperCase() || 'COMMON'}
                     </div>
                     <div class="item-actions">
                         ${!isEquipped ? `
-                            <button class="btn" onclick="event.stopPropagation(); equipItem('${item.id}', '${slot}')" style="font-size: 10px; padding: 4px 8px;">
+                            <button class="btn" onclick="event.stopPropagation(); equipItem('${item.player_equipment_id}', '${slot}')" style="font-size: 10px; padding: 4px 8px;">
                                 EQUIP
                             </button>
                         ` : `
-                            <button class="btn" onclick="event.stopPropagation(); unequipItem('${item.id}')" style="font-size: 10px; padding: 4px 8px;">
+                            <button class="btn" onclick="event.stopPropagation(); unequipItem('${item.player_equipment_id}')" style="font-size: 10px; padding: 4px 8px;">
                                 UNEQUIP
                             </button>
                         `}
@@ -1509,6 +1829,102 @@ async function openInventoryModal() {
     }
     
     modal.classList.add('active');
+}
+
+// Show item tooltip
+function showItemTooltip(event, itemId) {
+    const item = inventoryItems.find(i => i.id === itemId);
+    if (!item) return;
+    
+    const tooltip = document.getElementById('tooltip');
+    const equippedItem = equippedItems[item.slot?.toLowerCase()];
+    
+    let html = `<strong>${item.name}</strong><br>`;
+    html += `<small>${item.rarity} ${item.slot}</small><br>`;
+    
+    if (item.damage) html += `Damage: ${item.damage}<br>`;
+    if (item.defense) html += `Defense: ${item.defense}<br>`;
+    if (item.health_bonus) html += `HP Bonus: ${item.health_bonus}<br>`;
+    if (item.crit_bonus) html += `Crit Bonus: ${(item.crit_bonus * 100).toFixed(1)}%<br>`;
+    
+    if (equippedItem && equippedItem.id !== item.id) {
+        html += `<hr><small>Currently Equipped:</small><br>`;
+        html += `<strong>${equippedItem.name}</strong><br>`;
+        if (equippedItem.damage) html += `Damage: ${equippedItem.damage}<br>`;
+        if (equippedItem.defense) html += `Defense: ${equippedItem.defense}<br>`;
+        
+        // Show comparison
+        const damageDiff = (item.damage || 0) - (equippedItem.damage || 0);
+        const defenseDiff = (item.defense || 0) - (equippedItem.defense || 0);
+        const hpDiff = (item.health_bonus || 0) - (equippedItem.health_bonus || 0);
+        const critDiff = (item.crit_bonus || 0) - (equippedItem.crit_bonus || 0);
+        
+        if (damageDiff !== 0) html += `<span class="stat-diff ${damageDiff > 0 ? 'positive' : 'negative'}">${damageDiff > 0 ? '+' : ''}${damageDiff} damage</span><br>`;
+        if (defenseDiff !== 0) html += `<span class="stat-diff ${defenseDiff > 0 ? 'positive' : 'negative'}">${defenseDiff > 0 ? '+' : ''}${defenseDiff} defense</span><br>`;
+        if (hpDiff !== 0) html += `<span class="stat-diff ${hpDiff > 0 ? 'positive' : 'negative'}">${hpDiff > 0 ? '+' : ''}${hpDiff} HP</span><br>`;
+        if (critDiff !== 0) html += `<span class="stat-diff ${critDiff > 0 ? 'positive' : 'negative'}">${critDiff > 0 ? '+' : ''}${(critDiff * 100).toFixed(1)}% crit</span><br>`;
+    }
+    
+    tooltip.innerHTML = html;
+    tooltip.style.display = 'block';
+    tooltip.style.left = (event.pageX + 10) + 'px';
+    tooltip.style.top = (event.pageY + 10) + 'px';
+}
+
+// Hide tooltip
+function hideTooltip() {
+    document.getElementById('tooltip').style.display = 'none';
+}
+
+// Show stat details
+function showStatDetails(stat) {
+    let message = '';
+    switch(stat) {
+        case 'health':
+            message = 'Health determines how much damage you can take before your run ends.';
+            break;
+        case 'damage':
+            message = 'Damage determines how much health you remove from monsters with correct answers.';
+            break;
+        case 'defense':
+            message = 'Defense reduces the damage you take from incorrect answers.';
+            break;
+        case 'crit':
+            message = 'Critical chance is the probability of dealing double damage.';
+            break;
+    }
+    
+    if (playerStats) {
+        const baseHP = playerStats.base_hp || 100;
+        const baseDamage = playerStats.base_damage || 10;
+        const baseDefense = playerStats.base_defense || 5;
+        const critChance = playerStats.crit_chance || 0.05;
+        
+        let hpBonus = 0, damageBonus = 0, defenseBonus = 0, critBonus = 0;
+        
+        Object.values(equippedItems).forEach(item => {
+            hpBonus += item.health_bonus || 0;
+            damageBonus += item.damage || 0;
+            defenseBonus += item.defense || 0;
+            critBonus += item.crit_bonus || 0;
+        });
+        
+        message += '\n\nBase Stats:\n';
+        message += `- Health: ${baseHP}\n`;
+        message += `- Damage: ${baseDamage}\n`;
+        message += `- Defense: ${baseDefense}\n`;
+        message += `- Crit: ${(critChance * 100).toFixed(1)}%\n`;
+        
+        if (hpBonus > 0 || damageBonus > 0 || defenseBonus > 0 || critBonus > 0) {
+            message += '\nEquipment Bonuses:\n';
+            if (hpBonus > 0) message += `- Health: +${hpBonus}\n`;
+            if (damageBonus > 0) message += `- Damage: +${damageBonus}\n`;
+            if (defenseBonus > 0) message += `- Defense: +${defenseBonus}\n`;
+            if (critBonus > 0) message += `- Crit: +${(critBonus * 100).toFixed(1)}%\n`;
+        }
+    }
+    
+    alert(message);
 }
 
 // Close inventory modal
@@ -1537,13 +1953,16 @@ async function openGachaModal() {
             if (rates.length > 0) {
                 rates.forEach(rate => {
                     ratesHTML += `
-                        <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--border);">
-                            <span>${rate.rarity}</span>
+                        <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.3);">
+                            <span style="text-transform: capitalize;">${rate.rarity}</span>
                             <span>${rate.chance}%</span>
                         </div>
                     `;
                 });
             }
+            
+            const canAfford = currentUser && currentUser.gold >= banner.cost;
+            const canAffordMulti = currentUser && currentUser.gold >= (banner.cost * 10);
             
             bannersHTML += `
                 <div style="border: 2px solid var(--border); padding: 15px; margin-bottom: 15px; background: linear-gradient(135deg, var(--purple), var(--blue)); color: white;">
@@ -1551,15 +1970,21 @@ async function openGachaModal() {
                     <div style="font-size: 24px; font-weight: 700; color: var(--yellow); margin: 10px 0;">
                         <i class="fas fa-coins"></i> ${banner.cost} GOLD
                     </div>
-                    <div style="background: rgba(0, 0, 0, 0.2); padding: 10px; margin: 10px 0;">
-                        <h5>Drop Rates</h5>
+                    <div style="background: rgba(0, 0, 0, 0.2); padding: 10px; margin: 10px 0; border-radius: 5px;">
+                        <h5 style="margin-top: 0;">Drop Rates</h5>
                         ${ratesHTML}
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button class="btn btn-warning" onclick="pullGacha('${banner.id}')" style="flex: 1;">
+                        <button class="btn ${canAfford ? 'btn-warning' : ''}" 
+                                onclick="pullGacha('${banner.id}')" 
+                                ${!canAfford ? 'disabled style="opacity: 0.5;"' : ''}
+                                style="flex: 1;">
                             <i class="fas fa-dice"></i> SINGLE PULL
                         </button>
-                        <button class="btn btn-primary" onclick="pullGachaMulti('${banner.id}', 10)" style="flex: 1;">
+                        <button class="btn ${canAffordMulti ? 'btn-primary' : ''}" 
+                                onclick="pullGachaMulti('${banner.id}')" 
+                                ${!canAffordMulti ? 'disabled style="opacity: 0.5;"' : ''}
+                                style="flex: 1;">
                             <i class="fas fa-dice-five"></i> 10-PULL
                         </button>
                     </div>
@@ -1580,6 +2005,9 @@ function closeGachaModal() {
 
 // Open settings modal
 function openSettingsModal() {
+    const config = JSON.parse(localStorage.getItem('rpg-lobby-config')) || DEFAULT_CONFIG;
+    document.getElementById('supabase-url').value = config.supabaseUrl;
+    document.getElementById('supabase-key').value = config.supabaseKey;
     document.getElementById('settings-modal').classList.add('active');
 }
 
@@ -1606,61 +2034,68 @@ function goToAdmin() {
 }
 
 // Equip item
-async function equipItem(equipmentId, slot) {
+async function equipItem(playerEquipmentId, slot) {
     try {
         if (!currentUser) return;
         
-        // First, unequip any item in that slot
-        const itemsInSlot = playerEquipment.filter(item => 
-            item.is_equipped && item.equipment?.slot?.toLowerCase() === slot
-        );
-        
-        for (const item of itemsInSlot) {
-            const { error: unequipError } = await supabase
-                .from('player_equipment')
-                .update({ is_equipped: false })
-                .eq('id', item.id);
+        await withLoading(async () => {
+            // First, unequip any item in that slot
+            const itemsInSlot = playerEquipment.filter(item => 
+                item.is_equipped && item.equipment?.slot?.toLowerCase() === slot
+            );
             
-            if (unequipError) throw unequipError;
-        }
-        
-        // Equip the new item
-        const { error: equipError } = await supabase
-            .from('player_equipment')
-            .update({ is_equipped: true })
-            .eq('equipment_id', equipmentId)
-            .eq('user_id', currentUser.id);
-        
-        if (equipError) throw equipError;
-        
-        showNotification('Item equipped successfully!', 'success');
-        await refreshData();
+            for (const item of itemsInSlot) {
+                const { error: unequipError } = await supabase
+                    .from('player_equipment')
+                    .update({ is_equipped: false })
+                    .eq('id', item.id);
+                
+                if (unequipError) throw unequipError;
+            }
+            
+            // Equip the new item
+            const { error: equipError } = await supabase
+                .from('player_equipment')
+                .update({ is_equipped: true })
+                .eq('id', playerEquipmentId)
+                .eq('user_id', currentUser.id);
+            
+            if (equipError) throw equipError;
+            
+            showNotification('Item equipped successfully!', 'success');
+            await refreshData();
+            
+            // Close inventory if open
+            closeInventoryModal();
+        });
         
     } catch (error) {
         console.error('Error equipping item:', error);
-        showNotification('Error equipping item', 'error');
+        showNotification('Error equipping item: ' + error.message, 'error');
     }
 }
 
 // Unequip item
-async function unequipItem(equipmentId) {
+async function unequipItem(playerEquipmentId) {
     try {
         if (!currentUser) return;
         
-        const { error } = await supabase
-            .from('player_equipment')
-            .update({ is_equipped: false })
-            .eq('equipment_id', equipmentId)
-            .eq('user_id', currentUser.id);
-        
-        if (error) throw error;
-        
-        showNotification('Item unequipped', 'success');
-        await refreshData();
+        await withLoading(async () => {
+            const { error } = await supabase
+                .from('player_equipment')
+                .update({ is_equipped: false })
+                .eq('id', playerEquipmentId)
+                .eq('user_id', currentUser.id);
+            
+            if (error) throw error;
+            
+            showNotification('Item unequipped', 'success');
+            await refreshData();
+        });
         
     } catch (error) {
         console.error('Error unequipping item:', error);
-        showNotification('Error unequipping item', 'error');
+        showNotification('Error unequipping item: ' + error.message, 'error');
     }
 }
 
@@ -1669,7 +2104,14 @@ function selectInventoryItem(itemId) {
     const item = inventoryItems.find(i => i.id === itemId);
     if (!item) return;
     
-    alert(`Item Details:\nName: ${item.name}\nSlot: ${item.slot}\nRarity: ${item.rarity}\nDamage: ${item.damage || 0}\nDefense: ${item.defense || 0}`);
+    let details = `Item Details:\n\nName: ${item.name}\nSlot: ${item.slot}\nRarity: ${item.rarity}`;
+    if (item.damage) details += `\nDamage: ${item.damage}`;
+    if (item.defense) details += `\nDefense: ${item.defense}`;
+    if (item.health_bonus) details += `\nHP Bonus: ${item.health_bonus}`;
+    if (item.crit_bonus) details += `\nCrit Bonus: ${(item.crit_bonus * 100).toFixed(1)}%`;
+    if (item.created_at) details += `\nObtained: ${new Date(item.created_at).toLocaleDateString()}`;
+    
+    alert(details);
 }
 
 // Equip slot click
@@ -1677,7 +2119,14 @@ function equipSlot(slot) {
     if (equippedItems[slot]) {
         // Show equipped item details
         const item = equippedItems[slot];
-        alert(`Equipped ${slot}:\n${item.name}\nRarity: ${item.rarity}\nDamage: ${item.damage || 0}\nDefense: ${item.defense || 0}\n\nClick "Inventory" to manage items.`);
+        let details = `Equipped ${slot}:\n\n${item.name}\nRarity: ${item.rarity}`;
+        if (item.damage) details += `\nDamage: ${item.damage}`;
+        if (item.defense) details += `\nDefense: ${item.defense}`;
+        if (item.health_bonus) details += `\nHP Bonus: ${item.health_bonus}`;
+        if (item.crit_bonus) details += `\nCrit Bonus: ${(item.crit_bonus * 100).toFixed(1)}%`;
+        
+        details += `\n\nClick "Inventory" to manage items.`;
+        alert(details);
     } else {
         // Open inventory to equip
         openInventoryModal();
@@ -1689,50 +2138,63 @@ async function startNewRun() {
     try {
         if (!currentUser) return;
         
-        // Get first monster for stage 1
-        const { data: monsters, error: monstersError } = await supabase
-            .from('monsters')
-            .select('*')
-            .eq('stage', 1)
-            .limit(1);
-        
-        if (monstersError) throw monstersError;
-        
-        if (!monsters || monsters.length === 0) {
-            showNotification('No monsters found for stage 1', 'error');
-            return;
-        }
-        
-        const monster = monsters[0];
-        const playerHP = (playerStats?.base_hp || 100) + 
-            (equippedItems.weapon?.health_bonus || 0) +
-            (equippedItems.chest?.health_bonus || 0) +
-            (equippedItems.helmet?.health_bonus || 0);
-        
-        // Create new run
-        const { data: run, error: runError } = await supabase
-            .from('runs')
-            .insert([{
-                user_id: currentUser.id,
-                current_stage: 1,
-                current_monster: monster.id,
-                player_hp: playerHP,
-                monster_hp: monster.hp,
-                streak: 0,
-                started_at: new Date().toISOString()
-            }])
-            .select()
-            .single();
-        
-        if (runError) throw runError;
-        
-        currentRun = run;
-        updateRunDisplay();
-        showNotification('New run started! Good luck!', 'success');
+        await withLoading(async () => {
+            // Get first monster for stage 1
+            const { data: monsters, error: monstersError } = await supabase
+                .from('monsters')
+                .select('*')
+                .eq('stage', 1)
+                .limit(1);
+            
+            if (monstersError) throw monstersError;
+            
+            if (!monsters || monsters.length === 0) {
+                showNotification('No monsters found for stage 1', 'error');
+                return;
+            }
+            
+            const monster = monsters[0];
+            const baseHP = playerStats?.base_hp || 100;
+            
+            // Calculate HP bonuses from equipped items
+            let hpBonus = 0;
+            Object.values(equippedItems).forEach(item => {
+                hpBonus += item.health_bonus || 0;
+            });
+            
+            const playerHP = baseHP + hpBonus;
+            
+            // Create new run
+            const { data: run, error: runError } = await supabase
+                .from('runs')
+                .insert([{
+                    user_id: currentUser.id,
+                    current_stage: 1,
+                    current_monster: monster.id,
+                    player_hp: playerHP,
+                    monster_hp: monster.hp,
+                    streak: 0,
+                    started_at: new Date().toISOString()
+                }])
+                .select(`
+                    *,
+                    monster:current_monster (*)
+                `)
+                .single();
+            
+            if (runError) throw runError;
+            
+            currentRun = run;
+            updateRunDisplay();
+            showNotification('New run started! Good luck!', 'success');
+            
+            // Update UI
+            updateUI();
+        });
         
     } catch (error) {
         console.error('Error starting new run:', error);
-        showNotification('Error starting run', 'error');
+        showNotification('Error starting run: ' + error.message, 'error');
     }
 }
 
@@ -1743,33 +2205,47 @@ function continueRun() {
         return;
     }
     
-    // In a real app, this would redirect to the game page
+    // Store game state for the gameplay page
+    const gameState = {
+        run: currentRun,
+        playerStats: playerStats,
+        equippedItems: equippedItems,
+        inventory: inventoryItems,
+        user: currentUser
+    };
+    
+    localStorage.setItem('rpg-game-state', JSON.stringify(gameState));
+    
     showNotification(`Continuing to stage ${currentRun.current_stage}...`, 'success');
+    
+    // In a real implementation, this would redirect to the game page
     setTimeout(() => {
-        alert('Game would start here. Redirecting to game page...');
-        // window.location.href = 'game.html';
+        alert('Game would start here. In a full implementation, this would redirect to gameplay.html');
+        // window.location.href = 'gameplay.html?runId=' + currentRun.id;
     }, 1000);
 }
 
 // Abandon run
 async function abandonRun() {
-    if (!currentRun || !confirm('Are you sure you want to abandon this run?')) return;
+    if (!currentRun || !confirm('Are you sure you want to abandon this run? You will lose all progress.')) return;
     
     try {
-        const { error } = await supabase
-            .from('runs')
-            .delete()
-            .eq('id', currentRun.id);
-        
-        if (error) throw error;
-        
-        currentRun = null;
-        await loadCurrentRun();
-        showNotification('Run abandoned', 'success');
+        await withLoading(async () => {
+            const { error } = await supabase
+                .from('runs')
+                .delete()
+                .eq('id', currentRun.id);
+            
+            if (error) throw error;
+            
+            currentRun = null;
+            await loadCurrentRun();
+            showNotification('Run abandoned', 'success');
+        });
         
     } catch (error) {
         console.error('Error abandoning run:', error);
-        showNotification('Error abandoning run', 'error');
+        showNotification('Error abandoning run: ' + error.message, 'error');
     }
 }
 
@@ -1784,92 +2260,97 @@ async function pullGacha(bannerId, multi = false) {
             return;
         }
         
-        // Check if user has enough gold
         const cost = banner.cost * (multi ? 10 : 1);
+        
+        // Check if user has enough gold
         if (currentUser.gold < cost) {
             showNotification(`Not enough gold! Need ${cost} gold`, 'error');
             return;
         }
         
-        // Deduct gold
-        const newGold = currentUser.gold - cost;
-        const { error: goldError } = await supabase
-            .from('users')
-            .update({ gold: newGold })
-            .eq('id', currentUser.id);
-        
-        if (goldError) throw goldError;
-        
-        currentUser.gold = newGold;
-        document.getElementById('gold-amount').textContent = newGold;
-        
-        // Get gacha rates for this banner
-        const { data: rates, error: ratesError } = await supabase
-            .from('gacha_rates')
-            .select('*')
-            .eq('banner_id', bannerId);
-        
-        if (ratesError) throw ratesError;
-        
-        if (!rates || rates.length === 0) {
-            showNotification('No gacha rates found for this banner', 'error');
-            return;
-        }
-        
-        // Get equipment based on rarity
-        const pulls = multi ? 10 : 1;
-        const obtainedItems = [];
-        
-        for (let i = 0; i < pulls; i++) {
-            // Simple random selection based on rates
-            const random = Math.random() * 100;
-            let selectedRarity = 'common';
-            let cumulative = 0;
+        await withLoading(async () => {
+            // Deduct gold
+            const newGold = currentUser.gold - cost;
+            const { error: goldError } = await supabase
+                .from('users')
+                .update({ gold: newGold })
+                .eq('id', currentUser.id);
             
-            for (const rate of rates) {
-                cumulative += Number(rate.chance);
-                if (random <= cumulative) {
-                    selectedRarity = rate.rarity;
-                    break;
-                }
-            }
+            if (goldError) throw goldError;
             
-            // Get random equipment of selected rarity
-            const { data: equipment, error: equipmentError } = await supabase
-                .from('equipment')
+            currentUser.gold = newGold;
+            document.getElementById('gold-amount').textContent = newGold;
+            
+            // Get gacha rates for this banner
+            const { data: rates, error: ratesError } = await supabase
+                .from('gacha_rates')
                 .select('*')
-                .eq('rarity', selectedRarity)
-                .limit(1);
+                .eq('banner_id', bannerId);
             
-            if (!equipmentError && equipment && equipment.length > 0) {
-                const item = equipment[0];
-                obtainedItems.push(item);
+            if (ratesError) throw ratesError;
+            
+            if (!rates || rates.length === 0) {
+                showNotification('No gacha rates found for this banner', 'error');
+                return;
+            }
+            
+            // Get equipment based on rarity
+            const pulls = multi ? 10 : 1;
+            const obtainedItems = [];
+            
+            for (let i = 0; i < pulls; i++) {
+                // Random selection based on rates
+                const random = Math.random() * 100;
+                let selectedRarity = 'common';
+                let cumulative = 0;
                 
-                // Add to player inventory
-                const { error: inventoryError } = await supabase
-                    .from('player_equipment')
-                    .insert([{
-                        user_id: currentUser.id,
-                        equipment_id: item.id,
-                        is_equipped: false,
-                        obtained_at: new Date().toISOString()
-                    }]);
+                for (const rate of rates) {
+                    cumulative += Number(rate.chance);
+                    if (random <= cumulative) {
+                        selectedRarity = rate.rarity;
+                        break;
+                    }
+                }
                 
-                if (inventoryError) {
-                    console.error('Error adding item to inventory:', inventoryError);
+                // Get random equipment of selected rarity
+                const { data: equipment, error: equipmentError } = await supabase
+                    .from('equipment')
+                    .select('*')
+                    .eq('rarity', selectedRarity)
+                    .limit(1);
+                
+                if (!equipmentError && equipment && equipment.length > 0) {
+                    const item = equipment[0];
+                    obtainedItems.push(item);
+                    
+                    // Add to player inventory
+                    const { error: inventoryError } = await supabase
+                        .from('player_equipment')
+                        .insert([{
+                            user_id: currentUser.id,
+                            equipment_id: item.id,
+                            is_equipped: false,
+                            obtained_at: new Date().toISOString()
+                        }]);
+                    
+                    if (inventoryError) {
+                        console.error('Error adding item to inventory:', inventoryError);
+                    }
                 }
             }
-        }
-        
-        // Show results
-        showGachaResults(obtainedItems, multi);
-        
-        // Refresh inventory
-        await refreshData();
+            
+            // Show results
+            showGachaResults(obtainedItems, multi);
+            
+            // Refresh inventory and banners
+            await loadPlayerData();
+            await loadGachaBanners();
+            updateUI();
+        });
         
     } catch (error) {
         console.error('Error pulling gacha:', error);
-        showNotification('Error pulling gacha', 'error');
+        showNotification('Error pulling gacha: ' + error.message, 'error');
     }
 }
 
@@ -1896,16 +2377,26 @@ function showGachaResults(items, multi) {
         `;
         
         items.forEach((item, index) => {
+            const rarityColor = {
+                common: '#808080',
+                uncommon: '#00b85c',
+                rare: '#5c7cfa',
+                epic: '#9d4edd',
+                legendary: '#ff9e4d'
+            }[item.rarity || 'common'];
+            
             resultsHTML += `
-                <div style="border: 2px solid var(--border); padding: 10px; text-align: center; background: var(--bg-panel);">
-                    <div style="font-size: 24px; margin-bottom: 10px;">
-                        ${item.image_url ? 
-                            `<img src="${item.image_url}" alt="${item.name}" style="width: 40px; height: 40px; object-fit: cover;">` : 
-                            `<i class="fas fa-question"></i>`
-                        }
+                <div style="border: 2px solid ${rarityColor}; padding: 10px; text-align: center; background: var(--bg-panel);">
+                    <div style="font-size: 24px; margin-bottom: 10px; color: ${rarityColor}">
+                        <i class="fas fa-${item.slot === 'weapon' ? 'sword' : 
+                                          item.slot === 'shield' ? 'shield-alt' : 
+                                          item.slot === 'helmet' ? 'helmet-battle' : 
+                                          item.slot === 'chest' ? 'vest' : 
+                                          item.slot === 'legs' ? 'running' : 
+                                          item.slot === 'boots' ? 'boot' : 'question'}"></i>
                     </div>
                     <div style="font-size: 12px; font-weight: 600;">${item.name || '-'}</div>
-                    <div style="font-size: 10px; color: #666;">${item.rarity || '-'}</div>
+                    <div style="font-size: 10px; color: ${rarityColor};">${item.rarity?.toUpperCase() || '-'}</div>
                 </div>
             `;
         });
@@ -1921,24 +2412,37 @@ function showGachaResults(items, multi) {
         `;
     } else {
         const item = items[0];
+        const rarityColor = {
+            common: '#808080',
+            uncommon: '#00b85c',
+            rare: '#5c7cfa',
+            epic: '#9d4edd',
+            legendary: '#ff9e4d'
+        }[item.rarity || 'common'];
+        
         resultsHTML = `
             <div style="text-align: center;">
                 <h3>YOU GOT!</h3>
-                <div class="pull-animation">
-                    ${item.image_url ? 
-                        `<img src="${item.image_url}" alt="${item.name}" style="max-width: 100px; max-height: 100px;">` : 
-                        `<i class="fas fa-gift" style="font-size: 64px;"></i>`
-                    }
+                <div class="pull-animation" style="color: ${rarityColor}">
+                    <i class="fas fa-${item.slot === 'weapon' ? 'sword' : 
+                                      item.slot === 'shield' ? 'shield-alt' : 
+                                      item.slot === 'helmet' ? 'helmet-battle' : 
+                                      item.slot === 'chest' ? 'vest' : 
+                                      item.slot === 'legs' ? 'running' : 
+                                      item.slot === 'boots' ? 'boot' : 'gift'}" 
+                       style="font-size: 64px;"></i>
                 </div>
-                <div style="margin-top: 20px; padding: 20px; background: var(--bg-panel); border: 2px solid var(--border);">
+                <div style="margin-top: 20px; padding: 20px; background: var(--bg-panel); border: 2px solid ${rarityColor};">
                     <h4>${item.name || '-'}</h4>
-                    <div class="item-rarity rarity-${item.rarity || 'common'}" style="margin: 10px auto; display: inline-block;">
+                    <div style="color: ${rarityColor}; margin: 10px auto; display: inline-block; padding: 5px 10px; border: 2px solid ${rarityColor}; font-weight: bold;">
                         ${item.rarity?.toUpperCase() || 'COMMON'}
                     </div>
                     <div style="margin-top: 10px;">
                         <div>Slot: ${item.slot || '-'}</div>
                         ${item.damage ? `<div>Damage: ${item.damage}</div>` : ''}
                         ${item.defense ? `<div>Defense: ${item.defense}</div>` : ''}
+                        ${item.health_bonus ? `<div>HP Bonus: ${item.health_bonus}</div>` : ''}
+                        ${item.crit_bonus ? `<div>Crit Bonus: ${(item.crit_bonus * 100).toFixed(1)}%</div>` : ''}
                     </div>
                 </div>
                 <div style="margin-top: 20px;">
@@ -1955,12 +2459,14 @@ function showGachaResults(items, multi) {
 
 // Refresh all data
 async function refreshData() {
-    await loadPlayerData();
-    await loadCurrentRun();
-    await loadGachaBanners();
-    await loadLeaderboard();
-    updateUI();
-    showNotification('Data refreshed', 'success');
+    await withLoading(async () => {
+        await loadPlayerData();
+        await loadCurrentRun();
+        await loadGachaBanners();
+        await loadLeaderboard();
+        updateUI();
+        showNotification('Data refreshed', 'success');
+    });
 }
 
 // Show notification
@@ -1968,6 +2474,27 @@ function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
     notification.textContent = message;
     notification.className = `notification ${type} show`;
+    
+    // Play sound effect if available
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = type === 'success' ? 800 : type === 'error' ? 400 : 600;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (e) {
+        // Audio not supported, ignore
+    }
     
     setTimeout(() => {
         notification.classList.remove('show');
@@ -1977,16 +2504,19 @@ function showNotification(message, type = 'success') {
 // Logout
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
-        showNotification('Logging out...', 'success');
+        // Clear all data
+        localStorage.removeItem('rpg-lobby-config');
+        localStorage.removeItem('rpg-game-state');
+        
+        showNotification('Logged out successfully', 'success');
         setTimeout(() => {
-            // In a real app, this would clear auth and redirect
-            alert('Logged out. Redirecting to login...');
-            // window.location.href = 'login.html';
+            // Reload page to reset state
+            window.location.reload();
         }, 1000);
     }
 }
 
-// Make functions globally available
+// Make functions globally available (for inline onclick handlers)
 window.openInventoryModal = openInventoryModal;
 window.closeInventoryModal = closeInventoryModal;
 window.openGachaModal = openGachaModal;
@@ -2005,6 +2535,8 @@ window.equipSlot = equipSlot;
 window.logout = logout;
 window.goToAdmin = goToAdmin;
 window.closeErrorModal = closeErrorModal;
+window.saveConfig = saveConfig;
+window.testConnection = testConnection;
 </script>
 </body>
 </html>
