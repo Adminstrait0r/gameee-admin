@@ -1200,7 +1200,7 @@ async function loadPlayerData() {
     try {
         // Get current user - TABLE IS 'users' (plural)
         const { data: users, error: usersError } = await supabase
-            .from('users')  // CHANGED FROM 'user' TO 'users'
+            .from('users')
             .select('*')
             .order('created_at', { ascending: true })
             .limit(1);
@@ -1224,7 +1224,7 @@ async function loadPlayerData() {
         document.getElementById('player-highscore').textContent = currentUser.highest_stage || '-';
         document.getElementById('gold-amount').textContent = currentUser.gold || '-';
         
-        // Get player stats - TABLE IS 'player_stats' (correct)
+        // Get player stats
         const { data: stats, error: statsError } = await supabase
             .from('player_stats')
             .select('*')
@@ -1244,7 +1244,7 @@ async function loadPlayerData() {
             return;
         }
         
-        // Get player equipment - TABLES ARE CORRECT
+        // Get player equipment
         const { data: equipment, error: equipmentError } = await supabase
             .from('player_equipment')
             .select(`
@@ -1300,14 +1300,14 @@ function updatePlayerAvatar() {
     pfp.innerHTML = `<span style="font-size: 20px; font-weight: bold;">${initials}</span>`;
 }
 
-// Load current active run - FIXED FOR DUPLICATE FOREIGN KEYS
+// Load current active run
 async function loadCurrentRun() {
     try {
         if (!currentUser) return;
         
         // First, get the run without the join
         const { data: runs, error } = await supabase
-            .from('run')
+            .from('runs')  // CHANGED FROM 'run' TO 'runs'
             .select('*')
             .eq('user_id', currentUser.id)
             .order('created_at', { ascending: false })
@@ -1324,7 +1324,7 @@ async function loadCurrentRun() {
             // Then get the monster separately if it exists
             if (currentRun.current_monster) {
                 const { data: monster, error: monsterError } = await supabase
-                    .from('monster')
+                    .from('monsters')  // CHANGED FROM 'monster' TO 'monsters'
                     .select('*')
                     .eq('id', currentRun.current_monster)
                     .single();
@@ -1356,12 +1356,12 @@ async function loadCurrentRun() {
     }
 }
 
-// Load gacha banners - FIXED FOR DUPLICATE FOREIGN KEYS
+// Load gacha banners
 async function loadGachaBanners() {
     try {
         // First get banners
         const { data: banners, error } = await supabase
-            .from('gacha_banners')  // CHANGED FROM 'gacha_banner' TO 'gacha_banners'
+            .from('gacha_banners')
             .select('*')
             .eq('is_active', true)
             .order('created_at', { ascending: false });
@@ -1376,7 +1376,7 @@ async function loadGachaBanners() {
         // Then get rates for each banner
         for (let banner of gachaBanners) {
             const { data: rates, error: ratesError } = await supabase
-                .from('gacha_rate')
+                .from('gacha_rates')  // CHANGED FROM 'gacha_rate' TO 'gacha_rates'
                 .select('*')
                 .eq('banner_id', banner.id);
             
@@ -1404,7 +1404,7 @@ async function loadGachaBanners() {
     }
 }
 
-// Load leaderboard - FIXED FOR DUPLICATE FOREIGN KEYS
+// Load leaderboard
 async function loadLeaderboard() {
     try {
         // First get leaderboard entries
@@ -1425,7 +1425,7 @@ async function loadLeaderboard() {
         // Get user data for each leaderboard entry
         for (let entry of leaderboardData) {
             const { data: user, error: userError } = await supabase
-                .from('users')  // CHANGED FROM 'user' TO 'users'
+                .from('users')
                 .select('username')
                 .eq('id', entry.user_id)
                 .single();
@@ -2045,7 +2045,7 @@ function equipSlot(slot) {
     }
 }
 
-// Start new run - CORRECTED TABLE NAMES
+// Start new run
 async function startNewRun() {
     try {
         if (!currentUser) return;
@@ -2053,7 +2053,7 @@ async function startNewRun() {
         await withLoading(async () => {
             // Get first monster for stage 1
             const { data: monsters, error: monstersError } = await supabase
-                .from('monster')
+                .from('monsters')  // CHANGED FROM 'monster' TO 'monsters'
                 .select('*')
                 .eq('stage', 1)
                 .limit(1);
@@ -2078,7 +2078,7 @@ async function startNewRun() {
             
             // Create new run
             const { data: run, error: runError } = await supabase
-                .from('run')
+                .from('runs')  // CHANGED FROM 'run' TO 'runs'
                 .insert([{
                     user_id: currentUser.id,
                     current_stage: 1,
@@ -2095,7 +2095,7 @@ async function startNewRun() {
             
             // Get the monster data for the run
             const { data: monsterData, error: monsterDataError } = await supabase
-                .from('monster')
+                .from('monsters')  // CHANGED FROM 'monster' TO 'monsters'
                 .select('*')
                 .eq('id', monster.id)
                 .single();
@@ -2145,14 +2145,14 @@ function continueRun() {
     }, 1000);
 }
 
-// Abandon run - CORRECTED TABLE NAME
+// Abandon run
 async function abandonRun() {
     if (!currentRun || !confirm('Are you sure you want to abandon this run? You will lose all progress.')) return;
     
     try {
         await withLoading(async () => {
             const { error } = await supabase
-                .from('run')
+                .from('runs')  // CHANGED FROM 'run' TO 'runs'
                 .delete()
                 .eq('id', currentRun.id);
             
@@ -2169,7 +2169,7 @@ async function abandonRun() {
     }
 }
 
-// Pull gacha - CORRECTED TABLE NAMES
+// Pull gacha
 async function pullGacha(bannerId, multi = false) {
     try {
         if (!currentUser) return;
@@ -2192,7 +2192,7 @@ async function pullGacha(bannerId, multi = false) {
             // Deduct gold
             const newGold = currentUser.gold - cost;
             const { error: goldError } = await supabase
-                .from('users')  // CHANGED FROM 'user' TO 'users'
+                .from('users')
                 .update({ gold: newGold })
                 .eq('id', currentUser.id);
             
@@ -2203,7 +2203,7 @@ async function pullGacha(bannerId, multi = false) {
             
             // Get gacha rates for this banner
             const { data: rates, error: ratesError } = await supabase
-                .from('gacha_rate')
+                .from('gacha_rates')  // CHANGED FROM 'gacha_rate' TO 'gacha_rates'
                 .select('*')
                 .eq('banner_id', bannerId);
             
