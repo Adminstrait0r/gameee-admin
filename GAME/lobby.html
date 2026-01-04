@@ -2105,7 +2105,7 @@ function equipSlot(slot) {
     }
 }
 
-// Start new run
+// Start new run - UPDATED TO REDIRECT TO GAME.HTML IMMEDIATELY
 async function startNewRun() {
     try {
         if (!currentUser) return;
@@ -2167,11 +2167,13 @@ async function startNewRun() {
             }
             
             currentRun = run;
-            updateRunDisplay();
-            showNotification('New run started! Good luck!', 'success');
+            showNotification('New run started! Redirecting to game...', 'success');
             
-            // Update UI
-            updateUI();
+            // REDIRECT IMMEDIATELY TO GAME.HTML WITH THE NEW RUN ID
+            setTimeout(() => {
+                window.location.href = `game.html?runId=${run.id}`;
+            }, 1000);
+            
         });
         
     } catch (error) {
