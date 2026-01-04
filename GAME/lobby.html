@@ -1190,7 +1190,7 @@ async function withLoading(fn) {
     }
 }
 
-// Load player data from database
+// Load player data from database - FIXED VERSION
 async function loadPlayerData() {
     if (!supabase) {
         showNotification('Database not configured', 'error');
@@ -1244,7 +1244,7 @@ async function loadPlayerData() {
             return;
         }
         
-        // Get player equipment
+        // Get player equipment - IMPORTANT FIX HERE
         const { data: equipment, error: equipmentError } = await supabase
             .from('player_equipment')
             .select(`
@@ -1253,29 +1253,41 @@ async function loadPlayerData() {
             `)
             .eq('user_id', currentUser.id);
         
-        if (!equipmentError) {
+        if (equipmentError) {
+            console.error('Error loading player equipment:', equipmentError);
+            playerEquipment = [];
+        } else {
             playerEquipment = equipment || [];
             
-            // Organize equipped items
+            console.log('Player equipment data:', playerEquipment); // Debug log
+            
+            // Organize equipped items - FIXED LOGIC
             equippedItems = {};
             playerEquipment.forEach(item => {
-                if (item.is_equipped && item.equipment) {
-                    const slot = item.equipment.slot.toLowerCase();
-                    equippedItems[slot] = {
-                        ...item.equipment,
-                        player_equipment_id: item.id,
-                        is_equipped: true
-                    };
+                if (item && item.equipment) {
+                    if (item.is_equipped) {
+                        const slot = item.equipment.slot ? item.equipment.slot.toLowerCase() : 'weapon';
+                        equippedItems[slot] = {
+                            ...item.equipment,
+                            player_equipment_id: item.id,
+                            is_equipped: true
+                        };
+                    }
                 }
             });
             
-            // All items for inventory
-            inventoryItems = playerEquipment.map(item => ({
-                ...item.equipment,
-                player_equipment_id: item.id,
-                is_equipped: item.is_equipped,
-                player_equipment_data: item
-            })).filter(item => item && item.id);
+            // All items for inventory - FIXED FILTERING
+            inventoryItems = playerEquipment
+                .filter(item => item && item.equipment)
+                .map(item => ({
+                    ...item.equipment,
+                    player_equipment_id: item.id,
+                    is_equipped: item.is_equipped,
+                    player_equipment_data: item
+                }));
+            
+            console.log('Inventory items:', inventoryItems); // Debug log
+            console.log('Equipped items:', equippedItems); // Debug log
         }
         
         console.log('Player data loaded successfully');
@@ -2176,7 +2188,7 @@ async function abandonRun() {
     }
 }
 
-// Pull gacha
+// Pull gacha - FIXED VERSION
 async function pullGacha(bannerId, multi = false) {
     try {
         if (!currentUser) return;
@@ -2221,7 +2233,6 @@ async function pullGacha(bannerId, multi = false) {
                 return;
             }
             
-            // Get equipment based on rarity
             const pulls = multi ? 10 : 1;
             const obtainedItems = [];
             
@@ -2251,18 +2262,22 @@ async function pullGacha(bannerId, multi = false) {
                     const item = equipment[0];
                     obtainedItems.push(item);
                     
-                    // Add to player inventory
-                    const { error: inventoryError } = await supabase
+                    // Add to player inventory - IMPORTANT: Ensure correct insertion
+                    const { data: insertedItem, error: inventoryError } = await supabase
                         .from('player_equipment')
                         .insert([{
                             user_id: currentUser.id,
                             equipment_id: item.id,
                             is_equipped: false,
                             obtained_at: new Date().toISOString()
-                        }]);
+                        }])
+                        .select();
                     
                     if (inventoryError) {
                         console.error('Error adding item to inventory:', inventoryError);
+                        showNotification('Error adding item to inventory: ' + inventoryError.message, 'error');
+                    } else {
+                        console.log('Item added to inventory:', insertedItem);
                     }
                 } else {
                     console.warn(`No equipment found for rarity: ${selectedRarity}`);
@@ -2275,10 +2290,14 @@ async function pullGacha(bannerId, multi = false) {
             // Show results
             showGachaResults(validItems, multi);
             
-            // Refresh inventory and banners
+            // Immediately refresh player data to show new items
             await loadPlayerData();
-            await loadGachaBanners();
             updateUI();
+            
+            // Also reload gacha banners to update costs
+            await loadGachaBanners();
+            
+            showNotification(multi ? '10-pull completed!' : 'Item obtained!', 'success');
         });
         
     } catch (error) {
@@ -2292,7 +2311,7 @@ function pullGachaMulti(bannerId) {
     pullGacha(bannerId, true);
 }
 
-// Show gacha results - FIXED VERSION
+// Show gacha results
 function showGachaResults(items, multi) {
     const modal = document.getElementById('gacha-modal');
     const contentDiv = document.getElementById('gacha-content');
