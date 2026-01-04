@@ -1217,6 +1217,7 @@ async function loadPlayerData() {
         }
         
         currentUser = users[0];
+        console.log('Current user loaded:', currentUser);
         updatePlayerAvatar();
         
         // Update player info
@@ -1233,50 +1234,87 @@ async function loadPlayerData() {
         
         if (statsError) {
             console.error('Error loading player stats:', statsError);
-            showError('Missing Player Stats', 'Please set up player stats in the admin panel.');
-            return;
-        }
-        
-        if (stats) {
+            // Don't show error, just create default stats
+            playerStats = {
+                base_hp: 100,
+                base_damage: 10,
+                base_defense: 5,
+                crit_chance: 0.05
+            };
+        } else if (stats) {
             playerStats = stats;
         } else {
-            showError('Missing Player Stats', 'Please set up player stats in the admin panel.');
-            return;
+            // Create default stats if none exist
+            playerStats = {
+                base_hp: 100,
+                base_damage: 10,
+                base_defense: 5,
+                crit_chance: 0.05
+            };
         }
         
-        // Get player equipment - IMPORTANT FIX HERE
-        const { data: equipment, error: equipmentError } = await supabase
+        // Get player equipment - FIXED QUERY BASED ON YOUR SCHEMA
+        console.log('Fetching player equipment for user:', currentUser.id);
+        const { data: playerEquipmentData, error: playerEquipmentError } = await supabase
             .from('player_equipment')
-            .select(`
-                *,
-                equipment:equipment_id (*)
-            `)
+            .select('*')
             .eq('user_id', currentUser.id);
         
-        if (equipmentError) {
-            console.error('Error loading player equipment:', equipmentError);
+        if (playerEquipmentError) {
+            console.error('Error loading player equipment:', playerEquipmentError);
+            console.error('Error details:', playerEquipmentError.message);
             playerEquipment = [];
         } else {
-            playerEquipment = equipment || [];
+            playerEquipment = playerEquipmentData || [];
+            console.log('Raw player equipment data:', playerEquipment);
             
-            console.log('Player equipment data:', playerEquipment); // Debug log
+            // Get all equipment details for the items
+            if (playerEquipment.length > 0) {
+                const equipmentIds = playerEquipment.map(item => item.equipment_id).filter(id => id);
+                console.log('Equipment IDs to fetch:', equipmentIds);
+                
+                if (equipmentIds.length > 0) {
+                    const { data: equipmentDetails, error: equipmentDetailsError } = await supabase
+                        .from('equipment')
+                        .select('*')
+                        .in('id', equipmentIds);
+                    
+                    if (!equipmentDetailsError && equipmentDetails) {
+                        console.log('Equipment details fetched:', equipmentDetails);
+                        
+                        // Map equipment details to player equipment
+                        playerEquipment = playerEquipment.map(playerItem => {
+                            const detail = equipmentDetails.find(e => e.id === playerItem.equipment_id);
+                            return {
+                                ...playerItem,
+                                equipment: detail || null
+                            };
+                        });
+                    } else if (equipmentDetailsError) {
+                        console.error('Error fetching equipment details:', equipmentDetailsError);
+                    }
+                }
+            }
             
-            // Organize equipped items - FIXED LOGIC
+            console.log('Processed player equipment:', playerEquipment);
+            
+            // Organize equipped items
             equippedItems = {};
             playerEquipment.forEach(item => {
-                if (item && item.equipment) {
-                    if (item.is_equipped) {
-                        const slot = item.equipment.slot ? item.equipment.slot.toLowerCase() : 'weapon';
-                        equippedItems[slot] = {
-                            ...item.equipment,
-                            player_equipment_id: item.id,
-                            is_equipped: true
-                        };
-                    }
+                if (item && item.equipment && item.is_equipped) {
+                    const slot = item.equipment.slot ? item.equipment.slot.toLowerCase() : 'weapon';
+                    equippedItems[slot] = {
+                        ...item.equipment,
+                        player_equipment_id: item.id,
+                        is_equipped: true
+                    };
+                    console.log(`Equipped item in slot ${slot}:`, item.equipment.name);
                 }
             });
             
-            // All items for inventory - FIXED FILTERING
+            console.log('Equipped items:', equippedItems);
+            
+            // All items for inventory
             inventoryItems = playerEquipment
                 .filter(item => item && item.equipment)
                 .map(item => ({
@@ -1286,8 +1324,7 @@ async function loadPlayerData() {
                     player_equipment_data: item
                 }));
             
-            console.log('Inventory items:', inventoryItems); // Debug log
-            console.log('Equipped items:', equippedItems); // Debug log
+            console.log('Inventory items:', inventoryItems);
         }
         
         console.log('Player data loaded successfully');
@@ -1702,6 +1739,9 @@ async function openInventoryModal() {
     const modal = document.getElementById('inventory-modal');
     const itemsDiv = document.getElementById('inventory-items');
     
+    // Refresh inventory data first
+    await loadPlayerData();
+    
     if (!inventoryItems || inventoryItems.length === 0) {
         itemsDiv.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
@@ -1867,6 +1907,9 @@ function closeInventoryModal() {
 async function openGachaModal() {
     const modal = document.getElementById('gacha-modal');
     const contentDiv = document.getElementById('gacha-content');
+    
+    // Refresh gacha data first
+    await loadGachaBanners();
     
     if (gachaBanners.length === 0) {
         contentDiv.innerHTML = `
