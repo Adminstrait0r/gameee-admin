@@ -2180,31 +2180,20 @@ async function startNewRun() {
     }
 }
 
-// Continue run
+// Continue run - UPDATED TO REDIRECT TO GAME.HTML
 function continueRun() {
     if (!currentRun) {
         showNotification('No active run. Start a new one!', 'warning');
         return;
     }
     
-    // Store game state for the gameplay page
-    const gameState = {
-        run: currentRun,
-        playerStats: playerStats,
-        equippedItems: equippedItems,
-        inventory: inventoryItems,
-        user: currentUser
-    };
-    
-    localStorage.setItem('rpg-game-state', JSON.stringify(gameState));
-    
-    showNotification(`Continuing to stage ${currentRun.current_stage}...`, 'success');
-    
-    // In a real implementation, this would redirect to the game page
-    setTimeout(() => {
-        alert('Game would start here. In a full implementation, this would redirect to gameplay.html');
-        // window.location.href = 'gameplay.html?runId=' + currentRun.id;
-    }, 1000);
+    // Redirect to game.html with the run ID
+    if (currentRun && currentRun.id) {
+        window.location.href = `game.html?runId=${currentRun.id}`;
+    } else {
+        showNotification('No active run found. Starting new run...', 'warning');
+        startNewRun();
+    }
 }
 
 // Abandon run
